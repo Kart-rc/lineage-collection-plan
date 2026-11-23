@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lineage Starter Kit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: one reading column with a sticky section bar; the plan is a ticked checklist, the simulator is the one wide visual. */
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --sunk: #eceef2; --line: #d8dce3;
+  --ink: #16202c; --muted: #5a6575; --accent: #0b6e62; --accent-soft: #d9efeb;
+  --warn: #a35a00; --warn-soft: #fbead2; --miss: #b3261e; --miss-soft: #f8dedb;
+  --code-bg: #0f1722; --code-ink: #dbe4ee;
+  --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --sunk: #1e252e; --line: #2c3540;
+  --ink: #e6ebf1; --muted: #9aa6b4; --accent: #4fc2b1; --accent-soft: #163a36;
+  --warn: #f0a94b; --warn-soft: #3a2a12; --miss: #f08a80; --miss-soft: #3d1f1c;
+  --code-bg: #0a0e13; --code-ink: #dbe4ee; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --sunk: #1e252e; --line: #2c3540;
+  --ink: #e6ebf1; --muted: #9aa6b4; --accent: #4fc2b1; --accent-soft: #163a36;
+  --warn: #f0a94b; --warn-soft: #3a2a12; --miss: #f08a80; --miss-soft: #3d1f1c;
+  --code-bg: #0a0e13; --code-ink: #dbe4ee; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.6 var(--f-body); }
+.wrap { max-width: 980px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 64px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 24px; font-weight: 600; }
+h3 { font-size: 17px; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+code { font-family: var(--f-mono); font-size: 0.88em; background: var(--sunk); padding: 1px 5px; border-radius: 4px; }
+.eyebrow { font: 500 12px/1 var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.muted { color: var(--muted); }
+header.top { padding-block: 40px 20px; display: grid; gap: 14px; }
+.slice { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 12.5px/1.3 var(--f-mono); color: var(--muted); }
+.slice span.n { background: var(--surface); border: 1px solid var(--line); padding: 3px 8px; border-radius: 4px; color: var(--ink); }
+nav.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); display: flex; gap: 4px; overflow-x: auto; padding-block: 8px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+nav.bar a { flex: none; text-decoration: none; color: var(--muted); font: 500 13.5px/1 var(--f-body); padding: 8px 12px; border-radius: 6px; }
+nav.bar a:hover, nav.bar a:focus-visible { color: var(--ink); background: var(--sunk); outline: none; }
+nav.bar .prog { margin-left: auto; flex: none; display: flex; align-items: center; gap: 8px; font: 12.5px var(--f-mono); color: var(--muted); padding-right: 4px; }
+.meter { width: 90px; height: 6px; background: var(--sunk); border-radius: 3px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+section { padding-top: 44px; display: grid; gap: 16px; scroll-margin-top: 60px; }
+.lede { font-size: 16.5px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+/* checklist */
+.week { display: grid; gap: 0; }
+.week-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.week-head .count { margin-left: auto; font: 12.5px var(--f-mono); color: var(--muted); }
+.task { border-bottom: 1px solid var(--line); }
+.task:last-child { border-bottom: 0; }
+.task-row { display: grid; grid-template-columns: auto 54px 1fr auto; gap: 10px; align-items: start; padding: 11px 16px; }
+.task-row input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); cursor: pointer; }
+.day { font: 500 12px/1.9 var(--f-mono); color: var(--muted); }
+.task-title { min-width: 0; }
+.task.done .task-title { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+button.more { background: none; border: 1px solid var(--line); color: var(--muted); font: 12px var(--f-body); border-radius: 5px; padding: 3px 9px; cursor: pointer; }
+button.more:hover, button.more:focus-visible { color: var(--ink); border-color: var(--muted); outline: none; }
+.task-body { padding: 0 16px 14px 98px; display: grid; gap: 8px; color: var(--ink); }
+.task-body .dw { font-size: 13.5px; background: var(--accent-soft); border-radius: 6px; padding: 7px 10px; }
+.task-body .dw b { font-weight: 600; }
+.who { font: 12px var(--f-mono); color: var(--muted); }
+@media (max-width: 560px) { .task-row { grid-template-columns: auto 1fr auto; } .day { grid-column: 2; grid-row: 1; } .task-title { grid-column: 2; } .task-row button.more { grid-row: 1 / span 2; grid-column: 3; } .task-body { padding-left: 16px; } }
+/* walkthrough */
+.steps { display: grid; gap: 12px; counter-reset: s; }
+.step { padding: 16px; display: grid; gap: 10px; }
+.step h3 { display: flex; gap: 10px; align-items: baseline; }
+.step h3::before { counter-increment: s; content: counter(s); font: 600 13px var(--f-mono); color: var(--accent); }
+.code { position: relative; min-width: 0; }
+.code pre { margin: 0; background: var(--code-bg); color: var(--code-ink); font: 12.5px/1.55 var(--f-mono); padding: 14px 16px; border-radius: 8px; overflow-x: auto; max-height: 420px; }
+.code .cap { display: flex; justify-content: space-between; align-items: center; gap: 8px; font: 12px var(--f-mono); color: var(--muted); margin-bottom: 6px; }
+.code button { background: var(--surface); border: 1px solid var(--line); color: var(--ink); font: 12px var(--f-body); border-radius: 5px; padding: 3px 10px; cursor: pointer; }
+.out { background: var(--sunk); border-radius: 8px; padding: 12px 14px; font: 12px/1.6 var(--f-mono); overflow-x: auto; white-space: pre; }
+/* simulator */
+.sim { padding: 16px; display: grid; gap: 14px; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.controls .clock { font: 600 15px var(--f-mono); min-width: 150px; }
+.controls input[type=range] { flex: 1 1 220px; accent-color: var(--accent); }
+.btn { background: var(--accent); color: var(--surface); border: 0; font: 600 13px var(--f-body); border-radius: 6px; padding: 7px 14px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn:focus-visible, .toggle:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fixes { display: flex; flex-wrap: wrap; gap: 8px; }
+.toggle { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px 5px 8px; font-size: 13px; cursor: pointer; background: var(--surface); }
+.toggle input { accent-color: var(--accent); }
+.graph { overflow-x: auto; }
+.graph svg { width: 100%; min-width: 640px; height: auto; display: block; }
+.score { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.stat { background: var(--sunk); border-radius: 8px; padding: 10px 12px; display: grid; gap: 2px; }
+.stat .v { font: 600 22px var(--f-display); font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 12.5px; color: var(--muted); }
+.stat.pass .v { color: var(--accent); } .stat.fail .v { color: var(--miss); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--muted); }
+.legend i { display: inline-block; width: 22px; height: 0; border-top: 2.5px solid; vertical-align: middle; margin-right: 6px; }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 560px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 12px var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+td.mono { font: 12.5px var(--f-mono); }
+.pill { display: inline-block; font: 600 11.5px/1 var(--f-body); padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
+.pill.found { background: var(--accent-soft); color: var(--accent); }
+.pill.missing { background: var(--miss-soft); color: var(--miss); }
+.pill.unexp { background: var(--warn-soft); color: var(--warn); }
+.pill.wait { background: var(--sunk); color: var(--muted); }
+.gate { display: grid; gap: 0; }
+.gate-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); align-items: center; }
+.gate-row:last-child { border-bottom: 0; }
+.gate-row p { font-size: 13.5px; color: var(--muted); }
+ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 70ch; }
+.note { font-size: 13.5px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* tabs and the readiness tab */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; padding-bottom: 14px; }
+.tabs button { font: 600 14px var(--f-body); color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--surface); background: var(--ink); border-color: var(--ink); }
+.tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rg-glance { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.rg-glance .panel { padding: 14px 16px; display: grid; gap: 6px; align-content: start; }
+.rg-glance .k { font: 500 11.5px var(--f-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.rg-glance b { font: 600 16px/1.3 var(--f-display); }
+.rg-glance p { font-size: 13.5px; color: var(--muted); }
+.rg-sys { display: grid; grid-template-columns: 1fr 1.1fr 1fr; gap: 12px; align-items: stretch; }
+@media (max-width: 760px) { .rg-sys { grid-template-columns: 1fr; } }
+.rg-sys .panel { padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+.rg-sys h3 { font-size: 15px; }
+.rg-sys ul { margin: 0; padding-left: 18px; display: grid; gap: 5px; font-size: 13.5px; }
+.rg-sys .stock { border: 2px solid var(--accent); }
+.rg-sys .arrowh { font: 12px var(--f-mono); color: var(--muted); }
+.rg-loops { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.rg-loops .panel { padding: 12px 14px; font-size: 13.5px; display: grid; gap: 4px; }
+.rg-loops .lt { font: 600 13px var(--f-mono); }
+.rg-loops .r .lt { color: var(--accent); } .rg-loops .b .lt { color: var(--warn); }
+.rg-cost { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 700px) { .rg-cost { grid-template-columns: 1fr; } }
+.rg-cost .panel { padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+.rg-cost ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13.5px; }
+.rg-cost .act { border-top: 3px solid var(--accent); } .rg-cost .not { border-top: 3px solid var(--miss); }
+.rg-cost .bad { grid-column: 1 / -1; border-top: 3px solid var(--warn); }
+.rg-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.rg-chip { font: 500 13px var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.rg-chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.rg-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rg-count { margin-left: auto; font: 12.5px var(--f-mono); color: var(--muted); }
+.rg-list { display: grid; gap: 10px; }
+.rg-as { padding: 12px 16px; display: grid; gap: 8px; }
+.rg-as .top { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+.rg-as .stmt { font-weight: 600; font-size: 14.5px; flex: 1 1 360px; }
+.rg-as .stmt .id { font: 600 12px var(--f-mono); color: var(--muted); margin-right: 6px; }
+.rg-as dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: 13.5px; }
+.rg-as dt { color: var(--muted); }
+.rg-as dd { margin: 0; }
+.rg-as label { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); cursor: pointer; }
+.rg-as label input { accent-color: var(--accent); width: 16px; height: 16px; }
+.rg-as.ok { border-color: var(--accent); }
+.rg-as.riskiest { box-shadow: 0 0 0 2px var(--miss) inset; }
+.rg-why { display: grid; gap: 0; counter-reset: w; }
+.rg-why .w { display: grid; grid-template-columns: 74px 1fr; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.rg-why .w:last-child { border-bottom: 0; }
+.rg-why .w .q { font: 600 12px var(--f-mono); color: var(--accent); padding-top: 2px; }
+.rg-why .w p { font-size: 14px; }
+.rg-why .w p b { font-weight: 600; }
+.rg-why .w.root { background: var(--accent-soft); border-radius: 0 0 10px 10px; }
+.rg-risk { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 760px) { .rg-risk { grid-template-columns: 1fr; } }
+.rg-heat { padding: 14px; display: grid; gap: 10px; }
+.rg-grid { display: grid; grid-template-columns: 22px repeat(3, 1fr); grid-template-rows: repeat(3, 84px) 22px; gap: 4px; }
+.rg-cell { border-radius: 6px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 4px; padding: 5px; }
+.rg-cell.h3 { background: var(--miss-soft); } .rg-cell.h2 { background: var(--warn-soft); } .rg-cell.h1 { background: var(--sunk); }
+.rg-ax { font: 11px var(--f-mono); color: var(--muted); display: flex; align-items: center; justify-content: center; }
+.rg-ax.y { writing-mode: vertical-rl; transform: rotate(180deg); }
+.rg-dot { font: 600 11.5px/1 var(--f-mono); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 5px 7px; cursor: pointer; }
+.rg-dot.sel { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.rg-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.rg-detail { padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
+.rg-detail h3 { font-size: 17px; }
+.rg-detail dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0; font-size: 13.5px; }
+.rg-detail dt { color: var(--muted); }
+.rg-detail dd { margin: 0; }
+.rg-lvl { font: 600 12px var(--f-mono); }
+.rg-ready-top { padding: 14px 16px; display: grid; gap: 10px; }
+.rg-go { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.rg-go .v { font: 600 22px var(--f-display); }
+.rg-go .meter { flex: 1 1 200px; height: 8px; background: var(--sunk); border-radius: 4px; overflow: hidden; }
+.rg-go .meter i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+.rg-grp { padding: 0; }
+.rg-grp h3 { font-size: 15px; padding: 12px 16px 4px; }
+.rg-item { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 12px; padding: 10px 16px; border-top: 1px solid var(--line); align-items: start; }
+.rg-item:first-of-type { border-top: 0; }
+.rg-item input { accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; }
+.rg-item .t { font-weight: 500; font-size: 14px; }
+.rg-item .h { grid-column: 2 / -1; font-size: 13px; color: var(--muted); }
+.rg-item.done .t { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+@media (max-width: 560px) { .rg-item { grid-template-columns: auto 1fr; } .rg-item .pill { grid-column: 2; justify-self: start; } }
+.pill.block { background: var(--miss-soft); color: var(--miss); }
+.pill.soon { background: var(--warn-soft); color: var(--warn); }
+.pill.ok { background: var(--accent-soft); color: var(--accent); }
+</style>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Lineage collection · first 30 days</div>
+  <h1>Lineage Starter Kit</h1>
+  <p class="lede">What to set up before day 1, what to do each day for the first month, and how to stand up the first collector, gateway and mesh logs, on the card-payments slice. By day 30 you get a first read on the phase 1 gate: at least 90% of the slice's hand-checked service calls found automatically.</p>
+  <div class="slice" aria-label="The card-payments slice">
+    <span class="n">payments-svc</span>→<span class="n">auth.events.v1</span>→<span class="n">txn-enrichment</span>→<span class="n">auth.enrich.v1</span>→<span class="n">raw.card_auth</span>→<span class="n">fct_card_auth</span>→<span class="n">mcc_decline_7d</span>→<span class="n">fraud-score-v12</span>→<span class="n">fraud-svc</span>
+  </div>
+  <p class="note">Your ticks are saved in this browser only. Names of services outside the slice path (token-svc, case-mgmt and so on) are examples; swap in your own.</p>
+</header>
+<div class="tabs" role="tablist" aria-label="Starter Kit views">
+  <button type="button" role="tab" id="tabbtn-plan" data-tab="plan" aria-controls="tab-plan" aria-selected="true">The 30-day plan</button>
+  <button type="button" role="tab" id="tabbtn-ready" data-tab="ready" aria-controls="tab-ready" aria-selected="false">Assumptions, risks and readiness</button>
+</div>
+<div id="tab-plan" role="tabpanel" aria-labelledby="tabbtn-plan">
+
+
+<nav class="bar" aria-label="Sections">
+  <a href="#before">Before day 1</a><a href="#plan">30-day plan</a><a href="#collector">First collector</a><a href="#sim">Simulator</a><a href="#confirm">Confirm</a><a href="#gate">Gate</a>
+  <span class="prog"><span id="progText">0 of 0</span><span class="meter"><i id="progBar"></i></span></span>
+</nav>
+
+<section id="before">
+  <div class="eyebrow">Step 0</div>
+  <h2>Before day 1: people, access and logs</h2>
+  <p>Most first months stall on access, not code. Start these requests a week or two early, because each one waits on another team.</p>
+  <div class="panel week" id="list-before"></div>
+</section>
+
+<section id="plan">
+  <div class="eyebrow">Days 1 to 22</div>
+  <h2>The 30-day plan, day by day</h2>
+  <p>Thirty calendar days is about 22 working days. Week 1 is phase 0 from the plan (decide and draw the golden graph). Weeks 2 to 4 are the first half of phase 1 (gateway edges). Open any task for how to do it and what done looks like.</p>
+  <div id="weeks" style="display:grid;gap:14px"></div>
+</section>
+
+<section id="collector">
+  <div class="eyebrow">Phase 1 collector</div>
+  <h2>Stand up the first collector: gateway and mesh logs</h2>
+  <p>Why this one first: the logs already exist, nobody has to change their code, and within an hour of running it you see which services really call which. It only sees HTTP and gRPC calls, so topics, tables and models wait for later collectors.</p>
+  <div class="steps">
+    <div class="panel step">
+      <h3>Make the mesh log who called whom</h3>
+      <p>Envoy's default log line has no caller identity. Add the caller's mTLS identity and the <code>x-client-id</code> header to the JSON format, for the slice namespaces first.</p>
+      <div class="code"><div class="cap"><span>istio meshConfig</span><button data-copy="c-envoy">Copy</button></div><pre id="c-envoy"></pre></div>
+    </div>
+    <div class="panel step">
+      <h3>Ship the logs into an Iceberg table</h3>
+      <p>Most EKS clusters already send sidecar logs to CloudWatch through Fluent Bit. Add a subscription filter that forwards call lines to Firehose, which writes them to <code>gw_access_raw</code>. The collector only ever reads that table.</p>
+      <div class="code"><div class="cap"><span>lineage-infra/terraform/gw_logs.tf</span><button data-copy="c-tf">Copy</button></div><pre id="c-tf"></pre></div>
+      <p class="note">Provider field names for Firehose's Iceberg destination change between AWS provider versions, so check them against yours.</p>
+    </div>
+    <div class="panel step">
+      <h3>Write the golden graph and the alias seed</h3>
+      <p>The golden graph is the slice's service calls as its owners know them, written down in week 1. The alias seed maps the names the logs use to one URN per service. Registry crawlers fill this table from phase 2; for now it is a hand-written file.</p>
+      <div class="code"><div class="cap"><span>golden.json and aliases.json</span><button data-copy="c-golden">Copy</button></div><pre id="c-golden"></pre></div>
+    </div>
+    <div class="panel step">
+      <h3>Run it locally first</h3>
+      <p>This script needs only Python 3. Run it as is to see the sample output below, then point it at a one-day export of your own logs. It builds the edges, checks them against the golden graph and scores the gate.</p>
+      <div class="code"><div class="cap"><span>first_edges.py</span><button data-copy="c-py">Copy</button></div><pre id="c-py"></pre></div>
+      <div class="code"><div class="cap"><span>python3 first_edges.py · sample output</span></div><div class="out" id="c-out"></div></div>
+    </div>
+    <div class="panel step">
+      <h3>Move it to EMR Serverless, hourly</h3>
+      <p>Same logic, reading the Iceberg table and publishing evidence with the shared library. Schedule it hourly with EventBridge Scheduler or Step Functions, and add a daily rollup run so low-volume calls are not missed.</p>
+      <div class="code"><div class="cap"><span>lineage-collectors/gateway/build_edges.py</span><button data-copy="c-spark">Copy</button></div><pre id="c-spark"></pre></div>
+    </div>
+  </div>
+</section>
+
+<section id="sim">
+  <div class="eyebrow">Simulator</div>
+  <h2>Watch the first edges appear</h2>
+  <p>This is what the first three days of the collector look like on the slice. The golden graph has 10 service calls. Play the clock, then switch on the fixes that week 4 is for and see the gate move. The data is illustrative.</p>
+  <div class="panel sim">
+    <div class="controls">
+      <button class="btn" id="play" type="button">Play</button>
+      <button class="btn ghost" id="reset" type="button">Reset</button>
+      <span class="clock" id="clock">Mon 09:00</span>
+      <input type="range" id="hour" min="0" max="72" value="0" aria-label="Hours since the collector started">
+    </div>
+    <div class="fixes" role="group" aria-label="Fixes">
+      <label class="toggle"><input type="checkbox" id="fixHeader"> Unmeshed callers send <code>x-client-id</code></label>
+      <label class="toggle"><input type="checkbox" id="fixRollup"> Daily rollup for quiet calls</label>
+      <label class="toggle"><input type="checkbox" id="fixExclude"> Exclude load-test traffic</label>
+    </div>
+    <div class="graph"><svg id="g" viewBox="0 0 760 440" role="img" aria-label="Service call graph for the slice, filling in as the collector runs"></svg></div>
+    <div class="legend"><span><i style="border-color:var(--accent)"></i>Found, in golden graph</span><span><i style="border-color:var(--miss);border-top-style:dashed"></i>Golden, not found yet</span><span><i style="border-color:var(--warn)"></i>Found, not in golden graph</span></div>
+    <div class="score" id="score"></div>
+  </div>
+</section>
+
+<section id="confirm">
+  <div class="eyebrow">Check against the baseline</div>
+  <h2>Confirm the first edges</h2>
+  <p>Every edge the collector finds lands in one of three buckets. The table follows the simulator, so set the clock and fixes above and read the verdict here.</p>
+  <div class="panel tbl"><table><thead><tr><th>Call</th><th>Status</th><th>Why, and what to do</th></tr></thead><tbody id="rows"></tbody></table></div>
+  <ul class="plain">
+    <li><b>Found and in the golden graph:</b> spot-check three by hand. Open the edge's raw log rows and confirm the route and volume look right.</li>
+    <li><b>In the golden graph but missing:</b> find out why before changing anything. The usual causes are a caller with no identity, a call too quiet for the hourly threshold, or a call that is not HTTP at all, which belongs to a later collector.</li>
+    <li><b>Found but not in the golden graph:</b> ask the callee's owner. A real dependency nobody listed goes into the golden graph with an owner. Test or health traffic gets an exclusion rule.</li>
+  </ul>
+</section>
+
+<section id="gate">
+  <div class="eyebrow">Day 30 readout</div>
+  <h2>The first exit gate</h2>
+  <p>The plan's formal phase 1 gate is at the end of week 5. Day 30 is the first honest read of it, early enough to fix what it shows. The scorecard below follows the simulator.</p>
+  <div class="panel gate" id="gateRows"></div>
+  <p>What to show leaders on day 30: the slice's call graph drawn from logs alone, the recall against the golden graph, and the unexpected edges, because an undocumented caller of payments-svc is the story that makes the case for the next phase.</p>
+</section>
+</div>
+<div id="tab-ready" role="tabpanel" aria-labelledby="tabbtn-ready" hidden>
+<section id="r-glance" style="padding-top:8px">
+  <div class="eyebrow">Before you commit the team</div>
+  <h2>Assumptions, risks and what must be ready</h2>
+  <p>The 30-day plan rests on a handful of facts about your estate that this page can't check for you. This tab lists them, rates what could go wrong, and gives the checklist that decides whether day 1 can start. Your ticks here are saved in this browser only.</p>
+  <div class="rg-glance">
+    <div class="panel"><span class="k">Riskiest assumption</span><b>Every slice call carries a caller identity the logs can resolve.</b><p>Phase 1 counts an edge only when it knows who called. If a third of calls come from unmeshed jobs or shared service accounts, recall stalls well under 90% whatever the code does.</p></div>
+    <div class="panel"><span class="k">Top risk</span><b>Approval to export access logs across accounts arrives late.</b><p>It blocks day 1, it sits with security and the account owners rather than your team, and in a regulated estate it is often the longest wait.</p></div>
+    <div class="panel"><span class="k">Blocks day 1</span><b id="rgBlockHead">6 items</b><p>Owners, three engineers, platform AWS access, log access with security sign-off, one sample log line per source, and the repos. The checklist at the bottom tracks them.</p></div>
+  </div>
+</section>
+
+<section id="r-system">
+  <div class="eyebrow">Systems view</div>
+  <h2>What flows in, what builds up, what flows out</h2>
+  <p>Treat the first 30 days as a small system. The inflows are what other teams must give you; the stock is a call graph people trust; the outflows are what the business gets. Most month-one failures are a starved inflow, not a bug.</p>
+  <div class="rg-sys">
+    <div class="panel"><h3>Inflows</h3><ul>
+      <li><b>Access logs</b> from the mesh and API Gateway for the slice namespaces.</li>
+      <li><b>Owner knowledge:</b> about two hours from each of six owners in week 1, then minutes a week.</li>
+      <li><b>Engineer time:</b> three people for 22 working days.</li>
+      <li><b>Approvals:</b> security for log export, AWS access, the mesh log-format change.</li>
+      <li><b>Budget:</b> small AWS spend for slice-only logs.</li>
+    </ul></div>
+    <div class="panel stock"><h3>Stock: the slice call graph, and trust in it</h3>
+      <p style="font-size:13.5px">Trust builds when every edge traces to real log lines and owners have confirmed what they see. It drains through four leaks:</p>
+      <ul>
+        <li><b>Unknown callers</b> that never resolve to a service.</li>
+        <li><b>Stale edges</b> when services change and nobody re-checks.</li>
+        <li><b>Noise</b> from load tests and health checks.</li>
+        <li><b>Owner churn,</b> which leaves edges nobody can confirm.</li>
+      </ul></div>
+    <div class="panel"><h3>Outflows</h3><ul>
+      <li><b>A recall number</b> against the golden graph, and a go or no-go for phase 2.</li>
+      <li><b>Unexpected callers,</b> such as legacy-reporting reading payments-svc. Each one is a finding.</li>
+      <li><b>An unresolved-caller list</b> sent to the owners who can fix it.</li>
+      <li><b>A running pipeline</b> with alarms.</li>
+      <li><b>Reusable parts</b> for phase 2: the evidence library, the topic and core v1.</li>
+    </ul></div>
+  </div>
+  <div class="rg-loops">
+    <div class="panel r"><span class="lt">R · Trust loop (reinforcing)</span><p>Accurate edges get used, use brings owner corrections, and corrections make the edges more accurate. Start it on day 30 by showing one finding nobody knew about.</p></div>
+    <div class="panel b"><span class="lt">B · Review-load loop (balancing)</span><p>More callers bring more unexpected and unresolved edges, which means more owner reviews. Review time then caps how fast you can widen. Keep exclusions and the alias table current, or this loop throttles growth.</p></div>
+  </div>
+</section>
+
+<section id="r-cost">
+  <div class="eyebrow">Cost of acting and of not acting</div>
+  <h2>What the first month costs, against what waiting costs</h2>
+  <div class="rg-cost">
+    <div class="panel act"><h3>Acting now (30 days)</h3><ul>
+      <li>About three engineer-months, plus the work they would otherwise have done.</li>
+      <li>About 12 owner-hours in week 1, then a few minutes a week each.</li>
+      <li>A log-format change in the slice namespaces. It adds fields only and reverts as config.</li>
+      <li>Small AWS spend for slice-only logs. Size it from the sample hour: bytes per hour × 24 × 30.</li>
+    </ul></div>
+    <div class="panel not"><h3>Not acting</h3><ul>
+      <li>Every change like PR #482 relies on someone remembering its consumers.</li>
+      <li>Impact analysis stays a meeting or a thread for each change, and it gets slower as services grow.</li>
+      <li>Breaks surface downstream first, as in the illustrative case where a hotfix at 02:03 shows up as a DQ failure at 02:42.</li>
+      <li>Undocumented callers stay invisible until they break.</li>
+      <li>Audit and model-risk questions about where data came from are answered by hand each time.</li>
+    </ul></div>
+    <div class="panel bad"><h3>Acting badly costs more than waiting</h3><p style="font-size:13.5px">A graph people don't trust teaches them to ignore lineage, and that is harder to undo than having none. That is why the gate measures recall against owners' own view, and why every edge keeps a pointer to the raw lines behind it. Waiting has one cost that doesn't shrink: the approvals and owner time take as long next quarter as now. Start those requests even if the build waits.</p></div>
+  </div>
+</section>
+
+<section id="r-assume">
+  <div class="eyebrow">Assumptions</div>
+  <h2>What the plan assumes, and how to test each before you rely on it</h2>
+  <p>None of these has been checked against your estate. The first group is cheap to test before day 1, so test it then. Tick one once you've seen the evidence.</p>
+  <div class="rg-filters" role="group" aria-label="Filter assumptions">
+    <button class="rg-chip" type="button" data-f="all" aria-pressed="true">All</button>
+    <button class="rg-chip" type="button" data-f="pre" aria-pressed="false">Test before day 1</button>
+    <button class="rg-chip" type="button" data-f="early" aria-pressed="false">Test in weeks 1 to 2</button>
+    <button class="rg-chip" type="button" data-f="choice" aria-pressed="false">Design choices</button>
+    <span class="rg-count" id="rgAsCount"></span>
+  </div>
+  <div class="rg-list" id="rgAssume"></div>
+</section>
+
+<section id="r-why">
+  <div class="eyebrow">5 whys</div>
+  <h2>Why caller identity is the assumption to test first</h2>
+  <div class="panel rg-why" id="rgWhy"></div>
+</section>
+
+<section id="r-risks">
+  <div class="eyebrow">Risks</div>
+  <h2>Ten risks, rated, each with an early signal and a mitigation</h2>
+  <p>Likelihood and impact are rated low, medium or high for the slice in its first 30 days. Click a risk on the grid, and switch the view to see where the mitigations should move it.</p>
+  <div class="rg-filters" role="group" aria-label="Risk view">
+    <button class="rg-chip" type="button" data-v="before" aria-pressed="true">Before mitigation</button>
+    <button class="rg-chip" type="button" data-v="after" aria-pressed="false">After mitigation</button>
+  </div>
+  <div class="rg-risk">
+    <div class="panel rg-heat"><div class="rg-grid" id="rgGrid" aria-label="Risk grid: impact up, likelihood across"></div></div>
+    <div class="panel rg-detail" id="rgRiskDetail" aria-live="polite"></div>
+  </div>
+  <div class="tbl panel"><table>
+    <thead><tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Early signal</th><th>Owner</th></tr></thead>
+    <tbody id="rgRiskTable"></tbody>
+  </table></div>
+</section>
+
+<section id="r-ready">
+  <div class="eyebrow">Ready to start</div>
+  <h2>What must be in place before day 1</h2>
+  <p>Red items block day 1. Amber items can land in week 1, but late ones push the golden graph and everything after it.</p>
+  <div class="panel rg-ready-top">
+    <div class="rg-go"><span class="v" id="rgGoV">Not ready</span><span class="meter"><i id="rgGoBar"></i></span><span class="rg-count" id="rgGoCount"></span></div>
+    <p class="note" id="rgGoNote"></p>
+  </div>
+  <div id="rgReady" style="display:grid;gap:12px"></div>
+</section>
+</div>
+</div>
+<script type="text/plain" id="src-c-envoy">
+# Applied with istioctl or the IstioOperator / Helm values you already use
+meshConfig:
+  accessLogFile: /dev/stdout
+  accessLogEncoding: JSON
+  accessLogFormat: |
+    {"start_time":"%START_TIME%",
+     "method":"%REQ(:METHOD)%",
+     "path":"%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%",
+     "response_code":"%RESPONSE_CODE%",
+     "duration":"%DURATION%",
+     "upstream_cluster":"%UPSTREAM_CLUSTER%",
+     "downstream_peer_uri_san":"%DOWNSTREAM_PEER_URI_SAN%",
+     "x_client_id":"%REQ(X-CLIENT-ID)%"}
+
+# downstream_peer_uri_san is the caller's mTLS identity, for example
+#   spiffe://prod/ns/payments/sa/txn-enrichment
+# x_client_id covers callers without a sidecar. Ask those teams to send the header.
+</script>
+<script type="text/plain" id="src-c-tf">
+# Forward only service-call lines from the sidecar log group to Firehose
+resource "aws_cloudwatch_log_subscription_filter" "mesh_to_lineage" {
+  name            = "mesh-access-to-lineage"
+  log_group_name  = "/eks/prod/istio-proxy"            # where Fluent Bit already writes
+  filter_pattern  = "{ $.upstream_cluster = \"outbound*\" }"
+  destination_arn = aws_kinesis_firehose_delivery_stream.gw_access.arn
+  role_arn        = aws_iam_role.cwl_to_firehose.arn
+}
+
+# Firehose unpacks the CloudWatch envelope and writes rows to Iceberg
+resource "aws_kinesis_firehose_delivery_stream" "gw_access" {
+  name        = "lineage-gw-access"
+  destination = "iceberg"
+
+  iceberg_configuration {
+    role_arn    = aws_iam_role.firehose_to_iceberg.arn
+    catalog_arn = "arn:aws:glue:${var.region}:${var.account_id}:catalog"
+    buffering_interval = 300
+
+    destination_table_configuration {
+      database_name = "lineage"
+      table_name    = "gw_access_raw"
+    }
+
+    processing_configuration {
+      enabled = true
+      processors {
+        type = "Decompression"
+        parameters {
+          parameter_name  = "CompressionFormat"
+          parameter_value = "GZIP"
+        }
+      }
+      processors {
+        type = "CloudWatchLogProcessing"
+        parameters {
+          parameter_name  = "DataMessageExtraction"
+          parameter_value = "true"
+        }
+      }
+    }
+
+    s3_configuration {
+      role_arn   = aws_iam_role.firehose_to_iceberg.arn
+      bucket_arn = aws_s3_bucket.lineage_errors.arn   # failed records land here
+    }
+  }
+}
+</script>
+<script type="text/plain" id="src-c-golden">
+// golden.json: the slice's service calls, agreed with each owner in week 1
+[
+  ["svc://prod/card-gateway",   "svc://prod/payments-svc"],
+  ["svc://prod/payments-svc",   "svc://prod/token-svc"],
+  ["svc://prod/txn-enrichment", "svc://prod/fraud-svc"],
+  ["svc://prod/txn-enrichment", "svc://prod/merchant-svc"],
+  ["svc://prod/fraud-svc",      "svc://prod/fraud-score-prod"],
+  ["svc://prod/fraud-svc",      "svc://prod/case-mgmt"]
+]
+
+// aliases.json: every name the logs use, mapped to one URN
+{
+  "spiffe://prod/ns/edge/sa/card-gateway":       "svc://prod/card-gateway",
+  "spiffe://prod/ns/payments/sa/payments-svc":   "svc://prod/payments-svc",
+  "spiffe://prod/ns/payments/sa/txn-enrichment": "svc://prod/txn-enrichment",
+  "spiffe://prod/ns/fraud/sa/fraud-svc":         "svc://prod/fraud-svc",
+  "legacy-reporting":                            "svc://prod/legacy-reporting"
+}
+</script>
+<script type="text/plain" id="src-c-py">
+"""First edges from mesh access logs, checked against the golden graph.
+
+Runs as is with sample data:   python3 first_edges.py
+Run on a real export:          python3 first_edges.py access.jsonl golden.json aliases.json
+"""
+import json, re, sys
+from collections import Counter, defaultdict
+
+MIN_CALLS = 10                      # drop anything quieter than this per window
+SKIP_PATHS = {"/healthz", "/ready", "/metrics"}
+
+SAMPLE_LOGS = [  # (count, log line): stands in for one day of Envoy JSON logs
+    (41200, {"path": "/v1/score", "method": "POST", "upstream_cluster": "outbound|80||fraud-svc.fraud.svc.cluster.local",
+             "downstream_peer_uri_san": "spiffe://prod/ns/payments/sa/txn-enrichment"}),
+    (9800,  {"path": "/invocations", "method": "POST", "upstream_cluster": "outbound|443||fraud-score-prod.ml.svc.cluster.local",
+             "downstream_peer_uri_san": "spiffe://prod/ns/fraud/sa/fraud-svc"}),
+    (18240, {"path": "/v1/authorize", "method": "POST", "upstream_cluster": "outbound|80||payments-svc.payments.svc.cluster.local",
+             "downstream_peer_uri_san": "spiffe://prod/ns/edge/sa/card-gateway"}),
+    (18100, {"path": "/v1/tokens/9f1c2a7e-77b0", "method": "GET", "upstream_cluster": "outbound|80||token-svc.vault.svc.cluster.local",
+             "downstream_peer_uri_san": "spiffe://prod/ns/payments/sa/payments-svc"}),
+    (6400,  {"path": "/v2/merchants/4412aa90-1e2f", "method": "GET", "upstream_cluster": "outbound|80||merchant-svc.ref.svc.cluster.local",
+             "downstream_peer_uri_san": "", "x_client_id": ""}),            # caller has no sidecar and no header
+    (48,    {"path": "/v1/cases", "method": "POST", "upstream_cluster": "outbound|80||case-mgmt.fraud.svc.cluster.local",
+             "downstream_peer_uri_san": "spiffe://prod/ns/fraud/sa/fraud-svc"}),
+    (310,   {"path": "/v1/export", "method": "GET", "upstream_cluster": "outbound|80||payments-svc.payments.svc.cluster.local",
+             "downstream_peer_uri_san": "", "x_client_id": "legacy-reporting"}),
+    (2880,  {"path": "/healthz", "method": "GET", "upstream_cluster": "outbound|80||payments-svc.payments.svc.cluster.local",
+             "downstream_peer_uri_san": "spiffe://prod/ns/kube-system/sa/kubelet"}),
+]
+
+SAMPLE_GOLDEN = [  # hand-checked with the slice owners in week 1
+    ["svc://prod/card-gateway", "svc://prod/payments-svc"],
+    ["svc://prod/payments-svc", "svc://prod/token-svc"],
+    ["svc://prod/txn-enrichment", "svc://prod/fraud-svc"],
+    ["svc://prod/txn-enrichment", "svc://prod/merchant-svc"],
+    ["svc://prod/fraud-svc", "svc://prod/fraud-score-prod"],
+    ["svc://prod/fraud-svc", "svc://prod/case-mgmt"],
+]
+
+SAMPLE_ALIASES = {  # seeded by hand for the slice; registry crawlers take over in phase 2
+    "spiffe://prod/ns/payments/sa/txn-enrichment": "svc://prod/txn-enrichment",
+    "spiffe://prod/ns/payments/sa/payments-svc": "svc://prod/payments-svc",
+    "spiffe://prod/ns/fraud/sa/fraud-svc": "svc://prod/fraud-svc",
+    "spiffe://prod/ns/edge/sa/card-gateway": "svc://prod/card-gateway",
+    "legacy-reporting": "svc://prod/legacy-reporting",
+}
+
+def callee_urn(cluster):
+    host = cluster.split("||")[-1]                   # fraud-svc.fraud.svc.cluster.local
+    return "svc://prod/" + host.split(".")[0]
+
+def route(method, path):
+    return method + " " + re.sub(r"/[0-9a-f-]{8,}", "/{id}", path)
+
+def build_edges(lines, aliases):
+    calls, unresolved = Counter(), Counter()
+    routes = defaultdict(set)
+    for count, log in lines:
+        if log["path"] in SKIP_PATHS:
+            continue
+        raw_caller = log.get("downstream_peer_uri_san") or log.get("x_client_id") or ""
+        caller = aliases.get(raw_caller)
+        callee = callee_urn(log["upstream_cluster"])
+        if caller is None:
+            unresolved[callee] += count
+            continue
+        calls[(caller, callee)] += count
+        routes[(caller, callee)].add(route(log["method"], log["path"]))
+    edges = {k: v for k, v in calls.items() if v >= MIN_CALLS}
+    return edges, routes, unresolved
+
+def main():
+    if len(sys.argv) == 4:
+        lines = [(1, json.loads(l)) for l in open(sys.argv[1]) if l.strip()]
+        golden = json.load(open(sys.argv[2]))
+        aliases = json.load(open(sys.argv[3]))
+    else:
+        lines, golden, aliases = SAMPLE_LOGS, SAMPLE_GOLDEN, SAMPLE_ALIASES
+
+    edges, routes, unresolved = build_edges(lines, aliases)
+    golden_set = {tuple(e) for e in golden}
+    found = golden_set & edges.keys()
+    missing = golden_set - edges.keys()
+    unexpected = edges.keys() - golden_set
+
+    print("CALLS edges built from the logs")
+    for (a, b), n in sorted(edges.items(), key=lambda x: -x[1]):
+        mark = "golden" if (a, b) in golden_set else "NOT IN GOLDEN"
+        print(f"  {a:30} -> {b:28} {n:>7,} calls  {', '.join(sorted(routes[(a, b)]))}  [{mark}]")
+    print("\nMissing golden edges")
+    for a, b in sorted(missing):
+        why = "caller unresolved" if b in unresolved else "below threshold or not an HTTP call"
+        print(f"  {a} -> {b}   ({why})")
+    total_unresolved = sum(unresolved.values())
+    total = total_unresolved + sum(edges.values())
+    recall = len(found) / len(golden_set)
+    print(f"\nUnresolved caller traffic: {total_unresolved:,} of {total:,} calls ({total_unresolved / total:.1%})")
+    print(f"Golden edges found: {len(found)} of {len(golden_set)} = {recall:.0%}  "
+          f"(phase 1 gate needs 90%: {'PASS' if recall >= 0.9 else 'NOT YET'})")
+    print(f"Unexpected edges to review with owners: {len(unexpected)}")
+
+if __name__ == "__main__":
+    main()
+</script>
+<script type="text/plain" id="src-c-out">
+CALLS edges built from the logs
+  svc://prod/txn-enrichment      -> svc://prod/fraud-svc          41,200 calls  POST /v1/score  [golden]
+  svc://prod/card-gateway        -> svc://prod/payments-svc       18,240 calls  POST /v1/authorize  [golden]
+  svc://prod/payments-svc        -> svc://prod/token-svc          18,100 calls  GET /v1/tokens/{id}  [golden]
+  svc://prod/fraud-svc           -> svc://prod/fraud-score-prod    9,800 calls  POST /invocations  [golden]
+  svc://prod/legacy-reporting    -> svc://prod/payments-svc          310 calls  GET /v1/export  [NOT IN GOLDEN]
+  svc://prod/fraud-svc           -> svc://prod/case-mgmt              48 calls  POST /v1/cases  [golden]
+
+Missing golden edges
+  svc://prod/txn-enrichment -> svc://prod/merchant-svc   (caller unresolved)
+
+Unresolved caller traffic: 6,400 of 94,098 calls (6.8%)
+Golden edges found: 5 of 6 = 83%  (phase 1 gate needs 90%: NOT YET)
+Unexpected edges to review with owners: 1
+</script>
+<script type="text/plain" id="src-c-spark">
+# lineage-collectors/gateway/build_edges.py   (EMR Serverless, hourly)
+from pyspark.sql import SparkSession, functions as F
+from evidence.emit import Evidence          # the shared library from the build guide
+
+spark = SparkSession.builder.getOrCreate()
+hour = spark.conf.get("lineage.hour")       # e.g. 2026-11-12T01, passed by the scheduler
+window = spark.conf.get("lineage.window", "hour")   # "day" for the nightly rollup
+
+logs = spark.table("lineage.gw_access_raw")
+logs = logs.where(F.col("hour") == hour) if window == "hour" else \
+       logs.where(F.col("hour").startswith(hour[:10]))
+
+calls = (logs
+    .where(~F.col("path").isin("/healthz", "/ready", "/metrics"))
+    .withColumn("caller", F.coalesce(F.nullif(F.col("downstream_peer_uri_san"), F.lit("")),
+                                     F.nullif(F.col("x_client_id"), F.lit(""))))
+    .withColumn("callee", F.regexp_extract("upstream_cluster", r"\|\|(.+)$", 1))
+    .withColumn("route", F.concat_ws(" ", "method",
+                F.regexp_replace("path", r"/[0-9a-f-]{8,}", "/{id}"))))
+
+# Count unknown callers instead of dropping them: this is the phase 2 gate figure
+calls.where(F.col("caller").isNull()).groupBy("callee").count() \
+     .write.mode("append").saveAsTable("lineage.gw_unresolved")
+
+edges = (calls.where(F.col("caller").isNotNull())
+    .groupBy("caller", "callee", "route")
+    .agg(F.count("*").alias("calls"))
+    .where(F.col("calls") >= 10))
+
+ev = Evidence(bootstrap=spark.conf.get("lineage.bootstrap"),
+              producer_name="lineage-collectors/gateway@0.1.0")
+for r in edges.toLocalIterator():
+    ev.edge("CALLS", "mesh://prod", r.caller, "mesh://prod", r.callee, "gateway_log",
+            observed_at=f"{hour}:00:00Z", count=r.calls, route=r.route,
+            rawRef=f"gw_access_raw/hour={hour}")
+ev.flush()
+</script>
+<script>
+(function () {
+  const BEFORE = [
+    { id: 'p1', day: 'Prep', t: 'Name an owner on each of the six slice teams', how: 'Payments, streaming (txn-enrichment), analytics (dbt), feature store, the fraud model, and fraud-svc. Each owner gives about two hours in week 1 for the golden graph and a few minutes a week after that.', done: 'Six names, each with a backup.', who: 'You' },
+    { id: 'p2', day: 'Prep', t: 'Staff the first month: two platform backend engineers and one streaming engineer', how: 'The plan needs about six engineers by week 6. The first 30 days only need these three. The analytics, ML platform and developer productivity engineers can join from week 4.', done: 'Three engineers starting on day 1, with the other three dated.', who: 'You' },
+    { id: 'p3', day: 'Prep', t: 'Request AWS access for the platform account', how: 'MSK (one topic to start), an S3 bucket with the Glue catalog for Iceberg, EMR Serverless, EventBridge Scheduler or Step Functions, and Aurora Postgres for the alias table. In each producer account: read on the sidecar and API Gateway log groups, and permission to add a subscription filter.', done: 'A test role in the platform account can list the slice log groups.', who: 'Platform backend' },
+    { id: 'p4', day: 'Prep', t: 'Check that access logs exist for the slice', how: 'Look in CloudWatch for the Istio sidecar log group of the slice namespaces, and confirm API Gateway access logging is on for the card-gateway API. Note the log format each uses today.', done: 'One sample log line from each source, pasted into the project notes.', who: 'Streaming' },
+    { id: 'p5', day: 'Prep', t: 'Find out which callers are outside the mesh', how: 'List the slice namespaces with sidecar injection on, then any workload that calls a slice service without one: batch jobs, Lambda functions, older VMs. These become unresolved callers unless they send an x-client-id header.', done: 'A short list of unmeshed callers with their owners.', who: 'Streaming' },
+    { id: 'p6', day: 'Prep', t: 'Create the repos', how: 'lineage-infra for Terraform and Helm, lineage-platform for the core, lineage-collectors for the collectors and the shared evidence library. Add CI and code owners on day 1.', done: 'Three empty repos with CI that passes.', who: 'Platform backend' }
+  ];
+  const WEEKS = [
+    { name: 'Week 1: decide and draw the baseline', note: 'Phase 0', tasks: [
+      { id: 'd1', day: 'Day 1', t: 'Kick off with slice owners and make the three week-1 decisions', how: 'Graph store: Neptune if you want to own the model, DataHub if you want a UI and catalog from day one. Scope: which gateways and which mesh. Slice: confirm card payments, with PR #482 as the test change.', done: 'The three decisions written in one page that owners have seen.', who: 'You, platform backend' },
+      { id: 'd2', day: 'Day 2', t: 'Run the golden graph workshop', how: 'About 90 minutes per team. Ask each owner who calls their service, what it calls, which topics and tables it reads and writes. Draw it, then turn it into golden.json. Mark anything they are unsure of.', done: 'golden.json with every service call on the slice (10 in the simulator) and owners agreeing it is right.', who: 'You, slice owners' },
+      { id: 'd3', day: 'Day 3', t: 'Create the evidence topic and the raw tables with Terraform', how: 'MSK topic lineage.evidence, and Iceberg tables gw_access_raw and evidence_raw in the Glue catalog, partitioned by hour.', done: 'terraform apply is clean in the platform account.', who: 'Platform backend' },
+      { id: 'd4', day: 'Day 4', t: 'Write the evidence library, version 0.1', how: 'emit.py from the build guide: one envelope, the weights table, a Kafka producer with idempotence on. Unit tests for the envelope shape.', done: 'Library published to your internal package index.', who: 'Platform backend' },
+      { id: 'd5', day: 'Day 5', t: 'Prove the round trip', how: 'Send one test event with the library, and check it reaches the topic and then evidence_raw. Demo it in five minutes at the week-1 review.', done: 'The test event is queryable in Athena.', who: 'Platform backend' }
+    ]},
+    { name: 'Week 2: get the logs flowing', note: 'Phase 1 starts', tasks: [
+      { id: 'd6', day: 'Day 6', t: 'Add caller identity to the mesh access log format', how: 'Apply the JSON format in step 1 of the collector walkthrough to the slice namespaces only. It changes the log line, not the traffic, so rollback is a config revert.', done: 'New log lines show downstream_peer_uri_san filled in.', who: 'Streaming' },
+      { id: 'd7', day: 'Day 7', t: 'Confirm sidecar logs reach CloudWatch', how: 'Most clusters already run Fluent Bit. Check the log group, retention and that the JSON parses. If logs are not there yet, add the Fluent Bit output for the istio-proxy container.', done: 'Last hour of slice traffic visible in CloudWatch Logs Insights.', who: 'Streaming' },
+      { id: 'd8', day: 'Day 8', t: 'Add the subscription filter and the Firehose stream', how: 'Step 2 of the walkthrough. Start with the slice namespaces only, so volume and cost stay small while you check it.', done: 'Firehose shows records delivered and none failed.', who: 'Streaming' },
+      { id: 'd9', day: 'Day 9', t: 'Check that one full hour landed', how: 'Compare calls per callee in gw_access_raw with the same hour in Envoy or Prometheus request counts.', done: 'Counts match within 2% for every slice service.', who: 'Streaming' },
+      { id: 'd10', day: 'Day 10', t: 'Profile the callers', how: 'Share of calls with no identity, by callee. Each unmeshed caller from the prep list should show up here. Send the list to their owners now, because the header change takes them a week or two.', done: 'Unresolved share known per service, and owners asked.', who: 'Streaming' }
+    ]},
+    { name: 'Week 3: the first edges', note: 'Phase 1', tasks: [
+      { id: 'd11', day: 'Day 11', t: 'Run first_edges.py on a one-day export', how: 'Export one day of slice logs to JSON lines, write aliases.json by hand from the SPIFFE names, and run the script from step 4. Read the output with two slice owners.', done: 'A first recall number, even if it is low.', who: 'Platform backend' },
+      { id: 'd12', day: 'Day 12', t: 'Deploy the hourly edge builder', how: 'build_edges.py from step 5 on EMR Serverless, run hourly by EventBridge Scheduler, publishing evidence with the shared library.', done: 'Three hourly runs in a row succeed.', who: 'Streaming' },
+      { id: 'd13', day: 'Day 13', t: 'Stand up core version 1', how: 'A small consumer on lineage.evidence: resolve names with the alias table in Aurora, merge one row per edge per collector, score with noisy-OR, and keep unresolved names in a queue.', done: 'Evidence from the builder becomes merged edge records.', who: 'Platform backend' },
+      { id: 'd14', day: 'Day 14', t: 'Write edges to the graph store', how: 'One upsert per edge with its score, state, sources and valid_from. Add one read endpoint: what does this service call, and who calls it.', done: 'The slice graph can be queried.', who: 'Platform backend' },
+      { id: 'd15', day: 'Day 15', t: 'Compare with the golden graph', how: 'A daily job that diffs graph edges against golden.json and writes found, missing and unexpected. The simulator below shows what this looks like.', done: 'The diff runs daily and its output is shared with owners.', who: 'Platform backend' }
+    ]},
+    { name: 'Week 4: close the gaps and measure', note: 'Phase 1', tasks: [
+      { id: 'd16', day: 'Day 16', t: 'Fix missing edges, one cause at a time', how: 'Unresolved caller: the caller sends x-client-id, or gets a sidecar. Too quiet for the hourly threshold: the daily rollup. Not HTTP at all: note it for the runtime collector in phase 4 and leave it.', done: 'Every missing edge has a cause and a fix or a phase.', who: 'Streaming' },
+      { id: 'd17', day: 'Day 17', t: 'Review unexpected edges with the callee owners', how: 'A real dependency nobody listed goes into golden.json with an owner. Test, health or monitoring traffic gets an exclusion rule in the builder.', done: 'Each unexpected edge is either golden or excluded.', who: 'You, slice owners' },
+      { id: 'd18', day: 'Day 18', t: 'Add the nightly rollup run', how: 'The same job with lineage.window=day, run once after midnight over the last 24 hours, so calls that never reach 10 in one hour are still found.', done: 'The quiet calls in the golden graph appear after one night.', who: 'Streaming' },
+      { id: 'd19', day: 'Day 19', t: 'Add freshness and failure alarms', how: 'Alarm if no evidence arrives for two hours, if a run fails twice, or if the unresolved share jumps by half.', done: 'Alarms fire into the team channel in a test.', who: 'Platform backend' },
+      { id: 'd20', day: 'Day 20', t: 'Measure recall three days in a row', how: 'One day can be lucky. Three consecutive daily diffs show whether the number holds.', done: 'Three daily recall figures written down.', who: 'Platform backend' }
+    ]},
+    { name: 'Days 21 to 22: the gate read and the readout', note: 'Day 30', tasks: [
+      { id: 'd21', day: 'Day 21', t: 'Fill in the gate scorecard', how: 'Use the gate section at the bottom of this page: recall, traceability, unexpected edges reviewed, alarms, and the unresolved share as a heads-up for phase 2.', done: 'Scorecard complete, with a fix and date for anything below the line.', who: 'You' },
+      { id: 'd22', day: 'Day 22', t: 'Give the day-30 readout', how: 'Fifteen minutes for leaders and slice owners: the graph from logs alone, recall against the golden graph, the surprises, and the go or no-go for starting registry crawlers in week 4 to 5.', done: 'A decision on phase 2, recorded.', who: 'You' }
+    ]}
+  ];
+
+  const KEY = 'lineage-starter-v1';
+  let ticks = {};
+  try { ticks = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { ticks = {}; }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(ticks)); } catch (e) {} };
+  const all = BEFORE.concat(...WEEKS.map(w => w.tasks));
+
+  function taskEl(t) {
+    const li = document.createElement('div');
+    li.className = 'task' + (ticks[t.id] ? ' done' : '');
+    li.innerHTML = '<div class="task-row"><input type="checkbox" id="cb-' + t.id + '" aria-label="Done: ' + t.t.replace(/"/g, '') + '"><span class="day">' + t.day + '</span><label class="task-title" for="cb-' + t.id + '"></label><button class="more" type="button" aria-expanded="false" aria-controls="b-' + t.id + '">How</button></div><div class="task-body" id="b-' + t.id + '" hidden><p class="h"></p><div class="dw"><b>Done when:</b> <span class="d"></span></div><div class="who"></div></div>';
+    li.querySelector('.task-title').textContent = t.t;
+    li.querySelector('.h').textContent = t.how;
+    li.querySelector('.d').textContent = t.done;
+    li.querySelector('.who').textContent = 'Owner: ' + t.who;
+    const cb = li.querySelector('input');
+    cb.checked = !!ticks[t.id];
+    cb.addEventListener('change', () => { ticks[t.id] = cb.checked; li.classList.toggle('done', cb.checked); save(); progress(); renderSim(); });
+    const btn = li.querySelector('button.more');
+    const body = li.querySelector('.task-body');
+    btn.addEventListener('click', () => { body.hidden = !body.hidden; btn.setAttribute('aria-expanded', String(!body.hidden)); btn.textContent = body.hidden ? 'How' : 'Hide'; });
+    return li;
+  }
+  const before = document.getElementById('list-before');
+  before.innerHTML = '<div class="week-head"><h3>Prerequisites and access</h3><span class="count" data-c="before"></span></div>';
+  BEFORE.forEach(t => before.appendChild(taskEl(t)));
+  const weeksEl = document.getElementById('weeks');
+  WEEKS.forEach((w, i) => {
+    const p = document.createElement('div');
+    p.className = 'panel week';
+    p.innerHTML = '<div class="week-head"><h3></h3><span class="eyebrow"></span><span class="count" data-c="w' + i + '"></span></div>';
+    p.querySelector('h3').textContent = w.name;
+    p.querySelector('.eyebrow').textContent = w.note;
+    w.tasks.forEach(t => p.appendChild(taskEl(t)));
+    weeksEl.appendChild(p);
+  });
+  function progress() {
+    const n = all.filter(t => ticks[t.id]).length;
+    document.getElementById('progText').textContent = n + ' of ' + all.length + ' done';
+    document.getElementById('progBar').style.width = (100 * n / all.length) + '%';
+    const c = (list) => list.filter(t => ticks[t.id]).length + ' of ' + list.length;
+    document.querySelector('[data-c="before"]').textContent = c(BEFORE);
+    WEEKS.forEach((w, i) => { document.querySelector('[data-c="w' + i + '"]').textContent = c(w.tasks); });
+  }
+
+  // code blocks
+  const fill = (id) => { const src = document.getElementById('src-' + id); const el = document.getElementById(id); if (src && el) el.textContent = src.textContent.replace(/^\n/, ''); };
+  ['c-envoy', 'c-tf', 'c-golden', 'c-py', 'c-out', 'c-spark'].forEach(fill);
+  document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => {
+    const el = document.getElementById(b.dataset.copy);
+    const done = () => { b.textContent = 'Copied'; setTimeout(() => { b.textContent = 'Copy'; }, 1500); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Selected, press copy'; setTimeout(() => { b.textContent = 'Copy'; }, 2500); };
+    try { navigator.clipboard.writeText(el.textContent).then(done, fallback); } catch (e) { fallback(); }
+  }));
+
+  // simulator
+  const N = {
+    'card-gateway': [80, 60], 'settlement-batch': [80, 150], 'legacy-reporting': [80, 240], 'loadtest-runner': [80, 330],
+    'payments-svc': [270, 150], 'txn-enrichment': [270, 330],
+    'token-svc': [460, 40], 'risk-rules': [460, 105], 'ledger-svc': [460, 170], 'merchant-svc': [460, 250], 'fraud-svc': [460, 330],
+    'fraud-score-prod': [660, 250], 'feature-online': [660, 330], 'case-mgmt': [660, 410]
+  };
+  const E = [
+    { a: 'card-gateway', b: 'payments-svc', g: 1, kind: 'steady', rate: 18000 },
+    { a: 'settlement-batch', b: 'payments-svc', g: 1, kind: 'nightly', rate: 600 },
+    { a: 'payments-svc', b: 'token-svc', g: 1, kind: 'steady', rate: 18000 },
+    { a: 'payments-svc', b: 'risk-rules', g: 1, kind: 'steady', rate: 17500 },
+    { a: 'payments-svc', b: 'ledger-svc', g: 1, kind: 'steady', rate: 17000 },
+    { a: 'txn-enrichment', b: 'merchant-svc', g: 1, kind: 'steady', rate: 6400, unmeshed: true },
+    { a: 'txn-enrichment', b: 'fraud-svc', g: 1, kind: 'steady', rate: 41000 },
+    { a: 'fraud-svc', b: 'fraud-score-prod', g: 1, kind: 'steady', rate: 9800 },
+    { a: 'fraud-svc', b: 'feature-online', g: 1, kind: 'steady', rate: 9800 },
+    { a: 'fraud-svc', b: 'case-mgmt', g: 1, kind: 'quiet', rate: 2 },
+    { a: 'legacy-reporting', b: 'payments-svc', g: 0, kind: 'steady', rate: 13 },
+    { a: 'loadtest-runner', b: 'payments-svc', g: 0, kind: 'burst', rate: 5000, test: true }
+  ];
+  const hourEl = document.getElementById('hour');
+  const fx = { header: document.getElementById('fixHeader'), rollup: document.getElementById('fixRollup'), exclude: document.getElementById('fixExclude') };
+  const clockOf = h => ['Mon', 'Tue', 'Wed', 'Thu'][Math.floor((9 + h) / 24)] + ' ' + String((9 + h) % 24).padStart(2, '0') + ':00';
+  function foundAt(e) {
+    if (e.unmeshed && !fx.header.checked) return null;
+    if (e.test && fx.exclude.checked) return null;
+    if (e.kind === 'steady') return 1;
+    if (e.kind === 'nightly') return 18;       // batch runs 02:00 to 03:00 on the first night
+    if (e.kind === 'burst') return 26;         // load test Tuesday 10:00 to 12:00
+    if (e.kind === 'quiet') return fx.rollup.checked ? 15 : null;  // nightly rollup at 00:00
+    return null;
+  }
+  function reason(e, f, h) {
+    if (e.g) {
+      if (f !== null && f <= h) {
+        if (e.kind === 'quiet') return 'Found by the nightly rollup: only about 2 calls an hour, under the hourly threshold of 10.';
+        if (e.kind === 'nightly') return 'Found after the 02:00 settlement batch ran. Batch callers only show up once they run.';
+        if (e.unmeshed) return 'Found once the caller sent x-client-id. Without it the calls were unresolved.';
+        return 'Found in the first hourly run. Spot-check the route and volume.';
+      }
+      if (e.unmeshed && !fx.header.checked) return 'The caller has no sidecar and sends no header, so 6,400 calls an hour are unresolved. Ask its owner to send x-client-id.';
+      if (e.kind === 'quiet' && !fx.rollup.checked) return 'About 2 calls an hour never reaches the hourly threshold of 10. Add the nightly rollup.';
+      if (e.kind === 'nightly') return 'The settlement batch runs at 02:00. Wait for the first night.';
+      if (e.kind === 'quiet') return 'Waiting for the first nightly rollup at midnight.';
+      return 'Not seen yet.';
+    }
+    if (e.test) return 'Load-test traffic from Tuesday morning. Add an exclusion rule.';
+    return 'A real caller nobody listed: about 13 export calls an hour. Ask the payments-svc owner, then add it to the golden graph with an owner.';
+  }
+  const svg = document.getElementById('g');
+  const NS = 'http://www.w3.org/2000/svg';
+  function mk(tag, attrs, parent) { const el = document.createElementNS(NS, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); (parent || svg).appendChild(el); return el; }
+  svg.innerHTML = '';
+  const defs = mk('defs', {});
+  [['ok', 'var(--accent)'], ['miss', 'var(--miss)'], ['warn', 'var(--warn)']].forEach(([id, c]) => { const m = mk('marker', { id: 'ar-' + id, viewBox: '0 0 10 10', refX: '9', refY: '5', markerWidth: '7', markerHeight: '7', orient: 'auto-start-reverse' }, defs); mk('path', { d: 'M0 0L10 5L0 10z', fill: c }, m); });
+  const edgeG = mk('g', {});
+  const nodeG = mk('g', {});
+  const paths = E.map(e => {
+    const [x1, y1] = N[e.a], [x2, y2] = N[e.b];
+    const sx = x1 + 62, ex = x2 - 64, mx = (sx + ex) / 2;
+    return mk('path', { d: 'M' + sx + ' ' + y1 + ' C' + mx + ' ' + y1 + ' ' + mx + ' ' + y2 + ' ' + ex + ' ' + y2, fill: 'none', 'stroke-width': '2' }, edgeG);
+  });
+  Object.keys(N).forEach(name => {
+    const [x, y] = N[name];
+    mk('rect', { x: x - 62, y: y - 14, width: 124, height: 28, rx: 6, fill: 'var(--surface)', stroke: 'var(--line)', 'stroke-width': '1.5' }, nodeG);
+    const t = mk('text', { x: x, y: y + 4.5, 'text-anchor': 'middle', 'font-size': '12', 'font-family': 'IBM Plex Mono, monospace', fill: 'var(--ink)' }, nodeG);
+    t.textContent = name;
+  });
+  function renderSim() {
+    const h = +hourEl.value;
+    document.getElementById('clock').textContent = clockOf(h) + ' · hour ' + h;
+    let found = 0, unexp = 0, rows = '';
+    E.forEach((e, i) => {
+      const f = foundAt(e);
+      const seen = f !== null && f <= h;
+      const p = paths[i];
+      if (e.g) {
+        if (seen) found++;
+        p.setAttribute('stroke', seen ? 'var(--accent)' : 'var(--miss)');
+        p.setAttribute('stroke-dasharray', seen ? '' : '5 5');
+        p.setAttribute('opacity', seen ? '1' : '0.55');
+        p.setAttribute('marker-end', 'url(#ar-' + (seen ? 'ok' : 'miss') + ')');
+      } else {
+        if (seen) unexp++;
+        p.setAttribute('stroke', 'var(--warn)');
+        p.setAttribute('stroke-dasharray', '');
+        p.setAttribute('opacity', seen ? '1' : '0');
+        p.setAttribute('marker-end', 'url(#ar-warn)');
+      }
+      if (e.g || seen) {
+        const st = e.g ? (seen ? '<span class="pill found">Found</span>' : (f === null ? '<span class="pill missing">Missing</span>' : '<span class="pill wait">Not yet</span>')) : '<span class="pill unexp">Not in golden</span>';
+        rows += '<tr><td class="mono">' + e.a + ' → ' + e.b + '</td><td>' + st + '</td><td>' + reason(e, f, h) + '</td></tr>';
+      }
+    });
+    document.getElementById('rows').innerHTML = rows;
+    const total = E.filter(e => !e.test || (h >= 25 && h <= 26)).reduce((s, e) => s + e.rate, 0);
+    const unresolvedShare = (h === 0 || fx.header.checked) ? 0 : 6400 / total;
+    const recall = found / 10;
+    const pass = recall >= 0.9;
+    document.getElementById('score').innerHTML =
+      '<div class="stat ' + (pass ? 'pass' : 'fail') + '"><span class="v">' + found + ' of 10</span><span class="l">golden calls found (' + Math.round(recall * 100) + '%)</span></div>' +
+      '<div class="stat ' + (pass ? 'pass' : 'fail') + '"><span class="v">' + (pass ? 'Passes' : 'Not yet') + '</span><span class="l">phase 1 gate needs 9 of 10</span></div>' +
+      '<div class="stat"><span class="v">' + unexp + '</span><span class="l">unexpected calls to review</span></div>' +
+      '<div class="stat"><span class="v">' + (unresolvedShare * 100).toFixed(1) + '%</span><span class="l">calls with an unknown caller</span></div>';
+    const g = (ok, title, text, label) => '<div class="gate-row"><div><h3></h3><p></p></div><span class="pill ' + ok + '">' + label + '</span></div>'.replace('<h3></h3>', '<h3>' + title + '</h3>').replace('<p></p>', '<p>' + text + '</p>');
+    const alarms = !!ticks.d19;
+    document.getElementById('gateRows').innerHTML =
+      g(pass ? 'found' : 'missing', 'At least 90% of golden service calls found', found + ' of 10 found at ' + clockOf(h) + '. This is the gate itself.', pass ? 'Pass' : 'Below the line') +
+      g(found ? 'found' : 'wait', 'Every edge traces back to its raw log rows', 'Each evidence event carries rawRef to the hour of gw_access_raw it came from.', found ? 'Pass' : 'No edges yet') +
+      g(unexp ? 'unexp' : 'found', 'Unexpected calls reviewed with an owner', unexp ? unexp + ' still to review. Each becomes golden or excluded.' : 'Nothing unexpected open.', unexp ? unexp + ' open' : 'Clear') +
+      g(alarms ? 'found' : 'wait', 'Freshness and failure alarms in place', 'Follows the day 19 task in the plan above.', alarms ? 'Done' : 'Not ticked') +
+      g(unresolvedShare < 0.05 ? 'found' : 'unexp', 'Heads-up for phase 2: unknown callers under 5%', 'Not part of this gate, but phase 2 needs it, so fix it now.', (unresolvedShare * 100).toFixed(1) + '%');
+  }
+  let timer = null;
+  const play = document.getElementById('play');
+  const stop = () => { clearInterval(timer); timer = null; play.textContent = 'Play'; };
+  play.addEventListener('click', () => {
+    if (timer) return stop();
+    if (+hourEl.value >= 72) hourEl.value = 0;
+    play.textContent = 'Pause';
+    timer = setInterval(() => { hourEl.value = Math.min(72, +hourEl.value + 1); renderSim(); if (+hourEl.value >= 72) stop(); }, 140);
+  });
+  document.getElementById('reset').addEventListener('click', () => { stop(); hourEl.value = 0; Object.values(fx).forEach(c => { c.checked = false; }); renderSim(); });
+  hourEl.addEventListener('input', renderSim);
+  Object.values(fx).forEach(c => c.addEventListener('change', renderSim));
+  hourEl.value = 30;
+  progress();
+  renderSim();
+})();
+</script>
+<script>
+(function () {
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const load = k => { try { return JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch (e) { return {}; } };
+  const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+  // tabs
+  const panes = { plan: document.getElementById('tab-plan'), ready: document.getElementById('tab-ready') };
+  const btns = document.querySelectorAll('.tabs button');
+  function show(t, push) {
+    if (!panes[t]) t = 'plan';
+    Object.keys(panes).forEach(k => { panes[k].hidden = k !== t; });
+    btns.forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
+    try { localStorage.setItem('lineage-starter-tab', t); } catch (e) {}
+    if (push) { try { history.replaceState(null, '', t === 'ready' ? '#ready' : location.pathname + location.search); } catch (e) {} }
+  }
+  btns.forEach(b => b.addEventListener('click', () => { show(b.dataset.tab, true); document.querySelector('.tabs').scrollIntoView({ block: 'start' }); }));
+  const h = location.hash;
+  let first = 'plan';
+  if (h === '#ready' || h.indexOf('#r-') === 0) first = 'ready';
+  else if (!h) { try { first = localStorage.getItem('lineage-starter-tab') || 'plan'; } catch (e) { first = 'plan'; } }
+  show(first, false);
+
+  // assumptions
+  const AS = [
+    { id: 'A1', g: 'pre', riskiest: 1, s: 'Every slice call carries a caller identity the logs can resolve.', d: 'Most calls go through Envoy sidecars with mTLS, so each log line names the caller as a SPIFFE identity. The few that don’t can send an x-client-id header.', test: 'Pull one hour of slice logs and count the share of lines with downstream_peer_uri_san filled, per callee.', wrong: 'Recall stalls well under 90%. Identity then has to come from x-client-id at the gateway or the API Gateway authorizer, which needs other teams and adds two to three weeks.' },
+    { id: 'A2', g: 'pre', s: 'Mesh and API Gateway access logs already reach CloudWatch.', d: 'Fluent Bit or the platform’s log agent ships sidecar logs, with at least seven days kept.', test: 'A Logs Insights query over the last hour for each slice namespace and the card-gateway API.', wrong: 'Day 7 becomes adding the agent output, about a week of work with the platform team.' },
+    { id: 'A3', g: 'pre', s: 'Security will allow access logs to leave the producer accounts.', d: 'The format keeps method, path, status, caller and callee, with no query strings, bodies or auth headers.', test: 'Walk security through the log format in step 1 of the collector before you file the request.', wrong: 'Run the edge builder inside each producer account and export only aggregated edges, never raw lines.' },
+    { id: 'A4', g: 'pre', s: 'Six slice owners can each give about two hours in week 1.', d: 'Payments, streaming, analytics, feature store, the fraud model and fraud-svc.', test: 'Book the sessions now. A booked hour is the test.', wrong: 'The golden graph slips and every later step slips with it. Pre-fill a draft from configs and confirm it with owners asynchronously.' },
+    { id: 'A5', g: 'pre', s: 'Three engineers are free from day 1, and six by week 6.', d: 'Two platform backend engineers and one streaming engineer for the first month.', test: 'Names, start dates and the work they are coming off.', wrong: 'Cut scope to the first collector only and move the gate read to week 6.' },
+    { id: 'A6', g: 'pre', s: 'Each workload has its own service account.', d: 'So one SPIFFE name means one service.', test: 'Count workloads per service account in the slice namespaces.', wrong: 'Shared accounts merge several callers into one edge. Split the accounts or rely on x-client-id for those workloads.' },
+    { id: 'A7', g: 'early', s: 'Most of the slice’s service calls are HTTP or gRPC through the mesh.', d: 'Kafka hops such as auth.events.v1 are not in mesh logs and wait for the runtime collector in phase 4.', test: 'In the day-2 workshop, mark each edge with its protocol.', wrong: 'Phase 1 covers less of the slice than expected. Bring OTel producer spans forward.' },
+    { id: 'A8', g: 'early', s: 'Owners know their callers well enough for the golden graph to be the yardstick.', d: 'Probably partly wrong, which is why day 17 reviews every unexpected edge.', test: 'Count how many found edges owners did not list. More than two real ones means the golden graph needs a second pass.', wrong: 'Recall overstates or understates coverage. Re-baseline on day 17 and report precision alongside recall.' },
+    { id: 'A9', g: 'early', s: 'An hourly threshold of 10 calls plus a nightly rollup catches the quiet calls.', d: 'Monthly or quarterly batch callers will not show in 30 days.', test: 'Ask owners in the workshop which callers run less than daily.', wrong: 'Mark those edges as declared until phase 2 crawlers or a longer window confirm them.' },
+    { id: 'A10', g: 'early', s: 'Slice-only log volume is small enough that cost is not a decision.', d: 'Health checks dropped, raw lines kept 30 days.', test: 'Bytes per hour in the sample hour × 24 × 30, priced for Firehose, S3 and EMR Serverless.', wrong: 'Aggregate at the source and export counts instead of lines.' },
+    { id: 'A11', g: 'early', s: 'The graph store can be chosen in week 1 without a long architecture review.', d: 'Neptune if you want to own the model, DataHub if you want a UI and catalog on day one.', test: 'Ask the review board now what a decision needs.', wrong: 'Land edges in Aurora and Iceberg first behind a store-agnostic writer, and decide by week 4.' },
+    { id: 'A12', g: 'choice', s: 'Starting top-down from gateway and mesh logs is the right first step for this slice.', d: 'Your chosen approach: logs first, then catalogs, then code and runtime edges to raise accuracy.', test: 'Holds if A1 holds. If caller identity is poor, catalogs first would give more early value.', wrong: 'Swap phases 1 and 2 for the slice and keep the same core.' },
+    { id: 'A13', g: 'choice', s: 'Recall against the golden graph is the right gate for phase 1.', d: 'Precision is reviewed by hand through the unexpected edges.', test: 'Ask the sponsor whether a recall number and a findings list would earn phase 2.', wrong: 'Agree the gate metric before day 1, not at the readout.' },
+    { id: 'A14', g: 'choice', s: 'Names and numbers on this page are illustrative.', d: 'token-svc, legacy-reporting, PR #482, 41,200 calls and the cost figures are examples.', test: 'Replace them with your own in the golden graph and the sample hour.', wrong: 'Nothing breaks, but don’t quote them as measurements.' }
+  ];
+  const GL = { pre: ['block', 'Test before day 1'], early: ['soon', 'Test in weeks 1 to 2'], choice: ['wait', 'Design choice'] };
+  const asTicks = load('lineage-starter-assume-v1');
+  let asFilter = 'all';
+  const asEl = document.getElementById('rgAssume');
+  function renderAs() {
+    asEl.innerHTML = '';
+    AS.filter(a => asFilter === 'all' || a.g === asFilter).forEach(a => {
+      const card = document.createElement('div');
+      card.className = 'panel rg-as' + (asTicks[a.id] ? ' ok' : '') + (a.riskiest ? ' riskiest' : '');
+      card.innerHTML = '<div class="top"><div class="stmt"><span class="id">' + a.id + '</span>' + esc(a.s) + '</div><span class="pill ' + GL[a.g][0] + '">' + (a.riskiest ? 'Riskiest · ' : '') + GL[a.g][1] + '</span></div>' +
+        '<p style="font-size:13.5px;color:var(--muted)">' + esc(a.d) + '</p>' +
+        '<dl><dt>Test</dt><dd>' + esc(a.test) + '</dd><dt>If wrong</dt><dd>' + esc(a.wrong) + '</dd></dl>' +
+        '<label><input type="checkbox"' + (asTicks[a.id] ? ' checked' : '') + '> Checked against our estate</label>';
+      card.querySelector('input').addEventListener('change', e => { asTicks[a.id] = e.target.checked; store('lineage-starter-assume-v1', asTicks); renderAs(); });
+      asEl.appendChild(card);
+    });
+    const n = AS.filter(a => a.g !== 'choice').length, k = AS.filter(a => a.g !== 'choice' && asTicks[a.id]).length;
+    document.getElementById('rgAsCount').textContent = k + ' of ' + n + ' testable assumptions checked';
+  }
+  document.querySelectorAll('#r-assume .rg-chip').forEach(c => c.addEventListener('click', () => {
+    asFilter = c.dataset.f;
+    document.querySelectorAll('#r-assume .rg-chip').forEach(x => x.setAttribute('aria-pressed', String(x === c)));
+    renderAs();
+  }));
+  renderAs();
+
+  // 5 whys
+  const WHY = [
+    ['Why 1', 'Why does caller identity decide the phase 1 gate? <b>Because an edge only counts when the log names who called.</b> A line that says “unknown → fraud-svc” adds traffic but no edge.'],
+    ['Why 2', 'Why would a caller be unknown? <b>Because it sits outside the mesh or shares a service account.</b> Batch jobs, Lambda functions and older VMs call slice services without a sidecar, and shared accounts make several workloads look like one.'],
+    ['Why 3', 'Why are those callers outside the mesh? <b>Because the mesh was rolled out for encryption and traffic control, not for knowing who calls whom.</b> Workloads that were hard to inject were left out, and nothing broke.'],
+    ['Why 4', 'Why has nothing forced the gap closed? <b>Because mTLS may run in permissive mode,</b> which lets plain-text calls through. No team has needed a per-caller inventory until now.'],
+    ['Why 5', 'Why does that change the plan? <b>Because the fix is a platform policy, not lineage code.</b> Strict mTLS, or a required x-client-id at the gateway, needs an owner on the mesh or platform team.'],
+    ['Root cause', '<b>Caller identity is an operating-policy gap that the lineage team can measure but not close alone.</b> So before day 1: measure the unresolved share from one sample hour, and get the mesh owner to commit to the header or strict-mode fix for the slice. If the share is above 15%, start registry crawlers alongside the logs rather than after them.']
+  ];
+  document.getElementById('rgWhy').innerHTML = WHY.map((w, i) => '<div class="w' + (i === WHY.length - 1 ? ' root' : '') + '"><span class="q">' + w[0] + '</span><p>' + w[1] + '</p></div>').join('');
+
+  // risks
+  const RK = [
+    { id: 'R1', t: 'Approval to export access logs across accounts arrives late', l: 3, i: 3, la: 2, ia: 2, why: 'Cross-account log subscriptions need the producer account owners and a data-handling review. Paths can carry identifiers, so security will look closely.', m: 'File the request two weeks before day 1 with the exact log format. Keep query strings, bodies and auth headers out. Start with slice namespaces only. Fallback: build edges inside each producer account and export only edges.', sig: 'No approved test role five days before day 1.', own: 'You, with security' },
+    { id: 'R2', t: 'Unknown callers keep recall under 90%', l: 3, i: 3, la: 2, ia: 2, why: 'The riskiest assumption failing. Unmeshed jobs and shared service accounts produce edges with no caller.', m: 'Measure the unresolved share from one sample hour before day 1. Ask unmeshed callers for x-client-id on day 10. Agree a strict-mode or header policy with the mesh owner.', sig: 'Unresolved share above 5% in the day-10 profile.', own: 'Streaming engineer, mesh owner' },
+    { id: 'R3', t: 'Owner time doesn’t come, so the golden graph is late', l: 2, i: 3, la: 1, ia: 2, why: 'Owners have their own roadmaps, and the golden graph is the yardstick for everything after it.', m: 'A note from the sponsor to each owner’s manager. Sessions booked before day 1. A draft graph pre-filled from configs so owners confirm rather than recall.', sig: 'Fewer than four of six sessions booked by day 1.', own: 'You' },
+    { id: 'R4', t: 'The golden graph is itself wrong, so recall misleads', l: 3, i: 2, la: 2, ia: 1, why: 'Owners rarely know every caller. That is the reason lineage is needed at all.', m: 'Treat unexpected edges as findings, not noise. Re-baseline on day 17. Report precision with recall, and call the golden graph “reviewed” rather than “true”.', sig: 'More than two real edges that owners didn’t list.', own: 'You, slice owners' },
+    { id: 'R5', t: 'The graph-store decision stalls in review', l: 2, i: 2, la: 1, ia: 1, why: 'A new managed database often needs an architecture or vendor review.', m: 'Write through a store-agnostic writer and land edges in Aurora and Iceberg first. Set a day-5 deadline with a stated default.', sig: 'No decision by day 3.', own: 'Platform backend lead' },
+    { id: 'R6', t: 'The log-format change breaks other log consumers', l: 2, i: 2, la: 1, ia: 1, why: 'SIEM parsers and dashboards may read the same sidecar logs.', m: 'Add fields, rename none. Apply to slice namespaces first. Tell log consumers a week ahead. Rollback is a config revert.', sig: 'Parser errors or dashboard gaps after day 6.', own: 'Streaming engineer' },
+    { id: 'R7', t: 'Engineers get pulled onto incidents or other priorities', l: 2, i: 2, la: 1, ia: 2, why: 'Three people is a thin team, and one lost week moves the gate.', m: 'Protected time agreed with the sponsor, and a short weekly demo so slippage shows early.', sig: 'A weekly demo missed.', own: 'You' },
+    { id: 'R8', t: 'Scope creeps into Kafka and warehouse edges in month 1', l: 2, i: 1, la: 1, ia: 1, why: 'Once people see a graph they ask for the rest of the slice.', m: 'Point to the phase plan. Log every request for phases 2 to 4 and say when it lands.', sig: 'New asks in week 2.', own: 'You' },
+    { id: 'R9', t: 'Log volume and cost surprise when export widens', l: 1, i: 2, la: 1, ia: 1, why: 'Slice-only volume is small, but whole-estate access logs are not.', m: 'Size from the sample hour. Drop health checks at the filter. Keep raw lines 30 days. Plan to aggregate at the source before widening.', sig: 'Firehose bytes above the estimate in week 2.', own: 'Platform backend' },
+    { id: 'R10', t: 'Nobody uses the graph after day 30', l: 2, i: 3, la: 1, ia: 2, why: 'Lineage that answers no one’s question becomes shelfware, and the trust loop never starts.', m: 'Name the first consumer before day 1: incident RCA or the PR impact bot in phase 3. Show the undocumented-caller finding at the readout, and ask for a decision there.', sig: 'No one outside the team has queried the graph by day 30.', own: 'You, sponsor' }
+  ];
+  const LV = ['', 'Low', 'Medium', 'High'];
+  let view = 'before', selR = 'R1';
+  const grid = document.getElementById('rgGrid');
+  function renderRisk() {
+    grid.innerHTML = '';
+    for (let i = 3; i >= 1; i--) {
+      const ax = document.createElement('div'); ax.className = 'rg-ax y'; ax.textContent = LV[i]; grid.appendChild(ax);
+      for (let l = 1; l <= 3; l++) {
+        const cell = document.createElement('div');
+        cell.className = 'rg-cell h' + (i * l >= 6 ? 3 : i * l >= 3 ? 2 : 1);
+        RK.filter(r => (view === 'before' ? r.l : r.la) === l && (view === 'before' ? r.i : r.ia) === i).forEach(r => {
+          const b = document.createElement('button');
+          b.type = 'button'; b.className = 'rg-dot' + (r.id === selR ? ' sel' : ''); b.textContent = r.id; b.title = r.t;
+          b.setAttribute('aria-label', r.id + ': ' + r.t);
+          b.addEventListener('click', () => { selR = r.id; renderRisk(); });
+          cell.appendChild(b);
+        });
+        grid.appendChild(cell);
+      }
+    }
+    grid.appendChild(document.createElement('div'));
+    ['Low', 'Medium', 'High'].forEach(t => { const a = document.createElement('div'); a.className = 'rg-ax'; a.textContent = t; grid.appendChild(a); });
+    const r = RK.find(x => x.id === selR);
+    document.getElementById('rgRiskDetail').innerHTML = '<span class="eyebrow">' + r.id + ' · likelihood across, impact up</span><h3>' + esc(r.t) + '</h3><p style="font-size:13.5px">' + esc(r.why) + '</p>' +
+      '<dl><dt>Before</dt><dd class="rg-lvl">' + LV[r.l] + ' likelihood, ' + LV[r.i] + ' impact</dd><dt>After</dt><dd class="rg-lvl">' + LV[r.la] + ' likelihood, ' + LV[r.ia] + ' impact</dd><dt>Mitigation</dt><dd>' + esc(r.m) + '</dd><dt>Early signal</dt><dd>' + esc(r.sig) + '</dd><dt>Owner</dt><dd>' + esc(r.own) + '</dd></dl>';
+  }
+  document.querySelectorAll('#r-risks .rg-chip').forEach(c => c.addEventListener('click', () => {
+    view = c.dataset.v;
+    document.querySelectorAll('#r-risks .rg-chip').forEach(x => x.setAttribute('aria-pressed', String(x === c)));
+    renderRisk();
+  }));
+  document.getElementById('rgRiskTable').innerHTML = RK.map(r => '<tr><td><b>' + r.id + '</b> ' + esc(r.t) + '</td><td>' + LV[r.l] + '</td><td>' + LV[r.i] + '</td><td>' + esc(r.sig) + '</td><td>' + esc(r.own) + '</td></tr>').join('');
+  renderRisk();
+
+  // ready to start
+  const READY = [
+    { g: 'People', items: [
+      { id: 'q1', b: 1, t: 'A sponsor and six slice owners named, each with a backup', h: 'The sponsor clears owner time and approvals. Owners: payments, streaming, analytics, feature store, the fraud model and fraud-svc.' },
+      { id: 'q2', b: 1, t: 'Three engineers with protected time from day 1', h: 'Two platform backend and one streaming. The other three dated for week 4 to 6.' },
+      { id: 'q3', b: 0, t: 'Golden-graph sessions booked for days 2 and 3', h: 'About 90 minutes per team, in the calendar before day 1.' },
+      { id: 'q4', b: 0, t: 'The phase 1 gate and the first consumer agreed with the sponsor', h: 'At least 90% of hand-checked calls found, and who will use the graph first.' } ] },
+    { g: 'Access and approvals', items: [
+      { id: 'q5', b: 1, t: 'Platform-account AWS access works', h: 'A test role can create the MSK topic, the S3 bucket and Glue tables, an EMR Serverless app and the Aurora alias table.' },
+      { id: 'q6', b: 1, t: 'Read and subscribe rights on the slice log groups, with security sign-off', h: 'Producer account owners and security have approved the log format and the cross-account subscription.' },
+      { id: 'q7', b: 0, t: 'The mesh owner has agreed the log-format change for slice namespaces', h: 'Adds caller identity and x-client-id, renames nothing. Log consumers told a week ahead.' } ] },
+    { g: 'Data sources', items: [
+      { id: 'q8', b: 1, t: 'One sample log line from each source, with caller identity checked', h: 'Sidecar log and API Gateway log for the slice. Note where the caller is missing.' },
+      { id: 'q9', b: 0, t: 'Unresolved share measured from one sample hour', h: 'Share of slice calls with no caller identity. Above 15% means starting crawlers alongside logs.' },
+      { id: 'q10', b: 0, t: 'Unmeshed callers listed with their owners', h: 'Batch jobs, Lambda functions and VMs that call slice services without a sidecar.' } ] },
+    { g: 'Infrastructure and tooling', items: [
+      { id: 'q11', b: 1, t: 'Repos created with CI and code owners', h: 'lineage-infra, lineage-platform and lineage-collectors.' },
+      { id: 'q12', b: 0, t: 'Graph-store options and the day-5 default written down', h: 'Neptune or DataHub, with what the review board needs to decide.' },
+      { id: 'q13', b: 0, t: 'Volume and cost estimate from the sample hour', h: 'Bytes per hour × 24 × 30, priced for Firehose, S3 and EMR Serverless.' } ] },
+    { g: 'The 10 hand-checked calls', note: 'Confirmed by owners on day 2, but drafted before day 1 so the workshop confirms rather than recalls. Each line says how the call will be identified and what could hide it.', items: [
+      { id: 'g1', b: 0, t: 'card-gateway → payments-svc', h: 'Mesh, steady traffic. Should appear in the first hour.' },
+      { id: 'g2', b: 0, t: 'settlement-batch → payments-svc', h: 'Nightly batch. Appears after the first night; check the job is in the mesh.' },
+      { id: 'g3', b: 0, t: 'payments-svc → token-svc', h: 'Mesh, steady.' },
+      { id: 'g4', b: 0, t: 'payments-svc → risk-rules', h: 'Mesh, steady.' },
+      { id: 'g5', b: 0, t: 'payments-svc → ledger-svc', h: 'Mesh, steady.' },
+      { id: 'g6', b: 0, t: 'txn-enrichment → merchant-svc', h: 'Caller has no sidecar. Missing until it sends x-client-id, so ask its owner in prep.' },
+      { id: 'g7', b: 0, t: 'txn-enrichment → fraud-svc', h: 'Mesh, the busiest edge on the slice.' },
+      { id: 'g8', b: 0, t: 'fraud-svc → fraud-score-prod', h: 'Mesh, steady. Check the model endpoint is behind the gateway.' },
+      { id: 'g9', b: 0, t: 'fraud-svc → feature-online', h: 'Mesh, steady.' },
+      { id: 'g10', b: 0, t: 'fraud-svc → case-mgmt', h: 'Quiet, a few calls a day. Needs the nightly rollup to appear.' } ] }
+  ];
+  const rTicks = load('lineage-starter-ready-v1');
+  const rEl = document.getElementById('rgReady');
+  function renderReady() {
+    rEl.innerHTML = '';
+    READY.forEach(G => {
+      const p = document.createElement('div'); p.className = 'panel rg-grp';
+      p.innerHTML = '<h3>' + esc(G.g) + '</h3>' + (G.note ? '<p class="note" style="padding:0 16px 8px">' + esc(G.note) + '</p>' : '');
+      G.items.forEach(it => {
+        const row = document.createElement('label'); row.className = 'rg-item' + (rTicks[it.id] ? ' done' : '');
+        const pill = it.id[0] === 'g' ? '<span class="pill wait">By day 2</span>' : it.b ? '<span class="pill block">Blocks day 1</span>' : '<span class="pill soon">Week 1</span>';
+        row.innerHTML = '<input type="checkbox"' + (rTicks[it.id] ? ' checked' : '') + '><span class="t">' + esc(it.t) + '</span>' + pill + '<span class="h">' + esc(it.h) + '</span>';
+        row.querySelector('input').addEventListener('change', e => { rTicks[it.id] = e.target.checked; store('lineage-starter-ready-v1', rTicks); renderReady(); });
+        p.appendChild(row);
+      });
+      rEl.appendChild(p);
+    });
+    const all = READY.flatMap(G => G.items), blk = all.filter(i => i.b), bDone = blk.filter(i => rTicks[i.id]).length, aDone = all.filter(i => rTicks[i.id]).length;
+    const open = blk.length - bDone;
+    document.getElementById('rgGoV').textContent = open ? 'Not ready' : 'Ready for day 1';
+    document.getElementById('rgGoV').style.color = open ? 'var(--miss)' : 'var(--accent)';
+    document.getElementById('rgGoBar').style.width = Math.round(100 * bDone / blk.length) + '%';
+    document.getElementById('rgGoCount').textContent = bDone + ' of ' + blk.length + ' blockers · ' + aDone + ' of ' + all.length + ' items';
+    document.getElementById('rgGoNote').textContent = open ? open + ' item' + (open > 1 ? 's' : '') + ' still block day 1: ' + blk.filter(i => !rTicks[i.id]).map(i => i.t.charAt(0).toLowerCase() + i.t.slice(1)).join('; ') + '.' : 'Every blocker is done. Start day 1, and keep the week-1 items moving.';
+    document.getElementById('rgBlockHead').textContent = open ? open + ' of ' + blk.length + ' items still open' : 'All ' + blk.length + ' done';
+  }
+  renderReady();
+})();
+</script>
+
+</html>

@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lineage Collection Components</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: six horizontal layers read top to bottom, like the data flows; a detail panel sits beside them on wide screens and below on phones. */
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --sunk: #eceef2; --line: #d8dce3;
+  --ink: #16202c; --muted: #5a6575; --accent: #0b6e62; --accent-soft: #d9efeb;
+  --warn: #a35a00; --warn-soft: #fbead2;
+  --l1: #5b6b8c; --l2: #0b6e62; --l3: #7a5aa6; --l4: #1d5fa8; --l5: #8a6d1f; --l6: #b0463a;
+  --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --sunk: #1e252e; --line: #2c3540;
+  --ink: #e6ebf1; --muted: #9aa6b4; --accent: #4fc2b1; --accent-soft: #163a36;
+  --warn: #f0a94b; --warn-soft: #3a2a12;
+  --l1: #9fb0d0; --l2: #4fc2b1; --l3: #b99ae0; --l4: #6fa8ec; --l5: #d8b85a; --l6: #ee8a7c; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --sunk: #1e252e; --line: #2c3540;
+  --ink: #e6ebf1; --muted: #9aa6b4; --accent: #4fc2b1; --accent-soft: #163a36;
+  --warn: #f0a94b; --warn-soft: #3a2a12;
+  --l1: #9fb0d0; --l2: #4fc2b1; --l3: #b99ae0; --l4: #6fa8ec; --l5: #d8b85a; --l6: #ee8a7c; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 56px; display: grid; gap: 20px; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; line-height: 1.2; text-wrap: balance; }
+h1 { font-size: clamp(26px, 4.5vw, 36px); font-weight: 700; }
+h2 { font-size: 19px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+code, .mono { font-family: var(--f-mono); }
+.eyebrow { font: 500 12px/1 var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.muted { color: var(--muted); }
+.traces { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.traces .lbl { font-size: 13px; color: var(--muted); margin-right: 4px; }
+.chip { font: 500 13px var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 13px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip:focus-visible, .comp:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
+@media (max-width: 900px) { .main { grid-template-columns: 1fr; } }
+.layers { display: grid; gap: 0; }
+.layer { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 14px; align-items: stretch; }
+@media (max-width: 600px) { .layer { grid-template-columns: 1fr; gap: 6px; } }
+.lhead { border-left: 4px solid var(--lc); padding: 6px 0 6px 10px; display: grid; align-content: start; gap: 3px; }
+.lhead b { font: 600 14px var(--f-display); color: var(--lc); }
+.lhead span { font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+.comps { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.comp { position: relative; text-align: left; background: var(--surface); border: 1.5px solid var(--line); border-top: 3px solid var(--lc); border-radius: 8px; padding: 9px 10px; cursor: pointer; color: var(--ink); display: grid; gap: 2px; transition: opacity .2s, border-color .2s; }
+.comp b { font: 600 13.5px/1.25 var(--f-body); }
+.comp small { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
+.comp:hover { border-color: var(--lc); }
+.comp.sel { border-color: var(--lc); box-shadow: 0 0 0 2px var(--lc) inset; }
+.tracing .comp { opacity: 0.32; }
+.tracing .comp.on { opacity: 1; }
+.badge { position: absolute; top: -9px; right: -7px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: var(--ink); color: var(--bg); font: 600 11.5px/22px var(--f-mono); text-align: center; }
+.badge.now { background: var(--accent); color: var(--surface); }
+.join { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 14px; }
+@media (max-width: 600px) { .join { grid-template-columns: 1fr; } .join .sp { display: none; } }
+.join .arrow { font: 12px var(--f-mono); color: var(--muted); padding: 6px 0 6px 14px; border-left: 2px dashed var(--line); margin-left: 30px; }
+.loop { font-size: 13px; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; padding: 9px 12px; margin-top: 14px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); min-width: 0; }
+@media (max-width: 900px) { .panel { position: static; } }
+.panel .tag { font: 500 11.5px var(--f-mono); color: var(--lc); text-transform: uppercase; letter-spacing: 0.06em; }
+.panel h2 { font-size: 20px; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; }
+.ex { display: grid; gap: 4px; min-width: 0; }
+.ex .k { font: 500 11.5px var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.ex pre { margin: 0; background: var(--sunk); border-radius: 6px; padding: 9px 10px; font: 11.5px/1.5 var(--f-mono); white-space: pre-wrap; word-break: break-word; }
+.step { background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; display: grid; gap: 8px; }
+.step .sn { font: 600 12px var(--f-mono); color: var(--accent); }
+.step p { font-size: 13.5px; }
+.nav { display: flex; gap: 8px; }
+.btn { font: 600 13px var(--f-body); border-radius: 6px; padding: 6px 12px; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.btn.pri { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.summary div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; }
+.summary b { display: block; font: 600 14px var(--f-display); margin-bottom: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header style="display:grid;gap:10px">
+    <div class="eyebrow">Card-payments slice · lineage collection</div>
+    <h1>Lineage Collection Components</h1>
+    <p>Twenty-six components in six layers. Signals already exist, collectors turn each signal into the same evidence event, one topic carries it all, the core turns evidence into trusted edges, the stores keep them, and the uses answer impact and root-cause questions. Click any component for what it takes in and puts out, or pick a trace to follow one real event through the chain.</p>
+  </header>
+
+  <div class="summary" aria-label="The three rules that hold it together">
+    <div><b>One envelope</b>Every collector emits the same evidence event, whatever it read.</div>
+    <div><b>One key</b>The resolver gives every node one URN, so all evidence for an edge lands on one record.</div>
+    <div><b>One writer</b>Only the core writes the graph. Collectors can be added without touching it.</div>
+  </div>
+
+  <div class="traces" role="group" aria-label="Follow an event">
+    <span class="lbl">Follow an event:</span>
+    <button class="chip" data-trace="" aria-pressed="true" type="button">None, explore freely</button>
+    <button class="chip" data-trace="log" aria-pressed="false" type="button">A mesh log line</button>
+    <button class="chip" data-trace="pr" aria-pressed="false" type="button">PR #482 renames a column</button>
+    <button class="chip" data-trace="wh" aria-pressed="false" type="button">A warehouse query</button>
+    <button class="chip" data-trace="rca" aria-pressed="false" type="button">An incident at 02:42</button>
+    <button class="chip" data-trace="recon" aria-pressed="false" type="button">The nightly reconcile</button>
+  </div>
+
+  <div class="main">
+    <div class="layers" id="layers"></div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+</div>
+
+<script>
+(function () {
+  const LAYERS = [
+    { id: 'sig', name: 'Signals', job: 'What already exists. Nothing here is built for lineage.', c: '--l1' },
+    { id: 'col', name: 'Collectors', job: 'Read one kind of signal and emit evidence.', c: '--l2' },
+    { id: 'bus', name: 'Evidence bus', job: 'One way in for all evidence, and the raw record.', c: '--l3' },
+    { id: 'core', name: 'Lineage core', job: 'Turns evidence into trusted, versioned edges.', c: '--l4' },
+    { id: 'st', name: 'Stores', job: 'Where the graph and its lookups live.', c: '--l5' },
+    { id: 'use', name: 'Uses', job: 'What people and pipelines ask of the graph.', c: '--l6' }
+  ];
+  const JOINS = ['raw signals, read by each collector on its own schedule', 'evidence events, all in one envelope', 'events keyed by the upstream name', 'merged edge records, only from the core', 'queries'];
+  const C = [
+    { id: 's-logs', l: 'sig', n: 'Gateway and mesh logs', s: 'Envoy and API Gateway', what: 'One access log line per service call, with the caller’s mTLS identity once the log format includes it.', inp: 'Live traffic between services.', out: '{"method":"POST","path":"/v1/score",\n "upstream_cluster":"outbound|80||fraud-svc...",\n "downstream_peer_uri_san":"spiffe://prod/ns/payments/sa/txn-enrichment"}', ph: 'Used from phase 1', own: 'Platform and mesh teams', run: 'CloudWatch Logs' },
+    { id: 's-reg', l: 'sig', n: 'Registries', s: 'Catalogs, schema, feature, model', what: 'Where teams already declare things: service catalog, schema registry, data catalog, feature store registry, model registry.', inp: 'What teams write when they register a service, schema, feature or model.', out: 'feature view mcc_decline_7d\n  source: ANALYTICS.FCT_CARD_AUTH\n  owner: fraud-ml, tier 1', ph: 'Used from phase 2', own: 'Each owning team', run: 'Backstage, Glue or Confluent, Feast, SageMaker or MLflow' },
+    { id: 's-code', l: 'sig', n: 'Source code and PRs', s: 'GitHub repos', what: 'The code that produces, consumes and transforms data, seen before it ships.', inp: 'A pull request or a merge to main.', out: '-- fct_card_auth.sql (PR #482)\nselect a.mcc  -- was merchant_category_code\nfrom {{ source(\'raw\', \'card_auth\') }} a', ph: 'Used from phase 3', own: 'Every producer team', run: 'GitHub' },
+    { id: 's-run', l: 'sig', n: 'Running jobs and services', s: 'Spark, Flink, dbt, Airflow, spans', what: 'What actually ran: OpenLineage events from jobs, OpenTelemetry spans from services.', inp: 'A job run or a Kafka send.', out: 'OpenLineage COMPLETE: dbt fct_card_auth\n  in:  raw.card_auth\n  out: analytics.fct_card_auth (mcc <- mcc)', ph: 'Used from phase 4', own: 'Job and service owners', run: 'EMR, Flink, dbt, Airflow, EKS' },
+    { id: 's-wh', l: 'sig', n: 'Warehouse query history', s: 'Snowflake or Databricks', what: 'The warehouse’s own record of every query, including notebooks and ad hoc reads.', inp: 'Any query against the warehouse.', out: 'ACCESS_HISTORY row\n  user: DBT_PROD\n  modified: FCT_CARD_AUTH.MCC\n  from: RAW.CARD_AUTH.MCC', ph: 'Used from phase 4', own: 'Warehouse platform team', run: 'ACCOUNT_USAGE.ACCESS_HISTORY or system.access tables' },
+    { id: 's-ev', l: 'sig', n: 'Change and quality events', s: 'Deploys, DQ, contract checks', what: 'Deploys, merged PRs, DQ results and contract checks. The uses layer feeds these back in, which closes the loop.', inp: 'A deploy, a DQ check run, a contract check.', out: 'DQ FAIL 02:42\n  mcc_decline_7d null rate 38% (limit 1%)\nDEPLOY 02:03 txn-enrichment hotfix', ph: 'Used from phase 5', own: 'Platform, DQ and CI owners', run: 'CI, deploy tooling, DQ framework' },
+
+    { id: 'c-gw', l: 'col', n: 'Gateway log edge builder', s: 'Hourly, plus a nightly rollup', what: 'Groups an hour of calls by caller, callee and route, drops health checks and anything under 10 calls, and emits CALLS evidence. Unknown callers are counted, not dropped.', inp: '41,200 log lines in one hour from txn-enrichment to fraud-svc.', out: 'CALLS mesh:spiffe://.../txn-enrichment\n   -> mesh:fraud-svc.fraud.svc.cluster.local\nsource gateway_log, weight 0.90, count 41200', ph: 'Phase 1', own: 'Streaming engineer', run: 'PySpark on EMR Serverless' },
+    { id: 'c-reg', l: 'col', n: 'Registry crawlers', s: 'Every 15 minutes, plus webhooks', what: 'Lists each registry and emits declared edges, owners and tiers. Also writes the alias rows the resolver needs.', inp: 'The feature view above.', out: 'DERIVES ANALYTICS.FCT_CARD_AUTH -> mcc_decline_7d\nsource declared, weight 0.50\n+ alias row, + owner fraud-ml, tier 1', ph: 'Phase 2', own: 'Platform backend, ML platform', run: 'Scheduled jobs on EKS' },
+    { id: 'c-ci', l: 'col', n: 'CI scanners', s: 'Every PR and merge', what: 'One scanner per kind of code: Semgrep rules for producers and consumers, Flink plans, dbt plus SQLGlot for columns, feature and training configs.', inp: 'PR #482.', out: 'DERIVES raw.card_auth -> fct_card_auth\ncolumns mcc -> mcc\nREMOVED merchant_category_code\nsource ci_static 0.60, stage proposed, pr 482', ph: 'Phase 3', own: 'Developer productivity, analytics engineer', run: 'GitHub Actions' },
+    { id: 'c-rt', l: 'col', n: 'Runtime normalizer', s: 'OpenLineage and OTel, continuous', what: 'Turns OpenLineage run events and rolled-up span counts into evidence, with column lineage where the engine reports it.', inp: 'The dbt COMPLETE event and the payments-svc producer spans.', out: 'DERIVES prod_db.raw.card_auth -> prod_db.analytics.fct_card_auth\nsource openlineage 0.95, runtime\nPRODUCES payments-svc -> auth.events.v1, otel_span 0.90', ph: 'Phase 4', own: 'Streaming, ML platform', run: 'Consumer on EKS; OTel Collector spanmetrics' },
+    { id: 'c-acc', l: 'col', n: 'Access history puller', s: 'Hourly from a watermark', what: 'Turns each write into DERIVES or WRITES with columns, and each read by a person or notebook into READS. Lags up to three hours, so it confirms rather than alerts.', inp: 'The ACCESS_HISTORY row above.', out: 'DERIVES PROD_DB.RAW.CARD_AUTH -> PROD_DB.ANALYTICS.FCT_CARD_AUTH\ncolumns MCC -> MCC\nsource access_history 0.95, runtime', ph: 'Phase 4', own: 'Analytics engineer', run: 'Scheduled SQL on the warehouse' },
+    { id: 'c-lib', l: 'col', n: 'Evidence library', s: 'Shared by every collector', what: 'Defines the envelope and the weight of each source once, so no collector picks its own weight or invents its own shape.', inp: 'A call from any collector: edge(type, from, to, source, ...).', out: '{"edge": {...}, "evidence": {"source": "...",\n "weight": 0.95, "runtime": true, "observedAt": "...",\n "rawRef": "..."}}', ph: 'Phase 0', own: 'Platform backend', run: 'Python package' },
+
+    { id: 'b-topic', l: 'bus', n: 'lineage.evidence topic', s: 'The single way in', what: 'Every collector publishes here and only the core reads it. Adding a source means adding a collector, never changing the core.', inp: 'Evidence events from all collectors.', out: 'Partitioned by upstream name, so one producer’s events stay in order.', ph: 'Phase 0', own: 'Platform backend', run: 'Amazon MSK' },
+    { id: 'b-raw', l: 'bus', n: 'Raw archive', s: 'evidence_raw, gw_access_raw', what: 'Keeps every raw input and every evidence event, so any edge can be traced back to the exact line that produced it and the graph can be rebuilt.', inp: 'Firehose deliveries and a copy of the topic.', out: 'Iceberg tables partitioned by hour; rawRef points here.', ph: 'Phase 0', own: 'Platform backend', run: 'Iceberg on S3, Glue catalog' },
+
+    { id: 'k-res', l: 'core', n: 'Identity resolver', s: 'Names to one URN', what: 'Looks up each namespace and name in the alias table. Unknown names go to the owner queue instead of creating a duplicate node.', inp: 'PROD_DB.RAW.CARD_AUTH, source(\'raw\',\'card_auth\'), prod_db.raw.card_auth', out: 'warehouse://prod/raw.card_auth (all three)', ph: 'Phase 1, filled out in phase 2', own: 'Platform backend', run: 'Consumer on EKS, cache of the alias table' },
+    { id: 'k-merge', l: 'core', n: 'Edge merger', s: 'One record per edge', what: 'Builds the edge key from two URNs and the edge type, and keeps one row per edge per collector: its highest weight and when it last saw the edge.', inp: 'Evidence from CI, dbt-ol and access history for the same edge.', out: 'edgeKey raw.card_auth|DERIVES|analytics.fct_card_auth\nsources: ci_static 0.60, openlineage 0.95, access_history 0.95', ph: 'Phase 1', own: 'Platform backend', run: 'Same consumer, keyed state' },
+    { id: 'k-score', l: 'core', n: 'Confidence scorer', s: 'Noisy-OR and states', what: 'Combines the collectors’ weights as 1 − ∏(1 − w). Confirmed needs 0.9 and at least one runtime source.', inp: 'Weights 0.60, 0.95, 0.95.', out: '1 - (0.40 x 0.05 x 0.05) = 0.999\nstate: confirmed', ph: 'Phase 1', own: 'Platform backend', run: 'Same consumer' },
+    { id: 'k-recon', l: 'core', n: 'Daily reconciler', s: 'Ages and disagreements', what: 'Once a day: marks edges dormant after 30 days with no runtime evidence, retires them later, and flags where code and runtime disagree.', inp: 'The graph plus the last 30 days of evidence.', out: 'auth.events.v0 -> dormant (no runtime since Oct 21)\nnotebook READS fct_card_auth#card_bin -> undeclared, ask owner', ph: 'Phase 4', own: 'Platform backend', run: 'Step Functions and EMR Serverless' },
+    { id: 'k-write', l: 'core', n: 'Versioned graph writer', s: 'The only writer', what: 'Upserts an edge only when something material changed, closing the old version with valid_to, so you can ask what the graph looked like at any time.', inp: 'A merged record whose state or columns changed.', out: 'old version: valid_to 2026-11-12T02:05Z\nnew version: valid_from 2026-11-12T02:05Z, confirmed', ph: 'Phase 1', own: 'Platform backend', run: 'Consumer on EKS' },
+
+    { id: 'st-graph', l: 'st', n: 'Lineage graph', s: 'Assets and edges, with history', what: 'Every asset as a node and every edge with its score, state, sources, columns and validity window.', inp: 'Writes from the graph writer only.', out: '(fct_card_auth)-[:DERIVES {confirmed, 0.999}]->(mcc_decline_7d)', ph: 'Phase 1', own: 'Platform backend', run: 'Neptune or DataHub (week-1 decision)' },
+    { id: 'st-alias', l: 'st', n: 'Alias table and queues', s: 'Names, owners, unresolved', what: 'The name-to-URN table the resolver reads, plus the queue of unresolved names each owner works through.', inp: 'Crawler rows, pattern rules and owner decisions.', out: 'snowflake://prod | PROD_DB.RAW.CARD_AUTH | warehouse://prod/raw.card_auth | crawler', ph: 'Phase 1', own: 'Platform backend', run: 'Aurora Postgres' },
+    { id: 'st-search', l: 'st', n: 'Search index', s: 'Find any asset fast', what: 'Lets people and tools find an asset by any of its names before walking the graph.', inp: 'Node changes from the graph writer.', out: 'search "merchant_category" -> auth.events.v1#merchant_category_code (deprecated in v8)', ph: 'Phase 2', own: 'Platform backend', run: 'OpenSearch' },
+
+    { id: 'u-cat', l: 'use', n: 'Lineage UI and catalog', s: 'See the graph', what: 'Shows who calls what and where data goes, with owners and confidence on every edge.', inp: 'A person looking up fraud-svc.', out: 'Upstream: txn-enrichment (confirmed), fraud-score-v12 (confirmed)', ph: 'Phase 2', own: 'Platform backend', run: 'DataHub UI or a small app' },
+    { id: 'u-impact', l: 'use', n: 'Impact API and PR bot', s: 'What breaks if I change this?', what: 'Walks downstream from every column a PR removes or renames and posts the result on the PR.', inp: 'PR #482’s proposed edges.', out: 'Renaming merchant_category_code affects 7 assets, 5 teams, 5 tier 1.', ph: 'Phase 3', own: 'Developer productivity', run: 'API on EKS, GitHub app' },
+    { id: 'u-gate', l: 'use', n: 'Contract gate', s: 'Stop a break before merge', what: 'Warns when a removed field has only probable consumers. Blocks when a tier 1 consumer is confirmed and has no alias or sign-off.', inp: 'The impact result for PR #482.', out: 'BLOCKED: fct_card_auth (tier 1, confirmed) reads merchant_category_code.\nAdd an alias or get sign-off from analytics.', ph: 'Phase 5', own: 'Developer productivity', run: 'CI check' },
+    { id: 'u-rca', l: 'use', n: 'DQ alerts and RCA', s: 'Why did this break?', what: 'Walks upstream from a failing check and ranks every change on that path in the last 24 hours.', inp: 'DQ failure on mcc_decline_7d at 02:42.', out: '1. txn-enrichment hotfix deployed 02:03 (renamed mcc)\n2. ...\nNotify: fraud-ml, analytics', ph: 'Phase 5', own: 'Platform backend, analytics engineer', run: 'API on EKS' }
+  ];
+  const TRACES = {
+    log: { name: 'A mesh log line', steps: [
+      ['s-logs', 'txn-enrichment calls fraud-svc. Envoy writes one JSON line with the caller’s SPIFFE identity.'],
+      ['b-raw', 'Firehose lands the line in gw_access_raw, partitioned by hour.'],
+      ['c-gw', 'At the end of the hour the builder groups 41,200 such lines into one CALLS edge.'],
+      ['c-lib', 'The library wraps it in the envelope with weight 0.90.'],
+      ['b-topic', 'The event goes onto lineage.evidence.'],
+      ['k-res', 'The SPIFFE name resolves to svc://prod/txn-enrichment and the host to svc://prod/fraud-svc.'],
+      ['k-merge', 'The edge key is txn-enrichment|CALLS|fraud-svc. The static scanner had already seen the client config at 0.60.'],
+      ['k-score', '1 - (0.10 x 0.40) = 0.96, with a runtime source, so confirmed.'],
+      ['k-write', 'State changed from probable to confirmed, so a new version is written.'],
+      ['st-graph', 'The edge is in the graph with both sources.'],
+      ['u-cat', 'Anyone looking at fraud-svc now sees txn-enrichment as a confirmed caller.'] ] },
+    pr: { name: 'PR #482 renames a column', steps: [
+      ['s-code', 'PR #482 renames merchant_category_code to mcc in the event schema and in fct_card_auth.sql.'],
+      ['c-ci', 'The scanners run on the PR and report the new column edges and the removed field, marked proposed.'],
+      ['c-lib', 'Each finding becomes an evidence event with pr 482 and the commit.'],
+      ['b-topic', 'The proposed events go onto the topic like any other.'],
+      ['k-res', 'Names resolve to the same URNs the merged graph uses.'],
+      ['st-graph', 'Proposed edges are compared with the merged graph, not written to it.'],
+      ['u-impact', 'The impact walk from the removed field finds 7 assets, 5 teams and 5 tier 1 consumers, and posts it on the PR.'],
+      ['u-gate', 'fct_card_auth is tier 1, confirmed and has no alias, so the gate blocks the merge until there is an alias or a sign-off.'] ] },
+    wh: { name: 'A warehouse query', steps: [
+      ['s-wh', 'dbt runs fct_card_auth. Snowflake records which columns it read and wrote.'],
+      ['c-acc', 'The hourly puller reads the row and emits DERIVES RAW.CARD_AUTH to FCT_CARD_AUTH with MCC to MCC.'],
+      ['c-lib', 'Weight 0.95, runtime.'],
+      ['b-topic', 'Onto the topic.'],
+      ['b-raw', 'A copy lands in evidence_raw, so the edge can be traced to this query.'],
+      ['k-res', 'PROD_DB.RAW.CARD_AUTH resolves to warehouse://prod/raw.card_auth, the same URN the CI scanner and dbt-ol used under other names.'],
+      ['k-merge', 'Three collectors, three vocabularies, one key. The record now has ci_static, openlineage and access_history.'],
+      ['k-score', '1 - (0.40 x 0.05 x 0.05) = 0.999, confirmed.'],
+      ['k-write', 'Columns were added, so a new version is written.'],
+      ['st-graph', 'The edge carries column lineage from three independent sources.'] ] },
+    rca: { name: 'An incident at 02:42', steps: [
+      ['s-ev', 'The null-rate check on mcc_decline_7d fails at 02:42. A hotfix to txn-enrichment was deployed at 02:03.'],
+      ['c-lib', 'The DQ result and the deploy are published as events on their nodes.'],
+      ['b-topic', 'They arrive on the same topic as the edges, so they share the graph’s names.'],
+      ['k-res', 'mcc_decline_7d and txn-enrichment resolve to their URNs.'],
+      ['st-graph', 'The events attach to those nodes.'],
+      ['u-rca', 'RCA walks upstream from mcc_decline_7d, ranks changes on the path in the last 24 hours, and puts the 02:03 hotfix first.'],
+      ['u-impact', 'The downstream walk lists who to tell: fraud-score-v12 and fraud-svc. The rollback lands at 03:20.'] ] },
+    recon: { name: 'The nightly reconcile', steps: [
+      ['st-graph', 'At night the reconciler reads every current edge.'],
+      ['b-raw', 'It reads the last 30 days of evidence from the archive.'],
+      ['k-recon', 'auth.events.v0 has had no runtime evidence for 30 days, so it becomes dormant. A notebook reading fct_card_auth#card_bin was never declared, so it is flagged for the owner.'],
+      ['k-write', 'State changes are written as new versions. Nothing is deleted.'],
+      ['st-search', 'The index marks auth.events.v0 dormant, so search shows it greyed out.'] ] }
+  };
+
+  const byId = id => C.find(c => c.id === id);
+  const layersEl = document.getElementById('layers');
+  LAYERS.forEach((L, i) => {
+    const row = document.createElement('div');
+    row.className = 'layer';
+    row.style.setProperty('--lc', 'var(' + L.c + ')');
+    row.innerHTML = '<div class="lhead"><b></b><span></span></div><div class="comps"></div>';
+    row.querySelector('b').textContent = L.name;
+    row.querySelector('span').textContent = L.job;
+    const box = row.querySelector('.comps');
+    C.filter(c => c.l === L.id).forEach(c => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'comp'; b.id = 'comp-' + c.id;
+      b.innerHTML = '<b></b><small></small>';
+      b.querySelector('b').textContent = c.n;
+      b.querySelector('small').textContent = c.s;
+      b.addEventListener('click', () => { state.sel = c.id; if (state.trace) { const k = TRACES[state.trace].steps.findIndex(s => s[0] === c.id); if (k >= 0) state.step = k; } render(); });
+      box.appendChild(b);
+    });
+    layersEl.appendChild(row);
+    if (i < JOINS.length) {
+      const j = document.createElement('div');
+      j.className = 'join';
+      j.innerHTML = '<div class="sp"></div><div class="arrow">↓ ' + JOINS[i] + '</div>';
+      layersEl.appendChild(j);
+    }
+  });
+  const loop = document.createElement('div');
+  loop.className = 'loop';
+  loop.textContent = '↺ The loop: what the uses layer produces (DQ results, contract checks, deploys, merged PRs) goes back in as change and quality events at the top, so incidents and changes share the graph’s names.';
+  layersEl.appendChild(loop);
+
+  const state = { sel: 'k-res', trace: '', step: 0 };
+  const panel = document.getElementById('panel');
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function render() {
+    document.querySelectorAll('.chip').forEach(ch => ch.setAttribute('aria-pressed', String(ch.dataset.trace === state.trace)));
+    layersEl.classList.toggle('tracing', !!state.trace);
+    C.forEach(c => {
+      const el = document.getElementById('comp-' + c.id);
+      el.classList.toggle('sel', c.id === state.sel);
+      el.classList.remove('on');
+      const old = el.querySelector('.badge'); if (old) old.remove();
+    });
+    let stepHtml = '';
+    if (state.trace) {
+      const T = TRACES[state.trace];
+      T.steps.forEach((s, k) => {
+        const el = document.getElementById('comp-' + s[0]);
+        el.classList.add('on');
+        let bd = el.querySelector('.badge');
+        if (!bd) { bd = document.createElement('span'); bd.className = 'badge'; el.appendChild(bd); bd.textContent = String(k + 1); }
+        else { bd.textContent += ',' + (k + 1); }
+        if (k === state.step) bd.classList.add('now');
+      });
+      const s = T.steps[state.step];
+      stepHtml = '<div class="step"><span class="sn">' + esc(T.name) + ' · step ' + (state.step + 1) + ' of ' + T.steps.length + '</span><p>' + esc(s[1]) + '</p><div class="nav"><button class="btn" type="button" id="prev"' + (state.step === 0 ? ' disabled' : '') + '>Back</button><button class="btn pri" type="button" id="next"' + (state.step === T.steps.length - 1 ? ' disabled' : '') + '>Next step</button></div></div>';
+    }
+    const c = byId(state.sel);
+    const L = LAYERS.find(x => x.id === c.l);
+    panel.style.setProperty('--lc', 'var(' + L.c + ')');
+    panel.innerHTML = stepHtml +
+      '<div class="tag">' + esc(L.name) + '</div><h2>' + esc(c.n) + '</h2><p style="font-size:14px">' + esc(c.what) + '</p>' +
+      '<dl class="facts"><dt>Built in</dt><dd>' + esc(c.ph) + '</dd><dt>Owner</dt><dd>' + esc(c.own) + '</dd><dt>Runs on</dt><dd>' + esc(c.run) + '</dd></dl>' +
+      '<div class="ex"><span class="k">Takes in</span><pre>' + esc(c.inp) + '</pre></div>' +
+      '<div class="ex"><span class="k">Puts out</span><pre>' + esc(c.out) + '</pre></div>';
+    const p = document.getElementById('prev'), n = document.getElementById('next');
+    if (p) p.addEventListener('click', () => go(-1));
+    if (n) n.addEventListener('click', () => go(1));
+  }
+  function go(d) {
+    const T = TRACES[state.trace];
+    state.step = Math.max(0, Math.min(T.steps.length - 1, state.step + d));
+    state.sel = T.steps[state.step][0];
+    render();
+  }
+  document.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', () => {
+    state.trace = ch.dataset.trace; state.step = 0;
+    if (state.trace) state.sel = TRACES[state.trace].steps[0][0];
+    render();
+  }));
+  render();
+})();
+</script>
+
+</html>
