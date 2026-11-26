@@ -1,0 +1,1258 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Element Lineage Blueprint</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: prose at reading width, matrices and diagrams at full width; five views behind a sticky tab bar; a detail panel sits beside each wide table on desktop and under it on phones. Tokens match the sibling pages in this repo. */
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --sunk: #eceef2; --line: #d8dce3;
+  --ink: #16202c; --muted: #5a6575; --accent: #0b6e62; --accent-soft: #d9efeb;
+  --warn: #a35a00; --warn-soft: #fbead2;
+  --human: #a35a00; --human-soft: #fbead2; --agent: #0b6e62; --agent-soft: #d9efeb;
+  --f1: #5b6b8c; --f2: #1d5fa8; --f3: #0b6e62; --f4: #7a5aa6; --f5: #8a6d1f; --f6: #b0463a;
+  --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --sunk: #1e252e; --line: #2c3540;
+  --ink: #e6ebf1; --muted: #9aa6b4; --accent: #4fc2b1; --accent-soft: #163a36;
+  --warn: #f0a94b; --warn-soft: #3a2a12;
+  --human: #f0a94b; --human-soft: #3a2a12; --agent: #4fc2b1; --agent-soft: #163a36;
+  --f1: #9fb0d0; --f2: #6fa8ec; --f3: #4fc2b1; --f4: #b99ae0; --f5: #d8b85a; --f6: #ee8a7c; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --sunk: #1e252e; --line: #2c3540;
+  --ink: #e6ebf1; --muted: #9aa6b4; --accent: #4fc2b1; --accent-soft: #163a36;
+  --warn: #f0a94b; --warn-soft: #3a2a12;
+  --human: #f0a94b; --human-soft: #3a2a12; --agent: #4fc2b1; --agent-soft: #163a36;
+  --f1: #9fb0d0; --f2: #6fa8ec; --f3: #4fc2b1; --f4: #b99ae0; --f5: #d8b85a; --f6: #ee8a7c; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 var(--f-body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 64px; }
+h1, h2, h3, h4 { font-family: var(--f-display); margin: 0; line-height: 1.2; text-wrap: balance; }
+h1 { font-size: clamp(27px, 4.6vw, 38px); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: clamp(21px, 3vw, 25px); font-weight: 600; }
+h3 { font-size: 17.5px; font-weight: 600; }
+h4 { font-size: 14.5px; font-weight: 600; }
+p { margin: 0; max-width: 72ch; }
+a { color: var(--accent); text-underline-offset: 2px; }
+code, .mono { font-family: var(--f-mono); font-size: 0.92em; }
+code { background: var(--sunk); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.eyebrow { font: 500 12px/1.3 var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* header */
+.top { display: grid; gap: 14px; }
+.lede { font-size: 17px; line-height: 1.55; max-width: 68ch; }
+.objs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin: 10px 0 0; border-top: 2px solid var(--ink); }
+.objs div { padding: 12px 14px 12px 0; border-bottom: 1px solid var(--line); display: grid; gap: 3px; align-content: start; }
+.objs dt { font: 500 12px var(--f-mono); color: var(--accent); letter-spacing: 0.04em; }
+.objs dd { margin: 0; }
+.objs b { font: 600 15.5px var(--f-display); display: block; }
+.objs span { font-size: 13px; color: var(--muted); line-height: 1.4; display: block; }
+@media (max-width: 860px) { .objs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .objs { grid-template-columns: 1fr; } }
+
+/* tabs */
+.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); margin: 26px 0 0; border-bottom: 1px solid var(--line); display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs a { flex: none; padding: 12px 14px 10px; font: 500 14px var(--f-body); color: var(--muted); text-decoration: none; border-bottom: 3px solid transparent; white-space: nowrap; }
+.tabs a:hover { color: var(--ink); }
+.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.tabs a i { font: 500 11.5px var(--f-mono); font-style: normal; color: var(--accent); margin-right: 6px; }
+
+/* views */
+.view { display: grid; gap: 22px; padding-top: 28px; }
+.view > * { min-width: 0; }
+.sec { display: grid; gap: 12px; }
+.sec > * { min-width: 0; }
+.sec + .sec { padding-top: 12px; }
+.key { border-left: 4px solid var(--accent); padding: 4px 0 4px 16px; font-size: 16.5px; line-height: 1.55; max-width: 74ch; }
+.note { font-size: 13px; color: var(--muted); max-width: 80ch; }
+ul.tight, ol.tight { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 76ch; }
+ol.whys { margin: 0; padding-left: 22px; display: grid; gap: 8px; max-width: 76ch; }
+ol.whys li::marker { font-family: var(--f-mono); color: var(--accent); }
+.cols2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 28px; }
+@media (max-width: 760px) { .cols2 { grid-template-columns: 1fr; } }
+.cols2 > div { display: grid; gap: 8px; align-content: start; min-width: 0; }
+
+/* figures */
+figure.fig { margin: 0; display: grid; gap: 8px; }
+.fig .canvas { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; overflow-x: auto; }
+.fig svg { display: block; width: 100%; height: auto; min-width: 680px; color: var(--ink); font-family: var(--f-body); }
+.fig figcaption { font-size: 13px; color: var(--muted); max-width: 86ch; }
+svg .t { font-size: 12.5px; fill: currentColor; }
+svg .ts { font-size: 11px; fill: var(--muted); }
+svg .th { font: 600 12.5px var(--f-display); fill: currentColor; }
+svg .tm { font: 500 10.5px var(--f-mono); fill: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+svg .box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+svg .band { fill: var(--sunk); }
+svg .ln { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+svg .dash { stroke-dasharray: 5 4; }
+
+/* chips */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chips .lbl { font-size: 13px; color: var(--muted); margin-right: 2px; }
+.chip { font: 500 13px var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 13px; cursor: pointer; }
+.chip:hover { border-color: var(--muted); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* families */
+.fams { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.fam { display: grid; grid-template-columns: 210px minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 6px 18px; padding: 12px 0; border-bottom: 1px solid var(--line); align-items: start; }
+.fam > * { min-width: 0; }
+.fam h4 { display: flex; gap: 8px; align-items: baseline; }
+.fam h4::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 2px; background: var(--fc); transform: translateY(0.5px); }
+.fam p { font-size: 13.5px; line-height: 1.5; }
+.fam .k { font: 500 11px var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px; }
+.fam .who { font-size: 12.5px; color: var(--muted); grid-column: 1; }
+@media (max-width: 900px) { .fam { grid-template-columns: 1fr; } }
+
+/* tables */
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+thead th { font: 500 11.5px var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; background: var(--sunk); white-space: nowrap; position: sticky; top: 0; }
+tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+tbody th { font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.plain td { line-height: 1.45; }
+@media (max-width: 700px) { .scroll > table.plain { min-width: 520px; } }
+.tag { display: inline-block; font: 500 11px var(--f-mono); letter-spacing: 0.03em; padding: 2px 7px; border-radius: 4px; background: var(--sunk); color: var(--muted); white-space: nowrap; }
+.tag.h { background: var(--human-soft); color: var(--human); }
+.tag.a { background: var(--agent-soft); color: var(--agent); }
+.tag.w { background: var(--warn-soft); color: var(--warn); }
+
+/* vendor matrix */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+@media (max-width: 980px) { .split { grid-template-columns: 1fr; } }
+.matrix thead th { white-space: normal; line-height: 1.3; vertical-align: bottom; }
+.matrix th, .matrix td { padding-left: 9px; padding-right: 9px; }
+.matrix th.c, .matrix td.c { text-align: center; padding-left: 4px; padding-right: 4px; width: 68px; }
+.matrix tbody tr { cursor: pointer; }
+.matrix tbody tr:hover td, .matrix tbody tr:hover th { background: var(--sunk); }
+.matrix tbody tr.sel td, .matrix tbody tr.sel th { background: var(--accent-soft); }
+.matrix .vbtn { all: unset; cursor: pointer; font: 600 13.5px var(--f-body); color: var(--ink); display: block; }
+.matrix .vbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.matrix .mech { font-size: 12.5px; color: var(--muted); min-width: 140px; }
+.matrix tr.grp th { background: var(--bg); font: 600 12.5px var(--f-display); color: var(--fc); padding-top: 12px; border-bottom: 2px solid var(--fc); cursor: default; }
+.ball { width: 17px; height: 17px; vertical-align: middle; color: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; gap: 5px; align-items: center; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 58px); min-width: 0; max-height: calc(100vh - 80px); overflow-y: auto; }
+@media (max-width: 980px) { .panel { position: static; max-height: none; } }
+.panel .fam-tag { font: 500 11.5px var(--f-mono); color: var(--fc); text-transform: uppercase; letter-spacing: 0.06em; }
+.panel h3 { font-size: 20px; }
+.panel dl { margin: 0; display: grid; gap: 10px; }
+.panel dt { font: 500 11.5px var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: flex; gap: 7px; align-items: center; }
+.panel dd { margin: 2px 0 0; font-size: 13.5px; line-height: 1.5; }
+.panel .srcs { font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; }
+
+/* coverage grid */
+.cover th.hop { text-align: center; min-width: 86px; white-space: normal; line-height: 1.25; }
+.cover th.hop button { all: unset; cursor: pointer; display: block; width: 100%; font: 500 11.5px var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.cover th.hop.sel button { color: var(--accent); }
+.cover th.hop button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cover td.cv { text-align: center; padding: 6px; }
+.cover td.sel, .cover th.hop.sel { background: var(--accent-soft); }
+.cv i { display: inline-grid; place-items: center; width: 30px; height: 26px; border-radius: 5px; font: 600 12px var(--f-mono); font-style: normal; }
+.cv .F { background: var(--accent); color: var(--surface); }
+.cv .D { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.cv .P { background: var(--accent-soft); color: var(--accent); border: 1.5px dashed var(--accent); }
+.cv .N { color: var(--muted); border: 1.5px solid var(--line); }
+.cover tr.ours th, .cover tr.ours td { border-top: 2px solid var(--ink); }
+.hopcard { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.hopcard .path { font: 500 13px var(--f-mono); color: var(--accent); overflow-wrap: anywhere; }
+.hopcard .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 22px; }
+@media (max-width: 760px) { .hopcard .three { grid-template-columns: 1fr; } }
+.hopcard .k { font: 500 11px var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 3px; }
+.hopcard p { font-size: 13.5px; line-height: 1.5; }
+
+/* flow diagram */
+svg .fb { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; transition: opacity .2s; }
+svg .fb-t { font-size: 12px; fill: currentColor; transition: opacity .2s; }
+svg.flowing .fb, svg.flowing .fb-t { opacity: 0.3; }
+svg.flowing .fb.on { opacity: 1; stroke: var(--accent); fill: var(--accent-soft); stroke-width: 2; }
+svg.flowing .fb-t.on { opacity: 1; }
+ol.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; counter-reset: s; border-top: 1px solid var(--line); }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 34px 170px minmax(0, 1fr); gap: 4px 14px; padding: 11px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+ol.steps li::before { content: counter(s); font: 600 12px/24px var(--f-mono); width: 24px; height: 24px; border-radius: 12px; background: var(--ink); color: var(--bg); text-align: center; }
+ol.steps b { font: 600 14px var(--f-body); }
+ol.steps span { font-size: 13.5px; line-height: 1.5; }
+ol.steps .ex { grid-column: 3; font: 400 12.5px/1.5 var(--f-mono); color: var(--muted); overflow-wrap: anywhere; }
+@media (max-width: 700px) { ol.steps li { grid-template-columns: 34px minmax(0, 1fr); } ol.steps span, ol.steps .ex { grid-column: 2; } }
+.flowhead { display: grid; gap: 4px; }
+.flowhead .trig { font-size: 13.5px; color: var(--muted); }
+
+/* factory */
+svg .st-h { fill: var(--human-soft); stroke: var(--human); stroke-width: 1.5; }
+svg .st-a { fill: var(--agent-soft); stroke: var(--agent); stroke-width: 1.5; }
+svg .st-g { fill: var(--surface); stroke: var(--human); stroke-width: 2; }
+svg .fbk { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-dasharray: 5 4; }
+svg .ah { fill: var(--muted); }
+svg .gd { fill: var(--human); }
+svg .gl { stroke: var(--human); stroke-width: 1.5; }
+svg .tl { stroke: var(--fc); stroke-width: 3; stroke-linecap: round; fill: none; }
+svg .td { fill: var(--fc); }
+svg .to { fill: var(--surface); stroke: var(--fc); stroke-width: 2; }
+svg .win { fill: var(--accent-soft); }
+.who { display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--muted); }
+.who::before { content: ""; width: 11px; height: 11px; border-radius: 3px; border: 1.5px solid var(--c); background: var(--cs); }
+.who.h { --c: var(--human); --cs: var(--human-soft); }
+.who.a { --c: var(--agent); --cs: var(--agent-soft); }
+ol.ladder { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; border-top: 1px solid var(--line); }
+ol.ladder li { display: grid; grid-template-columns: 52px 200px minmax(0, 1fr) minmax(0, 1fr); gap: 4px 16px; padding: 11px 0; border-bottom: 1px solid var(--line); align-items: baseline; font-size: 13.5px; line-height: 1.5; }
+ol.ladder li > * { min-width: 0; }
+ol.ladder .lv { font: 600 13px var(--f-mono); color: var(--accent); }
+ol.ladder b { font: 600 14px var(--f-body); }
+ol.ladder li.now { background: var(--accent-soft); margin: 0 -10px; padding-left: 10px; padding-right: 10px; border-radius: 6px; }
+@media (max-width: 800px) { ol.ladder li { grid-template-columns: 52px minmax(0, 1fr); } ol.ladder li > :nth-child(n+3) { grid-column: 2; } }
+
+footer.src { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <p class="eyebrow">Card-authorization slice · vendor assessment and build spec · November 2026</p>
+  <h1>Lineage down to the field</h1>
+  <p class="lede">No product found delivers field-level lineage across services, streams, tables, features and models. The market is strong where SQL runs and thin at the operational edge, where breaking changes start. This page shows who covers what, what to build on the owned lineage core, and how an AI factory builds it.</p>
+  <dl class="objs">
+    <div><dt>O1</dt><dd><b>Baseline</b><span>Every field on the path, from service to model</span></dd></div>
+    <div><dt>O2</dt><dd><b>Incremental</b><span>The graph changes when the source changes, not at the next scan</span></dd></div>
+    <div><dt>O3</dt><dd><b>Change impact</b><span>Who reads this field, shown in the pull request</span></dd></div>
+    <div><dt>O4</dt><dd><b>Detect and resolve</b><span>Cause and fix order attached to the alert</span></dd></div>
+  </dl>
+</header>
+
+<nav class="tabs" aria-label="Sections">
+  <a href="#market">Market</a>
+  <a href="#fit">Fit to the slice</a>
+  <a href="#build">What to build</a>
+  <a href="#factory">AI factory</a>
+  <a href="#decide">Decide</a>
+</nav>
+
+<section class="view" id="v-market">
+  <div class="sec">
+    <h2>Five ways the market gets lineage down to the column</h2>
+    <p class="key">Each family sees a change at a different moment. Only one sees it while it can still be stopped, and that one mostly ends at the edge of a single SQL project.</p>
+    <figure class="fig">
+      <div class="canvas">
+        <svg viewBox="0 0 960 276" role="img" aria-label="A timeline from code edited to logs landing. CI tools first see a change when the pull request opens. OpenLineage events and platform catalogs see it at the first run. Query-log tools see it when logs land. Scanner suites see it at the next scheduled scan.">
+          <rect class="win" x="252" y="36" width="258" height="200" rx="6"/>
+          <g class="ln dash"><line x1="270" y1="36" x2="270" y2="236"/><line x1="390" y1="36" x2="390" y2="236"/><line x1="510" y1="36" x2="510" y2="236"/><line x1="630" y1="36" x2="630" y2="236"/><line x1="750" y1="36" x2="750" y2="236"/><line x1="880" y1="36" x2="880" y2="236"/></g>
+          <text class="tm" x="270" y="24" text-anchor="middle">Code edited</text>
+          <text class="tm" x="390" y="24" text-anchor="middle">PR opened</text>
+          <text class="tm" x="510" y="24" text-anchor="middle">Merged</text>
+          <text class="tm" x="630" y="24" text-anchor="middle">Deployed</text>
+          <text class="tm" x="750" y="24" text-anchor="middle">First run</text>
+          <text class="tm" x="880" y="24" text-anchor="middle">Logs land / next scan</text>
+
+          <g style="--fc: var(--f3)"><text class="th" x="8" y="70">CI tools on the code diff</text><line class="tl" x1="390" y1="66" x2="940" y2="66"/><circle class="td" cx="390" cy="66" r="7"/><text class="ts" x="402" y="57">on every push to the PR</text></g>
+          <g style="--fc: var(--f4)"><text class="th" x="8" y="104">OpenLineage events</text><line class="tl" x1="750" y1="100" x2="940" y2="100"/><circle class="td" cx="750" cy="100" r="7"/><circle class="to" cx="390" cy="100" r="6"/><text class="ts" x="402" y="91">static events possible, no shipped tool</text><text class="ts" x="762" y="91">after the job runs</text></g>
+          <g style="--fc: var(--f2)"><text class="th" x="8" y="138">Platform-native catalogs</text><line class="tl" x1="750" y1="134" x2="940" y2="134"/><circle class="td" cx="750" cy="134" r="7"/><text class="ts" x="762" y="125">after the query runs</text></g>
+          <g style="--fc: var(--f5)"><text class="th" x="8" y="172">Query-log catalogs and observability</text><line class="tl" x1="880" y1="168" x2="940" y2="168"/><circle class="td" cx="880" cy="168" r="7"/><circle class="to" cx="390" cy="168" r="6"/><text class="ts" x="402" y="159">dbt projects only</text><text class="ts" x="868" y="159" text-anchor="end">minutes to 3 hours after the run</text></g>
+          <g style="--fc: var(--f1)"><text class="th" x="8" y="206">Scanner suites</text><line class="tl" x1="880" y1="202" x2="940" y2="202"/><circle class="td" cx="880" cy="202" r="7"/><text class="ts" x="868" y="193" text-anchor="end">at the next scheduled scan</text></g>
+
+          <text class="ts" x="381" y="256" text-anchor="middle">before merge: a breaking change can still be stopped</text>
+          <text class="ts" x="725" y="256" text-anchor="middle">after merge: detection and repair</text>
+        </svg>
+      </div>
+      <figcaption>When each family first sees a change. A filled dot is where it sees the change as a matter of course. A hollow dot is possible but narrow. Inside the shaded window, CI tools cover SQL projects, and two young vendors read application code. Nothing found sees a change to a Flink job, a feature definition or a model input before it merges.</figcaption>
+    </figure>
+    <div class="fams" id="fams"></div>
+  </div>
+
+  <div class="sec">
+    <h2>Vendor by vendor</h2>
+    <p>Rated against the four objectives and against reach beyond the warehouse into services, streams and ML. Select a row for how the product works and where it stops.</p>
+    <div class="chips" id="fam-filter"></div>
+    <div class="split">
+      <div class="scroll">
+        <table class="matrix" id="matrix">
+          <thead><tr><th>Product</th><th>How it gets element lineage</th><th class="c">Baseline</th><th class="c">Incremental</th><th class="c">Change impact</th><th class="c">Incident</th><th class="c">Beyond warehouse</th><th>Evidence</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <aside class="panel" id="vendor-panel" aria-live="polite"></aside>
+    </div>
+    <p class="legend"><span><span data-ball="4"></span>Strong</span><span><span data-ball="3"></span>Good</span><span><span data-ball="2"></span>Partial</span><span><span data-ball="1"></span>Limited</span><span><span data-ball="0"></span>None found</span></p>
+    <p class="note"><b>Read the ratings as judgments, not measurements.</b> They are a reading of the cited research, at element level, for an estate like the slice. The research ran with most vendor documentation hosts blocked, so the evidence column says how each row was sourced: <span class="tag a">At source</span> documentation, API definitions or package files read in full; <span class="tag w">Summaries</span> search summaries of vendor pages that could not be opened; <span class="tag">Thin</span> little retrieved. Re-read a vendor's own documentation before any of this goes into a contract.</p>
+  </div>
+
+  <div class="sec">
+    <h2>What the outside view adds</h2>
+    <div class="cols2">
+      <div>
+        <h3>Lineage is being absorbed into platforms</h3>
+        <p class="small">Most independent specialists have been bought since late 2024, and the stated reason in 2026 is usually the same: lineage as context for AI agents, served through tool servers.</p>
+        <div class="scroll">
+          <table class="plain">
+            <thead><tr><th>Bought</th><th>By</th><th>When</th></tr></thead>
+            <tbody>
+              <tr><td>Octopai</td><td>Cloudera</td><td>Nov 2024</td></tr>
+              <tr><td>Metaplane</td><td>Datadog</td><td>Apr 2025</td></tr>
+              <tr><td>data.world</td><td>ServiceNow</td><td>May 2025</td></tr>
+              <tr><td>Tobiko (SQLMesh, SQLGlot)</td><td>Fivetran</td><td>Sep 2025</td></tr>
+              <tr><td>Informatica</td><td>Salesforce</td><td>Nov 2025</td></tr>
+              <tr><td>Select Star</td><td>Snowflake</td><td>Announced Nov 2025</td></tr>
+              <tr><td>SYNQ</td><td>Coalesce</td><td>Mar 2026</td></tr>
+              <tr><td>Confluent</td><td>IBM</td><td>Mar 2026</td></tr>
+              <tr><td>dbt Labs</td><td>Fivetran (merger)</td><td>Jun 2026</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Consequence: a lineage product's roadmap now follows its owner's platform. That raises the value of owning the identity scheme and the evidence, which is what ADR-002 chose.</p>
+      </div>
+      <div>
+        <h3>What buyers pay, where it is visible</h3>
+        <div class="scroll">
+          <table class="plain">
+            <thead><tr><th>Product</th><th>Annual figure seen</th><th>Kind</th></tr></thead>
+            <tbody>
+              <tr><td>Collibra</td><td class="num">about $166K to $197K</td><td>Deal tracker, small sample</td></tr>
+              <tr><td>Alation</td><td class="num">from $60K; median about $141K</td><td>Marketplace list; deal tracker</td></tr>
+              <tr><td>Atlan</td><td class="num">about $50K median</td><td>Deal tracker</td></tr>
+              <tr><td>Monte Carlo</td><td class="num">about $50K</td><td>Deal tracker</td></tr>
+              <tr><td>Bigeye</td><td class="num">$25K; $75K lineage package</td><td>Deal tracker; marketplace list</td></tr>
+              <tr><td>Datadog</td><td class="num">$16 per table a month</td><td>Public price list</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Samples are small and mid-market. No bank-scale contract evidence was found, and enterprise suites are quote only.</p>
+        <h3>What the outcome evidence is worth</h3>
+        <p class="small">No independently measured result was found for any of the four objectives. The detection and resolution times that are widely quoted come from vendor-funded surveys of 2022 and 2023. They size the problem. They do not show a tool's effect. The plan's own Phase 0 baseline is the number to beat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="v-fit" hidden>
+  <div class="sec">
+    <h2>Eight hops, and who can see fields on each</h2>
+    <p class="key">The market covers the two hops in the middle of the slice. The six around them, where a service payload becomes a topic, a stream job renames a field and a feature feeds a model, are where the PR #482 rename did its damage.</p>
+    <p>Each row is the best coverage documented for any product in that family. Select a hop for what element lineage means there, what the market offers and what this build does.</p>
+    <div class="scroll">
+      <table class="cover" id="cover">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="legend"><span class="cv"><i class="F">F</i></span> Field level &nbsp; <span class="cv"><i class="P">P</i></span> Field level under a condition: one vendor, one platform or a preview &nbsp; <span class="cv"><i class="D">D</i></span> Dataset level only &nbsp; <span class="cv"><i class="N">–</i></span> Not found</p>
+    <div class="hopcard" id="hopcard" aria-live="polite"></div>
+  </div>
+
+  <div class="sec">
+    <h2>What that means for buy, adopt and build</h2>
+    <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>Need</th><th>Decision</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">SQL and dbt element extraction</th><td><span class="tag">Adopt</span> SQLGlot with the dbt manifest</td><td>The same parser sits under DataHub, SQLMesh and Recce. Do not write one.</td></tr>
+          <tr><th scope="row">Runtime column lineage</th><td><span class="tag">Adopt</span> OpenLineage for Spark, dbt, Airflow, Trino</td><td>Switched on centrally; no work per team.</td></tr>
+          <tr><th scope="row">Warehouse truth</th><td><span class="tag">Adopt</span> the platform's lineage and access history</td><td>Complete for what ran, including ad hoc and BI queries.</td></tr>
+          <tr><th scope="row">Anomaly and DQ detection</th><td><span class="tag w">Keep or buy</span> an observability product</td><td>Detection is a commodity. Its findings arrive as results on elements.</td></tr>
+          <tr><th scope="row">Stored procedures and legacy ETL, if the wider estate has them</th><td><span class="tag w">Buy</span> a scanner suite as a collector</td><td>Thousands of constructs already handled. Not worth rebuilding.</td></tr>
+          <tr><th scope="row">Service code to topic fields</th><td><span class="tag a">Build</span> and trial one code-based vendor</td><td>No open tool emits lineage from code analysis. A week on <code>payments-svc</code> against the golden graph settles build or buy.</td></tr>
+          <tr><th scope="row">Flink field mapping</th><td><span class="tag a">Build</span> on the Flink planner in CI</td><td>Nothing in the market provides it.</td></tr>
+          <tr><th scope="row">Feature and model hops</th><td><span class="tag a">Build</span> small extractors</td><td>Platform ML lineage is artifact-level and separate from the catalog.</td></tr>
+          <tr><th scope="row">Identity, evidence merge, history, diff, cross-system PR impact, RCA ranking</th><td><span class="tag a">Build</span> the thin core</td><td>No product fits here. It is what ADR-002 chose to own.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>What the assessment changes in ADR-002</h2>
+    <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>The ADR said</th><th>The assessment found</th><th>Consequence</th></tr></thead>
+        <tbody>
+          <tr><td>No catalog covers services, streams and ML</td><td>Confirmed. Amazon MSK and Managed Flink have no lineage capture at all.</td><td>The decision stands</td></tr>
+          <tr><td>SageMaker Unified Studio accepts run events only</td><td>Confirmed from the API model. A column lineage facet inside a run event is honoured.</td><td>Static CI evidence cannot be projected there; runtime column edges can</td></tr>
+          <tr><td>Unity Catalog keeps long history</td><td>395 days rolling in system tables; external lineage is declarative, in preview and capped</td><td>Still the strongest platform case</td></tr>
+          <tr><td>Marquez could be the first-slice store</td><td>Accepts static events and serves point-in-time column lineage, but its README's recommended release dates from October 2024</td><td>Good reference design, weak long-term dependency</td></tr>
+          <tr><td>DataHub could be the store</td><td>No lineage history; its OpenLineage endpoint treats every event as a run event; stale edges persist in incremental mode</td><td>If chosen, history and removal live in the owned writer and the lake</td></tr>
+          <tr><td>New since the ADR</td><td>Snowflake's OpenLineage ingestion for external lineage went generally available in September 2026 with column detail kept</td><td>A better projection target</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="view" id="v-build" hidden>
+  <div class="sec">
+    <h2>One pipeline, four flows</h2>
+    <p class="key">The four objectives are four paths through the same components. What separates them is the trigger and how fast the answer is needed. Pick a flow to trace it on PR #482, the rename of <code>merchant_category_code</code> to <code>mcc</code>.</p>
+  </div>
+  <div class="sec">
+    <div class="chips" id="flow-chips"></div>
+    <figure class="fig">
+      <div class="canvas"><svg id="flow-svg" viewBox="0 0 986 330" role="img" aria-label="Six columns of components: signals, extract, evidence, core, graph and uses. The selected flow lights up the components it passes through."></svg></div>
+      <figcaption>The plan's architecture with the element-level additions: change detectors, unit-owned evidence, a bitemporal writer, the lineage diff stream and the PR overlay. Lit boxes are the ones the selected flow passes through.</figcaption>
+    </figure>
+    <div class="flowhead" id="flow-head"></div>
+    <ol class="steps" id="flow-steps"></ol>
+  </div>
+
+  <div class="sec">
+    <h2>What changes in the graph model</h2>
+    <p>The plan already names fields with a <code>#</code> suffix and has a <code>DERIVES</code> edge. Element level needs three additions.</p>
+    <div class="cols2">
+      <div>
+        <h4>Each field mapping is its own edge</h4>
+        <p class="small">Today a dataset edge carries a list of columns. In envelope v2 every mapping has its own key, evidence and confidence, because one column of a model can be confirmed at runtime while its neighbour is static only.</p>
+        <p class="small mono">&lt;from URN&gt;#&lt;field&gt; | DERIVES | &lt;to URN&gt;#&lt;field&gt;</p>
+      </div>
+      <div>
+        <h4>Gaps are stated, not hidden</h4>
+        <p class="small">Dynamic SQL, an untyped UDF or DataStream code cannot be resolved to fields. The extractor emits a dataset-level edge marked opaque with a reason, and impact reports say "field-level unknown through this job" instead of ending the path quietly.</p>
+      </div>
+    </div>
+    <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>Class</th><th>Subtype</th><th>On the slice</th><th>How impact treats it</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Direct</th><td>Identity</td><td><code>raw.card_auth#mcc</code> to <code>fct_card_auth#mcc</code>. A rename is identity with two names.</td><td>Value impact. A removed or retyped source breaks the target.</td></tr>
+          <tr><th scope="row">Direct</th><td>Transformation</td><td><code>auth_ts</code> cast to <code>auth_date</code></td><td>Value impact. A changed expression is a logic change.</td></tr>
+          <tr><th scope="row">Direct</th><td>Aggregation</td><td><code>fct_card_auth#declined</code> summed over 7 days into <code>mcc_decline_7d</code></td><td>Value impact. A changed window is a logic change.</td></tr>
+          <tr><th scope="row">Indirect</th><td>Join, filter, group by, sort, window, conditional</td><td><code>status = 'AUTH'</code> filters the fact table; <code>mcc</code> is the feature's group-by key</td><td>Row-set impact. Stored once per target dataset, reported separately, never blocks alone.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">The classes and subtypes are the ones in the OpenLineage column lineage facet (spec 1-2-0), so runtime events map without translation. Its docs warn that fanning indirect dependencies out to every column produces "almost a cartesian product", which is why they are stored per dataset.</p>
+  </div>
+
+  <div class="sec">
+    <h2>What keeps it incremental</h2>
+    <div class="cols2">
+      <div>
+        <h4>Three hashes decide whether a unit is re-read</h4>
+        <ul class="tight small">
+          <li><b>Content hash:</b> the unit's own normalized source.</li>
+          <li><b>Input schema hash:</b> the schema versions of everything it reads. This catches a <code>SELECT *</code> that changes meaning when an upstream column is added.</li>
+          <li><b>Extractor version:</b> a parser upgrade.</li>
+        </ul>
+        <p class="small">If none changed, the unit is skipped.</p>
+      </div>
+      <div>
+        <h4>Two rules for evidence</h4>
+        <ul class="tight small">
+          <li><b>Static evidence is owned by its unit.</b> A re-read replaces the unit's whole evidence set, so a deleted column leaves the graph at the next merge, not the next rescan.</li>
+          <li><b>Runtime evidence only adds.</b> It leaves by decay after 30 days unseen, and the edge turns dormant.</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Two clocks on every edge</h4>
+        <p class="small">Valid time is when the flow was true. Recorded time is when the graph learned it. RCA asks the first question: what fed this column at 02:42? An audit asks the second: what did the graph tell the PR bot when it passed the change?</p>
+      </div>
+      <div>
+        <h4>One stream of differences</h4>
+        <p class="small">Every material edge change is published to <code>lineage.changes</code>. The PR report, catalog projections and RCA all read the same diff instead of comparing snapshots.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>What "done" means for each objective</h2>
+    <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>Objective</th><th>Requirements</th><th>Scored by</th><th>Gate</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">O1 Baseline</th><td class="mono">BL-1 to BL-7</td><td>Golden graph precision and recall per hop; rebuild from the lake gives the same graph hash</td><td>Field edges at least 90% precision and 90% recall</td></tr>
+          <tr><th scope="row">O2 Incremental</th><td class="mono">IN-1 to IN-10</td><td>Invalidation, removal, as-of and diff scenarios; a freshness probe</td><td>Merge or run to edge visible in under 15 minutes</td></tr>
+          <tr><th scope="row">O3 Change impact</th><td class="mono">IA-1 to IA-9</td><td>Replay of the last ten schema and logic changes; classification fixtures</td><td>Report in under 5 minutes; 8 of 10 broken consumers listed; 80% of breaking changes caught before merge</td></tr>
+          <tr><th scope="row">O4 Detect and resolve</th><td class="mono">IR-1 to IR-9</td><td>Replay of six months of incidents; remediation plan snapshots</td><td>True cause in the top 3 on 90% of replays; MTTD and MTTR at most half the baseline</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">The full requirement text is in <code>docs/06-element-lineage-factory-spec.md</code>. The top-3 target and the 2-minute RCA target are new proposals; the rest are gates the plan already set.</p>
+  </div>
+</section>
+
+<section class="view" id="v-factory" hidden>
+  <div class="sec">
+    <h2>People own intent and the oracle. Agents build against it.</h2>
+    <p class="key">An AI factory treats the specification as the durable asset and code as something built from it. A harness, not a person reading the diff, is the first check on correctness. People stay accountable at four gates.</p>
+    <p>The software sense of the term took shape in early 2026: Dan Shapiro's five levels of AI-assisted programming, whose top level is the "dark factory"; StrongDM's Software Factory, with its rule that code is neither written nor reviewed by people; and OpenAI's account of a product built by agents under the line "Humans steer. Agents execute." This build is the light version. Agents execute, people approve, and autonomy widens only on measured results.</p>
+    <div class="cols2">
+      <div>
+        <h4>What the build borrows</h4>
+        <ul class="tight small">
+          <li><b>Holdout scenarios and a twin of external systems</b>, from StrongDM's factory.</li>
+          <li><b>A constitution, then spec, plan and tasks</b>, from GitHub Spec Kit.</li>
+          <li><b>Approval after each stage and an audit trail per change</b>, from the AWS AI-DLC workflows, which list 33 stages and a 134-event audit trail.</li>
+          <li><b>A near-perfect verifier before any scale</b>, from Anthropic's account of a C compiler built by 16 parallel agents: about 100,000 lines for just under $20,000, with the warning that a weak verifier makes the agents solve the wrong problem.</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Why the gates stay</h4>
+        <ul class="tight small">
+          <li>The no-review variant is advocated, not demonstrated. Its results are self-reported, and one detailed practitioner account describes a failed attempt and codebases that struggle after three to six months.</li>
+          <li>DORA's 2025 report finds AI raises delivery throughput and also raises instability.</li>
+          <li>METR's 2025 trial found experienced developers 19% slower with AI tools; its 2026 update is inconclusive.</li>
+          <li>Published cost runs from about $13 per developer-day for typical use to a $1,000 per engineer-day benchmark.</li>
+          <li>No regulator or card scheme was found endorsing development without human review.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <figure class="fig">
+      <div class="canvas">
+        <svg viewBox="0 0 986 252" role="img" aria-label="Nine stations in a row: intent, specify, plan, build, verify, review, approve, release, operate. People hold intent, specify, approve and release. Three feedback arrows return failures to build and to the spec.">
+          <g id="st-row"></g>
+          <path class="fbk" d="M490 118 V142 H381 V124"/><polygon class="ah" points="376,125 381,117 386,125"/>
+          <text class="ts" x="435" y="157" text-anchor="middle">fails: back to the builder with the failing category</text>
+          <path class="fbk" d="M708 118 V180 H176 V124"/><polygon class="ah" points="171,125 176,117 181,125"/>
+          <text class="ts" x="442" y="195" text-anchor="middle">rejected at the gate: fix the spec or the oracle, then rebuild</text>
+          <path class="fbk" d="M926 118 V218 H150 V124"/><polygon class="ah" points="145,125 150,117 155,125"/>
+          <text class="ts" x="538" y="233" text-anchor="middle">escaped defect: becomes a holdout scenario</text>
+        </svg>
+      </div>
+      <figcaption><span class="who h">People decide</span> &nbsp; <span class="who a">Agents and the harness run</span> &nbsp; Every failure returns to the spec or the builder. Nothing is patched by hand in code, because the next agent run would undo it.</figcaption>
+    </figure>
+    <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>Gate</th><th>Who approves</th><th>What they look at</th><th>When</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">G1 Spec</th><td>Domain owner and platform lead</td><td>Requirements, interfaces and scenarios. Is this the right thing to build?</td><td>Before any plan or code</td></tr>
+          <tr><th scope="row">G2 Change</th><td>Spec owner for the hop</td><td>The evidence bundle: scores, reviewer findings, diff</td><td>Every change at level 2; protected paths and exceptions at levels 3 and 4</td></tr>
+          <tr><th scope="row">G3 Oracle</th><td>Platform lead and the owning team</td><td>Any change to the golden graph, replay corpora, harness or gate policy</td><td>Always. Agents propose; only people merge.</td></tr>
+          <tr><th scope="row">G4 Release</th><td>Named approver</td><td>Stage replay of a day of production evidence; accuracy must not drop</td><td>Every production release</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>The oracle comes first</h2>
+    <p>Factory throughput is limited by verification, not by generation. Lineage is unusual in having a ground truth a machine can check: an edge exists or it does not, and a past change either broke a consumer or it did not. Four things turn that into a test.</p>
+    <div class="cols2">
+      <div><h4>Golden graph</h4><p class="small">About 15 service and dataset edges and 40 field edges for the slice, signed by the owners in Phase 0. The harness reports precision and recall per edge type and per hop.</p></div>
+      <div><h4>Change replay</h4><p class="small">The last ten schema and logic changes on the slice, each with base commit, head commit and the consumers that actually broke. Scores change impact.</p></div>
+      <div><h4>Incident replay</h4><p class="small">Six months of incidents with the failing check, the change timeline and the true cause. Scores root-cause ranking.</p></div>
+      <div><h4>Twin of the slice</h4><p class="small">Kafka with a schema registry, a Flink mini cluster, a local SQL engine with the dbt project, a feature store, a model registry and a stub Git provider, started by one command. Agents never touch production.</p></div>
+    </div>
+    <p class="note">About two thirds of the scenarios are visible to the builder. The rest are holdout, split by scenario family and run by the harness in a separate job. The builder gets back a pass rate and failure categories, never the scenario text. Property tests cover the core (merge is idempotent, replay is deterministic) and metamorphic tests cover the extractors (reformatting a query must not change its edges).</p>
+  </div>
+
+  <div class="sec">
+    <h2>Work packages</h2>
+    <p>Each one is sized for a single agent in a single sandbox against a single oracle. The level is where it starts on the autonomy ladder below.</p>
+    <div class="chips" id="wave-chips"></div>
+    <div class="scroll">
+      <table class="plain" id="wps">
+        <thead><tr><th>ID</th><th>Work package</th><th>Checked against</th><th>Starts at</th><th>Serves</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Autonomy is earned per work package</h2>
+    <ol class="ladder">
+      <li><span class="lv">L1</span><b>Person writes, agent assists</b><span>Person reviews and merges</span><span class="muted">The golden graph, replay corpora, gate policy</span></li>
+      <li class="now"><span class="lv">L2</span><b>Agent writes, person reads every change</b><span>Person merges</span><span class="muted">Core semantics, the harness, infrastructure, anything that can block or pause a team. Where the build starts.</span></li>
+      <li class="now"><span class="lv">L3</span><b>Agent writes, second agent reviews</b><span>Person reviews exceptions and a weekly sample, approves a batch</span><span class="muted">Extractors and services with a strong oracle. Where wave 2 runs once wave 1 holds.</span></li>
+      <li><span class="lv">L4</span><b>Agent writes, merges on green</b><span>Person reviews scores weekly</span><span class="muted">Extractor rule additions and regression fixtures, once earned</span></li>
+      <li><span class="lv">L5</span><b>No human review</b><span>None</span><span class="muted">Not used in this estate</span></li>
+    </ol>
+    <p class="note"><b>Up one level</b> after five consecutive changes at or above the holdout threshold with no escaped defect and a clean weekly sample. <b>Down one level</b> on any escaped defect that reached stage or production, or any attempt to edit a protected path.</p>
+  </div>
+
+  <div class="sec">
+    <div class="cols2">
+      <div>
+        <h3>What six people do instead of typing extractors</h3>
+        <ul class="tight small">
+          <li><b>Platform lead (1):</b> intent, G1 and G4, the autonomy ladder, the weekly factory review.</li>
+          <li><b>Factory engineers (2):</b> the twin, the harness, the pipeline, sandboxes and budgets.</li>
+          <li><b>Spec owners (3):</b> requirements, scenarios and G2 for the streaming, analytics and ML hops; golden graph sessions with slice owners.</li>
+          <li><b>Slice owners (about 6 teams):</b> sign the golden graph and work the reconciliation queue.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Controls for a card-payments estate</h3>
+        <ul class="tight small">
+          <li>A named person approves every protected merge and every release.</li>
+          <li>Builder agent, reviewer agent and approver are always distinct.</li>
+          <li>Each run links spec version, work package, transcript, commit, scores and approval. That chain is the change record.</li>
+          <li>Sandboxes have no production route, no production secrets and an egress allow-list.</li>
+          <li>Only code and schemas reach a model, through the approved endpoint. Never production data.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>How the factory is measured</h2>
+    <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>Metric</th><th>What it is</th><th>What it tells you</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Lead time</th><td>Work package ready to merged</td><td>Throughput</td></tr>
+          <tr><th scope="row">First-pass rate</th><td>Builds that pass verification on the first attempt</td><td>Quality of the spec and the context given to the agent</td></tr>
+          <tr><th scope="row">Holdout pass rate</th><td>Holdout scenarios passed at merge</td><td>Whether to trust it. Drives promotion.</td></tr>
+          <tr><th scope="row">Golden delta</th><td>Change in precision and recall per merged change</td><td>Regressions the scenarios miss</td></tr>
+          <tr><th scope="row">Escaped defects</th><td>Defects found after G2</td><td>Drives demotion and new scenarios</td></tr>
+          <tr><th scope="row">Person-minutes per change</th><td>Review and approval time</td><td>Whether the gates have become the constraint</td></tr>
+          <tr><th scope="row">Cost per merged change</th><td>Model tokens and compute</td><td>Budget control. A package over budget stops like a failing test.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="v-decide" hidden>
+  <div class="sec">
+    <h2>The system, before the solution</h2>
+    <p class="key">Three loops run at once: lineage, the factory, and trust. They share one object, the golden graph with its scenario corpus. It is the factory's test oracle, the product's accuracy yardstick and the thing owners sign.</p>
+    <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>Loop</th><th>Flows in</th><th>Flows out</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Lineage</th><td>Code and pull requests, schema versions, table DDL, job runs, query history, DQ and contract results, deploys</td><td>Impact reports and gate decisions, lineage diffs, ranked causes, remediation order, accuracy numbers, catalog projections</td></tr>
+          <tr><th scope="row">Factory</th><td>Intent, specs, scenarios, golden fixtures, model tokens, reviewer and approver time</td><td>Merged changes with evidence, scenario pass rates, new scenarios from escaped defects, cost per change</td></tr>
+          <tr><th scope="row">Trust</th><td>Owner confirmations, "this is wrong" feedback, reconciliation findings</td><td>Published precision and recall; how strict each gate is allowed to be</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><b>Where the constraint moves.</b> In a conventional build it is engineering hours spent writing collectors. In the factory it moves to four places: how fast people can author the oracle, how much owner time the golden graph gets, how fast real evidence accrues, and how many changes the gates can clear. The third cannot be compressed. A 30-day decay window takes 30 days. The factory shortens the parts of the plan bound by building, not the parts bound by evidence.</p>
+  </div>
+
+  <div class="sec">
+    <h2>Cost of acting and of not acting</h2>
+    <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>Decision</th><th>If you act</th><th>If you don't</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Take lineage to element level</th><td>An extractor per technology with a long tail of constructs; a golden graph owners must keep current; more nodes and edges to store</td><td>Impact stops at "this table is affected", so every report still needs a person to read SQL. A rename like PR #482 passes the registry check and breaks seven assets unseen.</td></tr>
+          <tr><th scope="row">Keep it incremental</th><td>A change detector per signal, unit hashing, two clocks on every edge</td><td>The graph is wrong between scans, and RCA reads today's graph for last night's incident</td></tr>
+          <tr><th scope="row">Build with a factory</th><td>About three weeks of oracle, twin and harness before feature code; token spend; a new discipline; the risk that agents satisfy tests without satisfying intent</td><td>Extractor breadth arrives one at a time at the speed of six engineers, and each new technology or slice needs more of them</td></tr>
+          <tr><th scope="row">Keep people at the gates</th><td>Gate latency and approver time</td><td>Unreviewed changes to gate policy, IAM or the scorer in a card-payments estate</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="cols2">
+      <div>
+        <h3>Five whys: why a factory for this system</h3>
+        <ol class="whys small">
+          <li><b>Why not staff it conventionally?</b> The first slice needs about 108 engineer-weeks, and the long pole is the breadth of extractors, not one hard algorithm.</li>
+          <li><b>Why is breadth the long pole?</b> Element lineage needs an extractor per language and framework, each with a long tail of constructs.</li>
+          <li><b>Why does that suit agents?</b> Each extractor is a bounded unit with a crisp contract: given this code and these schemas, emit these edges.</li>
+          <li><b>Why does a crisp contract matter?</b> Throughput is limited by verification. Without a machine-checkable oracle a person must read every line and the gain is gone.</li>
+          <li><b>Root:</b> lineage has an objective, replayable ground truth. That is rare. So the first investment is the oracle, not the code.</li>
+        </ol>
+      </div>
+      <div>
+        <h3>Hidden assumptions</h3>
+        <ol class="tight small">
+          <li>Element means field, column or attribute. Row-level provenance is out.</li>
+          <li>"AI factory" means spec-driven delivery by agents with people at the gates, not a GPU data center.</li>
+          <li>Owners will author and maintain the golden graph. Without it there is no oracle.</li>
+          <li>Policy allows AI-written code when a named person approves protected changes and releases. If every change needs a human reviewer, the ladder stops at level 2.</li>
+          <li>Code and schemas may go to a model through an approved endpoint. Production data never does.</li>
+          <li>Agents never hold production credentials.</li>
+          <li>Element lineage is needed on tier 1 and contract-bearing assets, not everywhere.</li>
+          <li>The token budget is funded and tracked per merged change.</li>
+          <li>Vendor facts are as read in November 2026 and move fast.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Alternatives considered</h2>
+    <h3>Where element lineage comes from</h3>
+    <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>Source</th><th>Strong at</th><th>Stops at</th><th>Role in this build</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Scanner suite</th><td>Stored procedures, legacy ETL, BI, mainframe code</td><td>Dynamic SQL; scheduled scans; no pull-request check; no services, streams or ML</td><td>Buy only if the estate has legacy ETL, and feed it in as evidence</td></tr>
+          <tr><th scope="row">Query-log catalog or observability product</th><td>What actually ran in the warehouse and BI; incident triage</td><td>Code that has not run; anything outside the warehouse; retention windows</td><td>Keep or buy for detection</td></tr>
+          <tr><th scope="row">Platform-native catalog</th><td>Column lineage inside the platform, with long history on Databricks and Snowflake</td><td>The platform edge; runtime only; no static lineage from CI</td><td>Runtime evidence and a projection target</td></tr>
+          <tr><th scope="row">CI tool or code-based vendor</th><td>Impact before merge, where it exists</td><td>The SQL project boundary; Flink, features and models not evidenced</td><td>Borrow the patterns; trial one vendor on the service hop</td></tr>
+          <tr><th scope="row">Open standard and open platforms</th><td>One event model; column lineage from Spark, Trino, dbt, Airflow SQL</td><td>No column lineage from Flink or Kafka; weak history; no CI tool</td><td>Adopt the event model and collectors</td></tr>
+          <tr><th scope="row">Thin owned core with adopted extractors</th><td>All eight hops, static and runtime evidence, history and diff</td><td>A platform to run; two hops stay probable until verified</td><td><span class="tag a">Chosen</span> ADR-002, extended to element level</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>How the code gets written</h3>
+    <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>Delivery model</th><th>What it gets you</th><th>What it costs</th><th>Verdict</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Conventional team</th><td>Known process and controls</td><td>Extractors arrive one at a time; breadth limited by headcount</td><td>The baseline the factory is measured against</td></tr>
+          <tr><th scope="row">AI-assisted, people review everything</th><td>Faster typing, same process</td><td>The review queue becomes the constraint</td><td>The fallback if the factory misses its checks</td></tr>
+          <tr><th scope="row">AI factory with human gates</th><td>Extractors built in parallel against one oracle; people work on specs, scenarios and gates</td><td>Oracle and harness up front; token spend; discipline about what agents may touch</td><td><span class="tag a">Chosen</span> Autonomy earned per work package</td></tr>
+          <tr><th scope="row">Dark factory, no human review</th><td>Maximum throughput</td><td>No named approver for gate policy, IAM or release; test-gaming goes unseen</td><td>Rejected for now. Revisit with escaped-defect data.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Decision points</h2>
+    <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>When</th><th>Question</th><th>If yes</th><th>If no</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">End of wave 0</th><td>Do the harness and twin score a hand-built reference extractor correctly?</td><td>Start wave 1</td><td>Fix the oracle before any more code</td></tr>
+          <tr><th scope="row">End of wave 1</th><td>Did the core hold its holdout pass rate with no escaped defect?</td><td>Run wave 2 at level 3</td><td>Run wave 2 at level 2 and re-test after three packages</td></tr>
+          <tr><th scope="row">After three wave 2 packages</th><td>Are lead time and person-minutes per change better than the plan's estimate for the same scope?</td><td>Continue; consider level 4 for rule additions</td><td>Fall back to AI-assisted delivery and keep the oracle</td></tr>
+          <tr><th scope="row">Each phase gate</th><td>Does the plan's exit gate pass?</td><td>Next phase</td><td>The phase is not done</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">No calendar compression is promised. The plan's exit gates depend on owner sessions and on runtime evidence, and neither is faster with agents. The hypothesis under test is narrower: with the oracle in place, the wave 2 extractors can be built in parallel and limited by how fast scenarios are written, not how fast code is typed.</p>
+  </div>
+  <div class="sec">
+    <h2>Decisions this needs from you</h2>
+    <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>Decision</th><th>Why it matters</th><th>Who</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">May agent-written code merge after agent review, with a person approving by exception?</th><td>Sets the ceiling of the autonomy ladder and most of the expected gain</td><td>Engineering risk and security</td></tr>
+          <tr><th scope="row">Which model endpoint is approved for source code and schemas?</th><td>Nothing in the factory starts without it</td><td>Security</td></tr>
+          <tr><th scope="row">Who are the named approvers for the four gates?</th><td>Accountability has to exist before the first merge</td><td>Platform lead</td></tr>
+          <tr><th scope="row">What is the token budget per work package and per month?</th><td>Published costs span two orders of magnitude. A ceiling has to be chosen, not discovered.</td><td>Platform lead and finance</td></tr>
+          <tr><th scope="row">Which warehouse is on the slice?</th><td>Decides the access-history collector and the projection target</td><td>Data platform</td></tr>
+          <tr><th scope="row">Does the wider estate need stored-procedure or legacy ETL lineage?</th><td>If yes, a scanner suite is a collector worth buying</td><td>Data governance</td></tr>
+          <tr><th scope="row">Graph store: Neptune, or DataHub with history kept in the owned writer?</th><td>DataHub has no lineage history and takes run events only</td><td>Week-1 decision from ADR-002</td></tr>
+          <tr><th scope="row">Build the service-code scanner, or buy that hop?</th><td>One week on <code>payments-svc</code> against the golden graph settles it. One candidate sends code to its own service, which needs a security answer first.</td><td>Developer productivity</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>What to keep in proportion</h2>
+    <ul class="tight">
+      <li><b>Prevention is one part of the answer.</b> One vendor's analysis of 1,000 incident investigations put code changes at about a tenth of root causes; an earlier statement from the same vendor said about a third. Either way most incidents will not be stopped in a pull request, so detection and root-cause ranking carry as much of the outcome as the gate does.</li>
+      <li><b>Two hops stay probable.</b> Field edges through service code and Flink come from static analysis and declared mappings. They are verified by owners for tier 1 fields and reported as gaps elsewhere.</li>
+      <li><b>The research has limits.</b> Most vendor documentation hosts were blocked during the research and the search allowance was capped. Open-source and standards claims were read at the source. Many vendor claims rest on search summaries. Re-read a vendor's own pages before a contract or an ADR change.</li>
+      <li><b>Accuracy targets are local.</b> No independent precision or recall for column lineage was found, and no independent measurement of lineage's effect on detection or resolution time. The golden graph and the Phase 0 baseline are the only yardsticks that count.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="src">
+<p><b>Where the detail lives.</b> The vendor assessment with sources and evidence grades is <code>docs/05-vendor-assessment-element-level-lineage.md</code>. The build spec with every requirement and work package is <code>docs/06-element-lineage-factory-spec.md</code>. Research notes are under <code>research_notes/</code>. Service names, PR numbers and timings on this page are the plan's illustrative slice, not measurements.</p>
+<p><b>Read in full at the source, 26 November 2026:</b>
+  <a href="https://github.com/OpenLineage/OpenLineage/blob/main/website/docs/spec/facets/dataset-facets/column_lineage_facet.md" target="_blank" rel="noopener">OpenLineage column lineage facet</a> ·
+  <a href="https://github.com/OpenLineage/OpenLineage/blob/main/website/docs/integrations/flink/flink2.md" target="_blank" rel="noopener">OpenLineage Flink 2</a> ·
+  <a href="https://github.com/dbt-labs/docs.getdbt.com/blob/current/website/docs/docs/explore/column-level-lineage.md" target="_blank" rel="noopener">dbt column-level lineage</a> ·
+  <a href="https://github.com/TobikoData/sqlmesh/blob/main/docs/concepts/plans.md" target="_blank" rel="noopener">SQLMesh plans</a> ·
+  <a href="https://github.com/datahub-project/datahub/blob/master/docs/lineage/sql_parsing.md" target="_blank" rel="noopener">DataHub SQL parsing</a> ·
+  <a href="https://github.com/MarquezProject/marquez/blob/main/README.md" target="_blank" rel="noopener">Marquez</a> ·
+  <a href="https://github.com/strongdm/attractor" target="_blank" rel="noopener">StrongDM Attractor</a> ·
+  <a href="https://github.com/github/spec-kit" target="_blank" rel="noopener">GitHub Spec Kit</a> ·
+  <a href="https://github.com/awslabs/aidlc-workflows" target="_blank" rel="noopener">AWS AI-DLC workflows</a>
+</p>
+</footer>
+</div>
+
+<script>
+var FAMILIES = [
+  { id: 'scan', name: 'Scanner suites', short: 'Scanners', color: 'f1', who: 'IBM Manta, Informatica, Collibra, Octopai, Solidatus, Rocket',
+    how: 'Scheduled scanners read stored procedures, ETL tool mappings, SQL scripts, BI reports and mainframe code, then stitch them into one column-level graph.',
+    strong: 'Legacy breadth and depth. The best baseline where logic lives in stored procedures and ETL tools.',
+    blind: 'Dynamic SQL, anything changed since the last scan, and the service, stream and ML hops. No pull-request checks.' },
+  { id: 'logs', name: 'Query-log catalogs and observability', short: 'Query-log tools', color: 'f5', who: 'Atlan, Alation, Monte Carlo, Datadog, Bigeye, SYNQ',
+    how: 'Parse the warehouse\'s query history and connect BI tools, so lineage reflects what actually ran.',
+    strong: 'Accurate and continuous for the warehouse and BI. The strongest incident triage.',
+    blind: 'Code that has not run, writes that bypass SQL, and everything outside the warehouse. Retention can be days.' },
+  { id: 'plat', name: 'Platform-native catalogs', short: 'Platforms', color: 'f2', who: 'Unity Catalog, Snowflake Horizon, Knowledge Catalog, SageMaker Catalog, Fabric, Confluent',
+    how: 'The engine records lineage as it executes each query or job.',
+    strong: 'Complete and cheap inside the platform, with a year or more of history on Databricks and Snowflake.',
+    blind: 'The platform edge. None derives lineage from code before it runs, and none has a pull-request check.' },
+  { id: 'ci', name: 'CI tools on the code diff', short: 'CI tools', color: 'f3', who: 'dbt, SQLMesh, Recce, Datafold, Foundational, Gable',
+    how: 'Parse the code in a pull request, compare it with the base branch, and report what changes downstream.',
+    strong: 'The only family that sees a change while it can still be stopped.',
+    blind: 'Mostly bounded by one SQL project. Flink, features and models are not evidenced.' },
+  { id: 'oss', name: 'Open standard and open platforms', short: 'Open source', color: 'f4', who: 'OpenLineage, Marquez, DataHub, OpenMetadata',
+    how: 'A shared event format emitted by Spark, Trino, dbt and Airflow, and open stores that accept it.',
+    strong: 'One model across engines, no licence, and the parts to assemble your own.',
+    blind: 'No column lineage from Flink or Kafka. History and diff are weak outside Marquez. No shipped CI tool.' }
+];
+
+var VENDORS = [
+  { id: 'manta', name: 'IBM Manta', fam: 'scan', ev: 'B', mech: 'Static scanners over code and metadata', s: { b: 4, i: 3, c: 1, r: 2, x: 1 },
+    status: 'Acquired by IBM in 2023. Now the lineage capability of watsonx.data intelligence.',
+    how: 'Scanners read SQL, stored procedures, ETL mappings, BI reports and mainframe code (COBOL, JCL) and build a data-flow graph with direct and indirect column dependencies. Imports and exports OpenLineage.',
+    n: { b: 'The deepest documented baseline: column level with transformation logic, through stored procedures.', i: 'Each scan produces a revision, and targeted scans start from the last one. Whether two revisions can be diffed is disputed between sources.', c: 'Interactive impact analysis and, since April 2026, a tool server for agents. No pull-request integration found.', r: 'Historical lineage supports root-cause work. No published detection or resolution figures.', x: 'No scanner for Kafka, Flink or feature stores was found. OpenLineage import is the bridge.' },
+    limits: 'Its docs say most scanners do not support dynamic SQL out of the box. No native dbt or Airflow scanner.',
+    price: 'Quote only, per resource unit. One reseller listing shows about CAD 140K per unit.' },
+  { id: 'infa', name: 'Informatica CDGC', fam: 'scan', ev: 'B', mech: 'Scanners per catalog source through a secure agent', s: { b: 3, i: 1, c: 1, r: 1, x: 0 },
+    status: 'Salesforce completed the acquisition on 18 November 2025.',
+    how: 'Catalog-source scanners extract metadata from Informatica\'s own ETL, relational databases, scripts and BI tools. An AI assistant answers lineage questions.',
+    n: { b: 'Column to column for Informatica ETL and relational sources. About 99 source types by a third-party count.', i: 'Third-party reviews list lineage history and diff as unsupported.', c: 'Impact analysis in the UI and tool servers for agents in 2026. No pull-request check found.', r: 'Qualitative claims only.', x: 'Kafka and application-code coverage could not be confirmed.' },
+    limits: 'No lineage history. The roadmap is now set inside Salesforce.',
+    price: 'Consumption units with no public rate.' },
+  { id: 'collibra', name: 'Collibra Data Lineage', fam: 'scan', ev: 'B', mech: 'SQL parsing through Edge, platform tables, OpenLineage', s: { b: 3, i: 1, c: 1, r: 1, x: 1 },
+    how: 'Parses SQL and BI metadata through Collibra Edge, reads platform lineage tables (Unity Catalog, Dataplex) and ingests OpenLineage from Airflow, Glue and dbt.',
+    n: { b: 'A per-source support matrix. Stored-procedure coverage varies by database.', i: 'Sync behaviour, history and diff were not found in the retrieved material.', c: 'Lineage read APIs and a tool server positioned for impact analysis before a change ships. No pull-request check found.', r: 'Not evidenced.', x: 'Only what OpenLineage producers send.' },
+    limits: 'Docs exclude cursors and dynamic SQL. The older CLI harvester reached end of life on 31 July 2026.',
+    price: 'No list price. Deal-tracker averages of about USD 166K to 197K a year, on a small sample.' },
+  { id: 'octopai', name: 'Cloudera Octopai', fam: 'scan', ev: 'B', mech: 'Scheduled metadata extractors, central parsing', s: { b: 3, i: 2, c: 1, r: 1, x: 0 },
+    status: 'Cloudera announced the acquisition on 14 November 2024.',
+    how: 'Extractors pull metadata on a schedule and a central service parses it into cross-system column lineage.',
+    n: { b: 'Column level across 60+ technologies, strongest on legacy ETL and BI.', i: 'Scheduled extraction, with an incremental mode for Databricks. A third-party review says there is no diff.', c: 'Interactive impact analysis only.', r: 'A data-quality use case is documented.', x: 'June 2025 release notes state that streaming jobs (Kafka, Spark Structured Streaming) were not supported.' },
+    limits: 'Python dbt models. The roadmap is tilting toward the Cloudera stack.', price: 'Not found.' },
+  { id: 'solidatus', name: 'Solidatus', fam: 'scan', ev: 'C', mech: 'Modelled and harvested lineage in a versioned graph', s: { b: 2, i: 3, c: 2, r: 1, x: 1 },
+    how: 'Harvests through connectors and OpenLineage, then lets teams model and curate lineage in a versioned graph.',
+    n: { b: 'Column-level and stored-procedure parsing are vendor-claimed.', i: 'Bi-temporal versioning is vendor-claimed. No independent confirmation was found.', c: 'What-if models of a proposed change, and a tool server for agents in 2026. No pull-request check.', r: 'Not evidenced.', x: 'Any system can be modelled by hand, which is effort, not capture.' },
+    limits: 'The evidence is almost entirely vendor-authored.', price: 'Not found.' },
+  { id: 'rocket', name: 'Rocket Data Intelligence', fam: 'scan', ev: 'C', mech: 'Static scanners, including mainframe', s: { b: 3, i: 2, c: 1, r: 0, x: 1 },
+    how: 'Scanners for mainframe code (COBOL, JCL, CICS, IMS), ETL tools, databases, Python and Java.',
+    n: { b: 'Strongest claim on mainframe. Column level "where supported".', i: 'Point-in-time visibility is listed.', c: 'Database change impact analysis is listed.', r: 'Not evidenced.', x: 'Python and Java scanners are listed. Their depth is unknown.' },
+    limits: 'Thin public documentation.', price: 'Not found.' },
+
+  { id: 'atlan', name: 'Atlan', fam: 'logs', ev: 'B', mech: 'Query-history parsing, API crawl, OpenLineage', s: { b: 3, i: 2, c: 3, r: 2, x: 1 },
+    how: 'Parses warehouse query history, crawls source APIs and ingests OpenLineage.',
+    n: { b: 'Strong on the modern stack. A third-party review says direct lineage only, so join and filter columns are left out.', i: 'No lineage history or diff was found.', c: 'The one catalog with a documented pull-request integration: a GitHub and GitLab action comments downstream impact on dbt model changes. Data-contract checks are in preview.', r: 'Alerts propagate along lineage.', x: 'Only what OpenLineage producers send.' },
+    limits: 'Its BigQuery docs say stored procedures do not appear as lineage nodes. Dynamic SQL is not captured.',
+    price: 'No list price. Deal-tracker median about USD 50K a year.' },
+  { id: 'alation', name: 'Alation', fam: 'logs', ev: 'B', mech: 'Query-log ingestion and metadata extraction', s: { b: 2, i: 2, c: 1, r: 1, x: 1 },
+    how: 'Ingests query logs and extracted metadata, reads platform lineage tables and accepts OpenLineage.',
+    n: { b: 'Good for SQL and BI. Weak where ETL lives in stored procedures.', i: 'Refreshes with each ingestion run. No versioning found.', c: 'An impact analysis report, a lineage API and an agent SDK. No pull-request check.', r: 'Not evidenced.', x: 'An OpenLineage endpoint.' },
+    limits: 'Code that has not run is invisible to query logs.',
+    price: 'AWS Marketplace from USD 60K a year. Deal-tracker median about USD 141K.' },
+  { id: 'mc', name: 'Monte Carlo', fam: 'logs', ev: 'B', mech: 'Query-log SQL parsing, push API for gaps', s: { b: 3, i: 3, c: 3, r: 4, x: 1 },
+    status: 'Repositioned in May 2026 around trust for AI agents. Third-party trackers reported large layoffs in March 2026; no company statement was found.',
+    how: 'Parses warehouse query logs into table and field lineage, connects BI tools and GitHub, and accepts pushed lineage for sources it cannot pull.',
+    n: { b: 'Field level in the warehouse and BI. Its own toolkit rates PySpark and non-SQL pipelines as limited.', i: 'Continuous. Its toolkit gives table lineage in seconds to minutes and query logs after 15 to 20 minutes. Column lineage expires after 10 days.', c: 'A PR agent scores a pull request\'s risk on six weights, including lineage blast radius, with an experimental CI gate. It maps pull requests through dbt projects. An editor-time skill shows blast radius to a coding agent.', r: 'The fullest documented incident flow: it walks field lineage from an anomaly, overlays merged pull requests, scores each one\'s relevance and can name one as root cause, with a troubleshooting agent. Its customer figures, such as 83% lower time to resolution at one named firm, are vendor-published.', x: 'Kafka Connect jobs appear on lineage edges. Its docs say Spark lineage is not supported.' },
+    limits: 'The ten-day column lineage window. Bound to the warehouse and to dbt for pull requests.',
+    price: 'Credit-metered. AWS Marketplace lists a USD 50K annual credit package.' },
+  { id: 'datadog', name: 'Datadog Data Observability', fam: 'logs', ev: 'A', mech: 'Query history and job runs, inside an observability platform', s: { b: 3, i: 3, c: 3, r: 3, x: 2 },
+    status: 'Datadog acquired Metaplane in April 2025.',
+    how: 'Builds lineage from query history and job runs over a chosen time window, with dbt metadata, OpenLineage and BI connectors.',
+    n: { b: 'Docs say "most integrated sources support column-level lineage", with no per-source list.', i: 'Window-based. Schema-change monitors detect fields added, removed, renamed or retyped.', c: 'A pull-request comment with downstream impact lineage and drift detection for dbt, on GitHub, GitLab, Bitbucket and Azure DevOps. It warns; blocking is not documented.', r: 'Monitor and job status are drawn on the lineage graph for root cause and blast radius, with AI agents.', x: 'Sits beside service tracing and stream monitoring in one product, at service and topic level.' },
+    limits: 'CI checks are dbt only. Cross-tool stitching breaks when warehouse names differ.',
+    price: 'USD 16 per monitored table a month on an annual plan. Lineage is included.' },
+  { id: 'bigeye', name: 'Bigeye', fam: 'logs', ev: 'B', mech: 'Connector-based column lineage', s: { b: 3, i: 2, c: 1, r: 3, x: 1 },
+    how: 'Each connector parses lineage at column level. The technology came from the acquisition of Data Advantage Group.',
+    n: { b: '50+ connectors claimed at launch in 2024, including legacy ETL such as Informatica PowerCenter. Gaps can be filled by hand or by name matching.', i: 'Not found.', c: 'CI reports cover monitoring configuration, not lineage impact.', r: 'Root-cause and impact tools are exposed to agents, with lineage-related issue grouping.', x: 'Transactional databases and ETL platforms, not services or streams.' },
+    limits: 'Name-based inference where lineage is missing. A depth ceiling on very large graphs.',
+    price: 'Deal-tracker figure about USD 25K. AWS Marketplace lineage package USD 75K.' },
+  { id: 'synq', name: 'SYNQ (Coalesce Quality)', fam: 'logs', ev: 'A', mech: 'Warehouse-native lineage first, then query history and declared edges', s: { b: 3, i: 2, c: 1, r: 3, x: 1 },
+    status: 'Acquired by Coalesce in March 2026.',
+    how: 'Ranks four lineage origins: the warehouse\'s own lineage function, parsed query history, declared edges and view definitions.',
+    n: { b: 'Column edges where an origin supplies them. Non-SQL transformations need declared column lineage.', i: 'Ingests git commit diffs. Refresh cadence not found.', c: 'Building blocks only: commit diffs and an impact call. No pull-request comment found.', r: 'An agent gathers root-cause, change and commit evidence. Impact is ranked by owner and data-product priority.', x: 'Custom entities can be declared.' },
+    limits: 'Declared lineage is only as good as its upkeep.', price: 'Not found.' },
+
+  { id: 'uc', name: 'Databricks Unity Catalog', fam: 'plat', ev: 'B', mech: 'Engine capture for workloads run on the platform', s: { b: 4, i: 4, c: 2, r: 2, x: 2 },
+    how: 'The engine records table and column lineage for queries, DataFrames and pipelines run through Unity Catalog, and exposes it in system tables.',
+    n: { b: 'Column level inside the platform. UDFs fall back to table level.', i: 'System tables keep a rolling 395 days by default. The lineage API keeps lineage captured after 1 September 2024 indefinitely.', c: 'System tables can be queried from CI for a column\'s blast radius. No native pull-request check.', r: 'Lineage-aware data quality monitoring entered preview in February 2026.', x: 'External assets can be declared with column mappings: in preview, capped, and not in the system tables. Not OpenLineage.' },
+    limits: 'Sees only workloads run through Unity Catalog.', price: 'Included in the platform.' },
+  { id: 'snow', name: 'Snowflake Horizon', fam: 'plat', ev: 'B', mech: 'Engine capture plus OpenLineage ingestion', s: { b: 4, i: 3, c: 2, r: 1, x: 2 },
+    status: 'Signed to acquire Select Star on 24 November 2025.',
+    how: 'Records column lineage for what runs in Snowflake and, since 2026, accepts OpenLineage events for external lineage.',
+    n: { b: 'Column lineage in the UI and through a SQL function. Stored-procedure lineage in preview since May 2025.', i: 'About one year of history. Access history lags by up to three hours.', c: 'The lineage function can be called from CI. No native pull-request check.', r: 'Not researched.', x: 'OpenLineage ingestion for external lineage became generally available on 3 September 2026 and keeps column-to-column detail.' },
+    limits: 'OpenLineage v2 events are not supported per the retrieved docs. Edition requirements apply.', price: 'Included; edition-gated.' },
+  { id: 'gcp', name: 'Google Knowledge Catalog', fam: 'plat', ev: 'B', mech: 'Engine capture for BigQuery and managed Spark', s: { b: 3, i: 1, c: 2, r: 1, x: 1 },
+    status: 'Dataplex Universal Catalog was renamed Knowledge Catalog on 10 April 2026.',
+    how: 'Records lineage for BigQuery jobs and managed Spark, and accepts OpenLineage run events.',
+    n: { b: 'Column lineage for BigQuery and managed Spark. Data Fusion and Vertex AI stay at table level.', i: 'Third-party sources say 30 days of retention. No Google page confirmed it.', c: 'A search API with column wildcards and a lineage tool server for agents, in preview since June 2026.', r: 'Not found.', x: 'Custom OpenLineage events are accepted as run events and kept at table level only.' },
+    limits: 'Short retention. No column lineage on external events.', price: 'Not researched.' },
+  { id: 'aws', name: 'AWS SageMaker Catalog', fam: 'plat', ev: 'A', mech: 'OpenLineage run events plus Glue and Redshift capture', s: { b: 2, i: 3, c: 1, r: 0, x: 1 },
+    how: 'A lineage store in SageMaker Catalog (DataZone) that captures Glue and Redshift automatically and takes everything else as posted OpenLineage run events.',
+    n: { b: 'Column level for Spark DataFrame jobs on Glue 5.0+ and EMR. Everything else must be posted.', i: 'Lineage nodes are versioned by event time and their history can be listed. Retention not found.', c: 'APIs only: get a node, list its history, query the graph.', r: 'Not found.', x: 'Its API model says "Only open-lineage run event are supported". No capture for MSK, Managed Flink or services. ML lineage is a separate artifact-level graph.' },
+    limits: 'Cannot take static lineage from CI.', price: 'No separate charge for lineage. Metered through catalog requests and storage.' },
+  { id: 'msft', name: 'Microsoft Fabric and Purview', fam: 'plat', ev: 'B', mech: 'Item-level lineage view', s: { b: 1, i: 0, c: 1, r: 0, x: 0 },
+    how: 'Fabric shows lineage between items in a workspace. Purview adds column lineage for a few sources.',
+    n: { b: 'Fabric\'s lineage view is item level. Purview\'s Power BI column lineage works only with an Azure SQL Database source.', i: 'Not found.', c: 'Item-level impact analysis with a notify-contacts action.', r: 'Not found.', x: 'Not found.' },
+    limits: 'No native column lineage across Fabric Lakehouse transformations.', price: 'Not researched.' },
+  { id: 'confluent', name: 'Confluent Stream Lineage', fam: 'plat', ev: 'B', mech: 'Topic and client topology from the platform', s: { b: 1, i: 1, c: 0, r: 1, x: 1 },
+    status: 'IBM closed its acquisition of Confluent on 17 March 2026.',
+    how: 'Draws producers, topics, connectors, Flink statements and consumers from what the platform observes.',
+    n: { b: 'Topic, client and statement level. No field-level lineage was evidenced.', i: 'A live view with a short look-back window.', c: 'None found.', r: 'An operational view of what is flowing now.', x: 'Covers the streaming hop, at topic level.' },
+    limits: 'Not a system of record.', price: 'Not researched.' },
+
+  { id: 'dbt', name: 'dbt Catalog and Advanced CI', fam: 'ci', ev: 'A', mech: 'Static analysis of the project\'s SQL', s: { b: 3, i: 3, c: 2, r: 1, x: 0 },
+    status: 'dbt Labs merged with Fivetran. The deal closed on 1 June 2026.',
+    how: 'Analyzes every model\'s SQL and shows column lineage in the Catalog, with a lens that labels each column as passthrough, rename or transformation.',
+    n: { b: 'Every model in the project. Its docs say it "doesn\'t reflect other usage like joins and filters". Python models cannot be parsed.', i: 'Recomputed after each production or staging run.', c: 'Advanced CI compares the pull request\'s build with production and comments on the PR. It shows data differences, not column-level downstream impact.', r: 'Column lineage for manual tracing.', x: 'Stops at the project boundary.' },
+    limits: 'Direct dependencies only. One project.', price: 'Column lineage and Advanced CI need an Enterprise plan.' },
+  { id: 'sqlmesh', name: 'SQLMesh', fam: 'ci', ev: 'A', mech: 'SQLGlot parse of every model', s: { b: 3, i: 4, c: 3, r: 0, x: 0 },
+    status: 'Tobiko Data was acquired by Fivetran in September 2025.',
+    how: 'Parses every model with SQLGlot, fingerprints each version and plans only what changed.',
+    n: { b: 'Column lineage in the open-source CLI and UI.', i: 'Every changed model gets a new snapshot with a fingerprint, so only what changed is re-evaluated.', c: 'A GitHub bot builds a pull-request environment and categorizes each change as breaking or non-breaking. Categorizing at column level is an open proposal, not shipped.', r: 'Not an incident tool.', x: 'Stops at the project boundary.' },
+    limits: 'SELECT * on external sources weakens lineage.', price: 'Open source. The cloud product is sales-led.' },
+  { id: 'recce', name: 'Recce', fam: 'ci', ev: 'A', mech: 'SQLGlot analysis of dbt models, base against PR', s: { b: 2, i: 3, c: 3, r: 0, x: 0 },
+    how: 'Reads dbt artifacts for the base branch and the pull request, and analyzes the SQL of changed models.',
+    n: { b: 'dbt projects only.', i: 'Compares two environments on every commit or pull request.', c: 'A column-level impact radius, three change classes with an explicit unknown, data diffs, a PR comment and a required check on GitHub and GitLab.', r: 'Not an incident tool.', x: 'Stops at the project boundary.' },
+    limits: 'Python models and seeds are always treated as model-wide changes.', price: 'Open source. Cloud tiers not found.' },
+  { id: 'datafold', name: 'Datafold', fam: 'ci', ev: 'B', mech: 'Query-log lineage plus a data diff of the PR build', s: { b: 3, i: 2, c: 3, r: 1, x: 0 },
+    status: 'Independent. Its 2025 and 2026 launches centre on a migration agent.',
+    how: 'Builds column lineage by parsing warehouse query logs with its own SQL compiler, enriched with dbt and BI metadata. In CI it builds the pull request into a staging schema and diffs the data against production.',
+    n: { b: 'Column level across the warehouse and BI, including tables outside dbt.', i: 'A scheduled scan of query history. Lineage that exists only in the pull request is not in the graph.', c: 'A pull-request comment with value-level data differences and the downstream BI and reverse-ETL assets, on GitHub, GitLab, Bitbucket and Azure DevOps. Whether it can block a merge was not confirmed.', r: 'Not found.', x: 'BI and reverse ETL. No application code.' },
+    limits: 'Anchored on what has already run in production.', price: 'Quote based. Deal-tracker median about USD 18K a year.' },
+  { id: 'foundational', name: 'Foundational', fam: 'ci', ev: 'B', mech: 'Static analysis of source code in git', s: { b: 3, i: 3, c: 4, r: 1, x: 3 },
+    status: 'Independent. A USD 8M seed round in 2024 is the only funding found.',
+    how: 'Reads lineage from the source itself, without running it, across the repositories it is given.',
+    n: { b: 'Vendor docs list extraction for Spark, Scala, Python, SQLAlchemy, Kafka and .NET alongside SQL.', i: 'Re-analyzed on each code change.', c: 'Every pending pull request is scanned against end-to-end lineage and the result is posted as a native check. Non-blocking by default; it can be set to block.', r: 'Not found.', x: 'The widest claimed reach from code: services, stream producers and Spark jobs. Whether its Kafka extraction reaches Avro or Protobuf fields was not found.' },
+    limits: 'Every claim is vendor-authored and none could be tested. A small company to depend on.', price: 'Not found.' },
+  { id: 'gable', name: 'Gable', fam: 'ci', ev: 'A', mech: 'Static analysis of application code against data contracts', s: { b: 2, i: 3, c: 3, r: 0, x: 3 },
+    status: 'Independent. USD 27M raised, including a 2025 Series A.',
+    how: 'Scans application code for data-flow paths from an ingress to an egress, maps ingress fields to egress fields, and checks schemas and code against data contracts in CI.',
+    n: { b: 'Field mappings for Java and TypeScript, with more languages through rule files. Each mapping carries a completeness flag: unknown, known incomplete or known complete. Kafka topics and other stores are declared by hand.', i: 'Per CI run. Two scans can be compared for added, removed and changed paths.', c: 'A contract check that writes a pull-request comment and fails the build at its BLOCK level.', r: 'Prevention only.', x: 'Avro, Protobuf and JSON Schema files, event emitters and service-to-store flows. The widest verified reach upstream of the warehouse.' },
+    limits: 'Its docs say code must be bundled and sent to its service for analysis. Some checks need a proxy database or a runnable job.', price: 'Not found.' },
+
+  { id: 'ol', name: 'OpenLineage', fam: 'oss', ev: 'A', mech: 'A standard event model with runtime collectors', s: { b: 3, i: 3, c: 1, r: 1, x: 2 },
+    how: 'Integrations emit one event per job run with input and output datasets and, where the engine allows, a column lineage facet with direct and indirect dependencies.',
+    n: { b: 'Column lineage from Spark, Trino and Hive plans, and from SQL text for Airflow operators and dbt. None from Flink, Kafka Connect or Kafka Streams.', i: 'One event per run. A newer explicit lineage facet states that run events accumulate and job and dataset events replace.', c: 'Static job and dataset events can carry lineage from CI. No CI tool ships with it.', r: 'Data quality assertion facets.', x: 'Models streaming and service jobs. The field detail still has to come from the producer.' },
+    limits: 'A format, not a store or a UI. Its dbt integration says column lineage was "tested with simple projections only".', price: 'Open source.' },
+  { id: 'marquez', name: 'Marquez', fam: 'oss', ev: 'A', mech: 'Reference store for OpenLineage', s: { b: 2, i: 4, c: 1, r: 0, x: 1 },
+    how: 'Stores OpenLineage events in Postgres with versions for datasets, jobs and runs.',
+    n: { b: 'Stores what OpenLineage sends, including static events.', i: 'Dataset, job and run versions, and point-in-time column lineage.', c: 'A column-lineage endpoint that can be scripted.', r: 'No incident workflow.', x: 'Whatever producers send.' },
+    limits: 'The README\'s recommended release is 0.50.0, dated October 2024.', price: 'Open source.' },
+  { id: 'datahub', name: 'DataHub', fam: 'oss', ev: 'A', mech: 'Many connectors and a SQLGlot-based parser', s: { b: 3, i: 2, c: 2, r: 2, x: 2 },
+    how: 'Connectors and a SQL parser built on SQLGlot emit metadata events into a graph and search index. A cloud edition adds monitoring.',
+    n: { b: 'Self-reported 97 to 99% parser accuracy, with the method unpublished. No column lineage for MERGE, multi-statement scripts or the inside of UDFs. Join and filter columns are left out.', i: 'Event-driven. No historical lineage. In incremental mode its docs say edges that used to exist "will not be removed".', c: 'Impact analysis through the UI and GraphQL. A dbt pull-request action exists but is dated.', r: 'Incidents in the open-source core. Assertions and anomaly detection in the cloud edition.', x: 'The cloud edition adds a service catalog that puts repositories, services and APIs into lineage.' },
+    limits: 'Its OpenLineage endpoint treats every event as a run event.', price: 'Open source core. Cloud price not found.' },
+  { id: 'om', name: 'OpenMetadata', fam: 'oss', ev: 'A', mech: 'Query-log, view, dbt and stored-procedure parsing', s: { b: 3, i: 2, c: 1, r: 3, x: 1 },
+    how: 'Tries three SQL parsers in turn over query logs, views, dbt and stored procedures, and accepts OpenLineage run events.',
+    n: { b: 'Stored-procedure lineage is supported. No accuracy figures are published.', i: 'Incremental lineage processing by default, with entity versions. No lineage history found.', c: 'An impact analysis view and APIs. No CI integration found.', r: 'An incident manager that opens on a test failure and records root cause.', x: 'OpenLineage run events only.' },
+    limits: 'Some data quality features are in the commercial edition only.', price: 'Open source. Collate price not found.' }
+];
+
+var HOPS = [
+  { short: 'Service to topic', name: 'A service writes an event', path: 'payments-svc → auth.events.v1',
+    what: 'Which request and domain fields the service writes into each field of the event.',
+    market: 'Tracing and stream monitoring show that the service produces to the topic, not which fields. Two young vendors read application code. Gable scans Java and TypeScript for field mappings and flags how complete each one is, but its docs say the code is sent to its service. Foundational documents extraction from Kafka, SQLAlchemy and .NET code; its field reach could not be verified.',
+    ours: 'The Avro schema gives the field inventory. Code rules find which fields the producer sets. The edge stays probable until the owner verifies the tier 1 fields.' },
+  { short: 'Flink job', name: 'A stream job reshapes the event', path: 'auth.events.v1 → txn-enrichment → auth.enrich.v1',
+    what: 'Which input fields feed each output field, including the rename of merchant_category_code to mcc.',
+    market: 'Dataset level only. The OpenLineage docs say Flink 2.x lineage interfaces "do not provide column level lineage information". Confluent\'s stream lineage is topic level.',
+    ours: 'Flink SQL runs through the planner in a CI harness and the mapping is read from the plan. DataStream code gets a declared mapping that the owner verifies.' },
+  { short: 'Sink', name: 'A connector lands the topic in the lake', path: 'auth.enrich.v1 → raw.card_auth',
+    what: 'Which topic field lands in which lake column.',
+    market: 'Sink connectors emit dataset-level events at best. Warehouse lineage does not see a write that bypasses SQL.',
+    ours: 'The connector configuration and its field mapping are parsed. It is usually identity by name, so confidence is high.' },
+  { short: 'dbt SQL', name: 'A model builds the fact table', path: 'raw.card_auth → fct_card_auth',
+    what: 'Column to column, with joins and filters recorded as indirect dependencies.',
+    market: 'The best-served hop. Scanners, query-log tools, platforms, dbt, SQLMesh and OpenLineage all provide it. They differ on joins and filters: dbt and DataHub leave them out.',
+    ours: 'Compiled SQL is parsed with SQLGlot for direct and indirect dependencies, then confirmed by the OpenLineage dbt facet and warehouse access history.' },
+  { short: 'BI', name: 'A dashboard reads the fact table', path: 'fct_card_auth → Approval rate dashboard',
+    what: 'Which columns each dashboard field reads.',
+    market: 'Well served by scanner suites and by catalogs with BI connectors. Platform lineage sees the query but not always the dashboard as a node.',
+    ours: 'The BI tool\'s metadata API gives fields per dashboard, confirmed by access history under the BI service account.' },
+  { short: 'Feature', name: 'A feature aggregates the fact table', path: 'fct_card_auth → mcc_decline_7d',
+    what: 'The source columns, entity keys and aggregation window of the feature.',
+    market: 'Covered only when the feature is built inside a platform that tracks it. No vendor documented lineage for an external feature store.',
+    ours: 'The feature repository is parsed for source columns and aggregation, then confirmed by the materialization run event.' },
+  { short: 'Model', name: 'A model trains on the feature', path: 'mcc_decline_7d → fraud-score-v12',
+    what: 'Which features are inputs to which model version.',
+    market: 'Platform ML lineage links runs, tables and models at artifact level, inside that platform. On AWS it is a separate graph from the data catalog.',
+    ours: 'The training configuration and the model signature in the registry are read, then confirmed by the training run event.' },
+  { short: 'Serving', name: 'A service serves the model', path: 'fraud-score-v12 → fraud-svc → payments-svc',
+    what: 'Which model version an endpoint serves and which request fields it expects.',
+    market: 'Not evidenced as lineage in any product found. Service catalogs and tracing show that the call happens.',
+    ours: 'The registry\'s deployment record and the serving request schema, joined to the call edge from gateway logs.' }
+];
+
+var COVER = [
+  { name: 'Scanner suites', c: 'NNNPFNNN' },
+  { name: 'Query-log tools', c: 'DDNFFPNN' },
+  { name: 'Platform-native catalogs', c: 'NDDFPPPD' },
+  { name: 'CI tools on the code diff', c: 'PNNFFNNN' },
+  { name: 'Open standard and open platforms', c: 'DDDFPDDN' },
+  { name: 'This build', c: 'PPFFFFFP', ours: true }
+];
+
+var FCOLS = [
+  ['Signals', [['sig-code', 'Repos and', 'pull requests'], ['sig-schema', 'Schema registry', 'and table DDL'], ['sig-run', 'Job runs and', 'query history'], ['sig-dq', 'DQ, contract and', 'deploy events']]],
+  ['Extract', [['ex-detect', 'Change detectors', '(unit hashes)'], ['ex-static', 'Element extractors', '(one per hop)'], ['ex-runtime', 'Runtime collectors', '(events, logs)']]],
+  ['Evidence', [['ev-bus', 'Evidence topic', '(envelope v2)'], ['ev-lake', 'Evidence lake', '(replay source)']]],
+  ['Core', [['co-res', 'Identity resolver'], ['co-score', 'Merge and scorer'], ['co-write', 'Bitemporal writer'], ['co-diff', 'Lineage diff']]],
+  ['Graph', [['g-graph', 'Element graph', '(as of any time)'], ['g-overlay', 'PR overlay'], ['g-changes', 'lineage.changes', 'stream']]],
+  ['Uses', [['u-pr', 'PR report', 'and gate'], ['u-rca', 'RCA and', 'remediation'], ['u-cat', 'Catalog', 'projections'], ['u-api', 'API and', 'agent tools']]]
+];
+
+var FLOWS = [
+  { id: 'baseline', name: 'O1 Baseline', title: 'Baseline: build the element graph from nothing',
+    trigger: 'a repository, platform or slice is onboarded', sla: 'once, and again on any full replay',
+    on: ['sig-code', 'sig-run', 'ex-static', 'ex-runtime', 'ev-bus', 'ev-lake', 'co-res', 'co-score', 'co-write', 'g-graph', 'u-cat', 'u-api'],
+    steps: [
+      ['Read every unit', 'Each extractor reads all units of its technology on the default branch: dbt models, Flink statements, Avro subjects, feature views.', 'unit://git/analytics-dbt/models/marts/fct_card_auth.sql'],
+      ['Emit element evidence', 'One record per field mapping with class, subtype and expression hash. An opaque unit emits a dataset-level edge with a reason.', 'raw.card_auth#mcc → fct_card_auth#mcc · DIRECT / IDENTITY · ci_static 0.60'],
+      ['Add what ran', 'Runtime collectors add OpenLineage column facets and warehouse access history for the same edges.', 'openlineage 0.95 · access_history 0.95'],
+      ['Resolve and score', 'Names become URNs, evidence merges per element edge, and noisy-OR gives confidence and state.', '1 − (0.40 × 0.05 × 0.05) = 0.999 → confirmed'],
+      ['Score against the golden graph', 'Precision and recall are published per hop, with the list of gaps.', 'lineage-eval score --slice card-auth']
+    ] },
+  { id: 'incremental', name: 'O2 Incremental', title: 'Incremental: change only what the change touched',
+    trigger: 'a merge, a schema registration, a DDL change or a job run', sla: 'under 15 minutes',
+    on: ['sig-code', 'sig-schema', 'sig-run', 'ex-detect', 'ex-static', 'ex-runtime', 'ev-bus', 'ev-lake', 'co-res', 'co-score', 'co-write', 'co-diff', 'g-graph', 'g-changes', 'u-cat'],
+    steps: [
+      ['Detect', 'A signal arrives. The detector works out which units it touches from three hashes: content, input schema and extractor version.', 'schema auth.events.v1 v7 → v8 registered · units reading this subject are invalidated'],
+      ['Re-read only those units', 'Every unit whose three hashes match is skipped.', 're-read: txn-enrichment/enrich.sql'],
+      ['Replace the unit\'s evidence', 'The new set replaces the old one whole. Edges the unit no longer supports lose their static support.', 'closed: auth.events.v1#merchant_category_code → auth.enrich.v1#mcc'],
+      ['Write a new edge version', 'Valid-from, valid-to and recorded-at. Nothing is overwritten.', 'valid_to = merge time · recorded_at = now'],
+      ['Publish the diff', 'One event per material change on lineage.changes. Projections and subscribers get the delta.', '− …#merchant_category_code → …#mcc    + auth.events.v1#mcc → auth.enrich.v1#mcc'],
+      ['Decay', 'Runtime evidence not seen for 30 days turns the edge dormant. It is kept and flagged.', '']
+    ] },
+  { id: 'impact', name: 'O3 Change impact', title: 'Change impact: show who reads the field before merge',
+    trigger: 'a pull request opens or updates', sla: 'under 5 minutes',
+    on: ['sig-code', 'ex-detect', 'ex-static', 'ev-bus', 'co-res', 'g-overlay', 'g-graph', 'u-pr', 'u-api'],
+    steps: [
+      ['Extract twice', 'Run the extractors on the changed units at the base commit and at the head commit.', 'PR #482 · payments-svc · auth-event.avsc'],
+      ['Diff by element', 'A removed field and an added field of the same type in the same position is a probable rename.', 'renamed (probable): merchant_category_code → mcc'],
+      ['Classify', 'Removed, renamed and narrowed are breaking. Logic and row-set changes are potentially breaking. A reformat is non-breaking. An unparseable unit is unknown.', 'registry BACKWARD check: PASS · element class: BREAKING'],
+      ['Overlay', 'The head extraction goes into an overlay keyed by repository and PR. The production graph does not change.', ''],
+      ['Walk downstream', 'Follow direct edges at confidence 0.6 and above, to ten hops. Collect indirect dependents separately as row-set impact.', '7 assets · 5 teams · 5 tier 1'],
+      ['Report and gate', 'One comment and one check. Warn by default, block only a tier 1 contract field with confirmed readers, and pass if the platform is down.', 'Mode: warn · sign-off requested: streaming-platform, analytics-eng, fraud-ml']
+    ] },
+  { id: 'incident', name: 'O4 Detect and resolve', title: 'Detect and resolve: cause and fix order on the alert',
+    trigger: 'a DQ or contract check fails on an element', sla: 'under 2 minutes',
+    on: ['sig-dq', 'sig-run', 'ev-bus', 'ev-lake', 'co-res', 'co-score', 'g-graph', 'g-changes', 'u-rca', 'u-api'],
+    steps: [
+      ['A failing assertion arrives', 'From a contract rule, a DQ tool or an observability product. The platform does not have to own detection.', 'raw.card_auth#mcc null_rate 41% (threshold 1%) at 02:42'],
+      ['Walk upstream as of 02:42', 'On the graph as it was then, direct edges first.', 'raw.card_auth#mcc ← auth.enrich.v1#mcc ← auth.events.v1#merchant_category_code (absent in v8)'],
+      ['Find the first failing element', 'The furthest upstream element with a failing check whose own inputs pass or have no check.', 'auth.enrich.v1#mcc · null 43%'],
+      ['Rank the changes in the window', 'A transparent score: touches the path, falls between last pass and first fail, sits near the first failure, is a breaking class.', '1. 02:05 schema v8 registered  2. 02:03 deploy payments-svc (PR #482)  3. 01:55 deploy txn-enrichment'],
+      ['Split the blast radius', 'Run events after the failure time separate what is already affected from what is not yet.', 'affected: auth.enrich.v1, raw.card_auth · not yet: fct_card_auth (03:00), mcc_decline_7d (04:00)'],
+      ['Plan and pause', 'Remediation in topological order with an owner per step. Opted-in jobs are paused; a person resumes them.', 'pause dbt fct_card_auth and the feature job, then fix upstream first'],
+      ['Record four timestamps', 'Bad data landed, alert fired, cause identified, remediation complete. This is the MTTD and MTTR series.', '']
+    ] }
+];
+
+var ST = [['Intent', 'person', 'h'], ['Specify', 'agent drafts', 'h'], ['Plan', 'agent', 'a'], ['Build', 'in sandboxes', 'a'], ['Verify', 'harness', 'a'], ['Review', 'second agent', 'a'], ['Approve', 'person', 'h'], ['Release', 'person approves', 'h'], ['Operate', 'and learn', 'a']];
+
+var WAVES = ['0 Oracle and twin', '1 Core', '2 Extractors', '3 Incremental and impact', '4 Detect and resolve', '5 Projections and ops'];
+var WPS = [
+  { id: 'WP-00', wave: 0, name: 'Constitution and spec pack skeleton', oracle: 'People review', auto: 1, obj: 'All' },
+  { id: 'WP-01', wave: 0, name: 'Golden graph at element level, as fixtures', oracle: 'Owners sign. An agent drafts candidate edges from code.', auto: 1, obj: 'O1' },
+  { id: 'WP-02', wave: 0, name: 'Change and incident replay corpora, visible and holdout', oracle: 'Owners and platform lead sign', auto: 1, obj: 'O3 O4' },
+  { id: 'WP-03', wave: 0, name: 'Twin of the slice', oracle: 'Smoke scenarios run end to end', auto: 2, obj: 'All' },
+  { id: 'WP-04', wave: 0, name: 'Scoring harness, lineage-eval', oracle: 'People read every line. It is the oracle.', auto: 2, obj: 'All' },
+  { id: 'WP-10', wave: 1, name: 'URN library with nested field paths', oracle: 'Property tests', auto: 2, obj: 'O1' },
+  { id: 'WP-11', wave: 1, name: 'Envelope v2 schema and emit library', oracle: 'Schema tests, v1 compatibility', auto: 2, obj: 'O1 O2' },
+  { id: 'WP-12', wave: 1, name: 'Merge and scorer with unit-owned static evidence', oracle: 'Property tests, removal scenarios', auto: 2, obj: 'O1 O2' },
+  { id: 'WP-13', wave: 1, name: 'Bitemporal graph writer and as-of reads', oracle: 'Bitemporal property tests, replay determinism', auto: 2, obj: 'O2' },
+  { id: 'WP-14', wave: 1, name: 'Lineage diff and the lineage.changes stream', oracle: 'Diff scenarios', auto: 2, obj: 'O2' },
+  { id: 'WP-15', wave: 1, name: 'Identity resolver at element level', oracle: 'Alias fixtures, unresolved rate', auto: 2, obj: 'O1' },
+  { id: 'WP-20', wave: 2, name: 'dbt and SQL extractor', oracle: 'Golden hop, metamorphic tests', auto: 3, obj: 'O1' },
+  { id: 'WP-21', wave: 2, name: 'Avro and Protobuf schema differ and registry watcher', oracle: 'Schema-change fixtures', auto: 3, obj: 'O1 O2' },
+  { id: 'WP-22', wave: 2, name: 'Flink SQL extractor on the planner harness', oracle: 'Golden hop', auto: 3, obj: 'O1' },
+  { id: 'WP-23', wave: 2, name: 'Service producer and consumer field scanner', oracle: 'Golden hop, rule fixtures per framework', auto: 3, obj: 'O1' },
+  { id: 'WP-24', wave: 2, name: 'Sink connector extractor', oracle: 'Golden hop', auto: 3, obj: 'O1' },
+  { id: 'WP-25', wave: 2, name: 'Feature repository and training config extractor', oracle: 'Golden hops', auto: 3, obj: 'O1' },
+  { id: 'WP-26', wave: 2, name: 'Warehouse access-history collector at column level', oracle: 'Recorded query fixtures', auto: 3, obj: 'O1 O2' },
+  { id: 'WP-27', wave: 2, name: 'OpenLineage ingestion with column facets', oracle: 'Round-trip tests', auto: 3, obj: 'O1 O2' },
+  { id: 'WP-28', wave: 2, name: 'BI metadata extractor', oracle: 'Golden hop', auto: 3, obj: 'O1' },
+  { id: 'WP-29', wave: 2, name: 'Model-assisted extractor for opaque units, with a verifier', oracle: 'Opaque fixtures, precision floor', auto: 2, obj: 'O1' },
+  { id: 'WP-30', wave: 3, name: 'Change detectors and unit invalidation', oracle: 'Invalidation scenarios, extractor call counts', auto: 3, obj: 'O2' },
+  { id: 'WP-31', wave: 3, name: 'PR overlay and impact query API', oracle: 'Overlay isolation, PR #482 scenario', auto: 3, obj: 'O3' },
+  { id: 'WP-32', wave: 3, name: 'Change classifier', oracle: 'Classification fixtures', auto: 3, obj: 'O3' },
+  { id: 'WP-33', wave: 3, name: 'PR bot in warn mode with feedback', oracle: 'Change replay, visible and holdout', auto: 3, obj: 'O3' },
+  { id: 'WP-34', wave: 3, name: 'Contract gate in block mode', oracle: 'Gate policy scenarios', auto: 2, obj: 'O3' },
+  { id: 'WP-40', wave: 4, name: 'DQ and contract result ingestion on elements', oracle: 'Assertion fixtures', auto: 3, obj: 'O4' },
+  { id: 'WP-41', wave: 4, name: 'Change-event timeline', oracle: 'Timeline fixtures', auto: 3, obj: 'O4' },
+  { id: 'WP-42', wave: 4, name: 'RCA ranker', oracle: 'Incident replay, visible and holdout', auto: 3, obj: 'O4' },
+  { id: 'WP-43', wave: 4, name: 'Remediation planner and circuit breaker', oracle: 'Plan snapshots, breaker scenario', auto: 2, obj: 'O4' },
+  { id: 'WP-44', wave: 4, name: 'MTTD and MTTR recorder', oracle: 'Timestamp fixtures', auto: 3, obj: 'O4' },
+  { id: 'WP-50', wave: 5, name: 'Catalog projections from lineage.changes', oracle: 'Projection round trip', auto: 3, obj: 'All' },
+  { id: 'WP-51', wave: 5, name: 'Read API and agent tool server', oracle: 'Contract tests', auto: 3, obj: 'O3 O4' },
+  { id: 'WP-52', wave: 5, name: 'Terraform modules and service roles', oracle: 'Policy checks. A person reviews the plan diff.', auto: 2, obj: 'All' },
+  { id: 'WP-53', wave: 5, name: 'Dashboards, alarms and runbooks', oracle: 'Fault-injection scenarios', auto: 3, obj: 'All' }
+];
+</script>
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+
+  /* ---------- tabs (hash routed) ---------- */
+  var VIEWS = ['market', 'fit', 'build', 'factory', 'decide'];
+  function show(name) {
+    if (VIEWS.indexOf(name) < 0) name = VIEWS[0];
+    VIEWS.forEach(function (v) {
+      var el = $('#v-' + v); if (el) el.hidden = v !== name;
+      var a = $('.tabs a[href="#' + v + '"]');
+      if (a) { if (v === name) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }
+    });
+  }
+  function route() { show((location.hash || '').replace('#', '')); }
+  window.addEventListener('hashchange', function () { route(); window.scrollTo(0, 0); });
+
+  /* ---------- Harvey balls ---------- */
+  var LEVELS = ['None', 'Limited', 'Partial', 'Good', 'Strong'];
+  var PIE = ['', 'M8 8 L8 1 A7 7 0 0 1 15 8 Z', 'M8 8 L8 1 A7 7 0 0 1 8 15 Z', 'M8 8 L8 1 A7 7 0 1 1 1 8 Z', ''];
+  function ball(n) {
+    return '<svg class="ball" viewBox="0 0 16 16" role="img" aria-label="' + LEVELS[n] + '"><title>' + LEVELS[n] + '</title>' +
+      '<circle cx="8" cy="8" r="7" fill="' + (n === 4 ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="1.5"/>' +
+      (n > 0 && n < 4 ? '<path d="' + PIE[n] + '" fill="currentColor"/>' : '') + '</svg>';
+  }
+  $$('[data-ball]').forEach(function (el) { el.innerHTML = ball(+el.getAttribute('data-ball')); });
+
+  /* ---------- mechanism families ---------- */
+  var famById = {}; FAMILIES.forEach(function (f) { famById[f.id] = f; });
+  var famsEl = $('#fams');
+  if (famsEl) famsEl.innerHTML = FAMILIES.map(function (f) {
+    return '<div class="fam" style="--fc: var(--' + f.color + ')"><div><h4>' + esc(f.name) + '</h4><p class="who">' + esc(f.who) + '</p></div>' +
+      '<p><span class="k">How it gets element lineage</span>' + f.how + '</p>' +
+      '<p><span class="k">Strong at</span>' + f.strong + '</p>' +
+      '<p><span class="k">Blind to</span>' + f.blind + '</p></div>';
+  }).join('');
+
+  /* ---------- vendor matrix ---------- */
+  var OBJ = [['b', 'Baseline'], ['i', 'Incremental'], ['c', 'Change impact'], ['r', 'Incident'], ['x', 'Beyond warehouse']];
+  var selVendor = null, famFilter = 'all';
+  function renderMatrix() {
+    var rows = '';
+    FAMILIES.forEach(function (f) {
+      if (famFilter !== 'all' && famFilter !== f.id) return;
+      var vs = VENDORS.filter(function (v) { return v.fam === f.id; });
+      if (!vs.length) return;
+      rows += '<tr class="grp" style="--fc: var(--' + f.color + ')"><th colspan="8">' + esc(f.name) + '</th></tr>';
+      vs.forEach(function (v) {
+        rows += '<tr data-v="' + v.id + '"' + (v.id === selVendor ? ' class="sel"' : '') + '><th scope="row"><button class="vbtn" type="button" aria-pressed="' + (v.id === selVendor) + '">' + esc(v.name) + '</button></th>' +
+          '<td class="mech">' + esc(v.mech) + '</td>' +
+          OBJ.map(function (o) { return '<td class="c">' + ball(v.s[o[0]]) + '</td>'; }).join('') +
+          '<td>' + evTag(v.ev) + '</td></tr>';
+      });
+    });
+    $('#matrix tbody').innerHTML = rows;
+  }
+  function renderVendor() {
+    var v = VENDORS.filter(function (x) { return x.id === selVendor; })[0]; if (!v) return;
+    var f = famById[v.fam];
+    var dl = [['How it works', v.how, null], ['Baseline', v.n.b, v.s.b], ['Incremental', v.n.i, v.s.i], ['Change impact', v.n.c, v.s.c], ['Incident', v.n.r, v.s.r], ['Beyond the warehouse', v.n.x, v.s.x], ['Watch out for', v.limits, null], ['Commercials', v.price, null]]
+      .filter(function (d) { return d[1]; })
+      .map(function (d) { return '<div><dt>' + (d[2] === null ? '' : ball(d[2])) + esc(d[0]) + '</dt><dd>' + d[1] + '</dd></div>'; }).join('');
+    $('#vendor-panel').style.setProperty('--fc', 'var(--' + f.color + ')');
+    $('#vendor-panel').innerHTML = '<span class="fam-tag">' + esc(f.name) + '</span><h3>' + esc(v.name) + '</h3>' +
+      (v.status ? '<p class="small muted">' + v.status + '</p>' : '') + '<dl>' + dl + '</dl>' +
+      '<p class="srcs">Evidence: ' + evTag(v.ev) + ' <span>' + EVN[v.ev] + '</span></p>';
+  }
+  var EVL = { A: ['At source', 'a'], B: ['Summaries', 'w'], C: ['Thin', ''] };
+  var EVN = { A: 'Documentation, API definitions or package files were read in full.', B: 'Vendor pages could not be opened; findings come from search summaries of them.', C: 'Little could be retrieved, mostly vendor-authored or third-party.' };
+  function evTag(e) { return '<span class="tag ' + EVL[e][1] + '">' + EVL[e][0] + '</span>'; }
+  if ($('#matrix')) {
+    selVendor = VENDORS[0].id;
+    $('#fam-filter').innerHTML = '<span class="lbl">Show</span><button class="chip" type="button" data-f="all" aria-pressed="true">All ' + VENDORS.length + '</button>' +
+      FAMILIES.filter(function (f) { return VENDORS.some(function (v) { return v.fam === f.id; }); }).map(function (f) { return '<button class="chip" type="button" data-f="' + f.id + '" aria-pressed="false">' + esc(f.short || f.name) + '</button>'; }).join('');
+    $('#fam-filter').addEventListener('click', function (e) {
+      var b = e.target.closest('.chip'); if (!b) return;
+      famFilter = b.getAttribute('data-f');
+      $$('.chip', this).forEach(function (c) { c.setAttribute('aria-pressed', c === b); });
+      renderMatrix();
+    });
+    $('#matrix tbody').addEventListener('click', function (e) {
+      var tr = e.target.closest('tr[data-v]'); if (!tr) return;
+      selVendor = tr.getAttribute('data-v'); renderMatrix(); renderVendor();
+      if (window.matchMedia('(max-width: 980px)').matches) $('#vendor-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    renderMatrix(); renderVendor();
+  }
+
+  /* ---------- slice coverage ---------- */
+  var selHop = 1;
+  var CVL = { F: 'Field level', P: 'Field level with a condition', D: 'Dataset level only', N: 'Not covered' };
+  function renderCover() {
+    var head = '<tr><th>Who covers the hop</th>' + HOPS.map(function (h, i) {
+      return '<th class="hop' + (i === selHop ? ' sel' : '') + '" scope="col"><button type="button" data-h="' + i + '" aria-pressed="' + (i === selHop) + '">' + esc(h.short) + '</button></th>';
+    }).join('') + '</tr>';
+    var body = COVER.map(function (r) {
+      return '<tr' + (r.ours ? ' class="ours"' : '') + '><th scope="row">' + esc(r.name) + '</th>' + r.c.split('').map(function (c, i) {
+        return '<td class="cv' + (i === selHop ? ' sel' : '') + '"><i class="' + c + '" title="' + CVL[c] + '">' + (c === 'N' ? '–' : c) + '</i></td>';
+      }).join('') + '</tr>';
+    }).join('');
+    $('#cover thead').innerHTML = head; $('#cover tbody').innerHTML = body;
+    var h = HOPS[selHop];
+    $('#hopcard').innerHTML = '<div><span class="eyebrow">Hop ' + (selHop + 1) + ' of ' + HOPS.length + '</span><h3>' + esc(h.name) + '</h3></div><p class="path">' + esc(h.path) + '</p>' +
+      '<div class="three"><p><span class="k">What element lineage means here</span>' + h.what + '</p><p><span class="k">What the market offers</span>' + h.market + '</p><p><span class="k">What this build does</span>' + h.ours + '</p></div>';
+  }
+  if ($('#cover')) {
+    $('#cover thead').addEventListener('click', function (e) { var b = e.target.closest('button[data-h]'); if (!b) return; selHop = +b.getAttribute('data-h'); renderCover(); });
+    renderCover();
+  }
+
+  /* ---------- four flows ---------- */
+  var FLBL = ['reads', 'emits evidence', 'keyed by edge', 'writes versions', 'answers queries'];
+  function buildFlowSvg() {
+    var W = 140, STEP = 166, X0 = 8, s = '';
+    FCOLS.forEach(function (col, ci) {
+      var x = X0 + ci * STEP, n = col[1].length, mid = x + W / 2;
+      s += '<rect class="band" x="' + x + '" y="34" width="' + W + '" height="266" rx="8"/>';
+      s += '<text class="tm" x="' + mid + '" y="22" text-anchor="middle">' + col[0] + '</text>';
+      var ys = n === 4 ? [44, 108, 172, 236] : n === 3 ? [62, 145, 228] : [92, 198];
+      col[1].forEach(function (b, bi) {
+        var y = ys[bi];
+        s += '<rect class="fb" data-c="' + b[0] + '" x="' + (x + 8) + '" y="' + y + '" width="' + (W - 16) + '" height="44" rx="6"/>';
+        s += b[2]
+          ? '<text class="fb-t" data-c="' + b[0] + '" text-anchor="middle"><tspan x="' + mid + '" y="' + (y + 19) + '">' + b[1] + '</tspan><tspan x="' + mid + '" y="' + (y + 34) + '">' + b[2] + '</tspan></text>'
+          : '<text class="fb-t" data-c="' + b[0] + '" text-anchor="middle" x="' + mid + '" y="' + (y + 27) + '">' + b[1] + '</text>';
+      });
+      if (ci < FCOLS.length - 1) {
+        var ax = x + W + 3, bx = x + STEP - 3;
+        s += '<line class="ln" x1="' + ax + '" y1="167" x2="' + (bx - 6) + '" y2="167"/><polygon class="ah" points="' + (bx - 7) + ',162 ' + bx + ',167 ' + (bx - 7) + ',172"/>';
+        s += '<text class="ts" x="' + (x + W + 13) + '" y="318" text-anchor="middle">' + FLBL[ci] + '</text>';
+      }
+    });
+    $('#flow-svg').innerHTML = s;
+  }
+  (function () {
+    var g = $('#st-row'); if (!g) return; var s = '';
+    ST.forEach(function (t, i) {
+      var x = 8 + i * 109;
+      s += '<rect class="st-' + t[2] + '" x="' + x + '" y="62" width="92" height="56" rx="7"/>';
+      s += '<text class="th" x="' + (x + 46) + '" y="87" text-anchor="middle">' + t[0] + '</text><text class="ts" x="' + (x + 46) + '" y="103" text-anchor="middle">' + t[1] + '</text>';
+      if (i < ST.length - 1) s += '<line class="ln" x1="' + (x + 94) + '" y1="90" x2="' + (x + 101) + '" y2="90"/><polygon class="ah" points="' + (x + 100) + ',85 ' + (x + 107) + ',90 ' + (x + 100) + ',95"/>';
+    });
+    [[217.5, 'G1', 86], [708, 'G2 · G3', 62], [817, 'G4', 62]].forEach(function (gt) {
+      s += '<text class="tm" x="' + gt[0] + '" y="24" text-anchor="middle">' + gt[1] + '</text><polygon class="gd" points="' + gt[0] + ',30 ' + (gt[0] + 6) + ',36 ' + gt[0] + ',42 ' + (gt[0] - 6) + ',36"/><line class="gl" x1="' + gt[0] + '" y1="42" x2="' + gt[0] + '" y2="' + gt[2] + '"/>';
+    });
+    g.innerHTML = s;
+  })();
+  var selFlow = FLOWS[0].id;
+  function renderFlow() {
+    var f = FLOWS.filter(function (x) { return x.id === selFlow; })[0];
+    $$('#flow-chips .chip').forEach(function (c) { c.setAttribute('aria-pressed', c.getAttribute('data-fl') === selFlow); });
+    var svg = $('#flow-svg'); svg.classList.add('flowing');
+    $$('[data-c]', svg).forEach(function (el) { el.classList.toggle('on', f.on.indexOf(el.getAttribute('data-c')) >= 0); });
+    $('#flow-head').innerHTML = '<h3>' + esc(f.title) + '</h3><p class="trig"><b>Trigger:</b> ' + f.trigger + ' &nbsp;·&nbsp; <b>Needed by:</b> ' + f.sla + '</p>';
+    $('#flow-steps').innerHTML = f.steps.map(function (s) { return '<li><b>' + esc(s[0]) + '</b><span>' + s[1] + '</span>' + (s[2] ? '<span class="ex">' + s[2] + '</span>' : '') + '</li>'; }).join('');
+  }
+  if ($('#flow-chips')) {
+    $('#flow-chips').innerHTML = '<span class="lbl">Trace</span>' + FLOWS.map(function (f) { return '<button class="chip" type="button" data-fl="' + f.id + '">' + esc(f.name) + '</button>'; }).join('');
+    $('#flow-chips').addEventListener('click', function (e) { var b = e.target.closest('.chip'); if (!b) return; selFlow = b.getAttribute('data-fl'); renderFlow(); });
+    buildFlowSvg(); renderFlow();
+  }
+
+  /* ---------- work packages ---------- */
+  var wave = 'all';
+  function renderWps() {
+    $('#wps tbody').innerHTML = WPS.filter(function (w) { return wave === 'all' || String(w.wave) === wave; }).map(function (w) {
+      return '<tr><td class="mono">' + w.id + '</td><th scope="row">' + esc(w.name) + '</th><td>' + w.oracle + '</td><td><span class="tag ' + (w.auto >= 3 ? 'a' : w.auto === 2 ? 'w' : 'h') + '">L' + w.auto + '</span></td><td class="mono">' + esc(w.obj) + '</td></tr>';
+    }).join('');
+  }
+  if ($('#wps')) {
+    $('#wave-chips').innerHTML = '<span class="lbl">Wave</span><button class="chip" type="button" data-w="all" aria-pressed="true">All ' + WPS.length + '</button>' +
+      WAVES.map(function (w, i) { return '<button class="chip" type="button" data-w="' + i + '" aria-pressed="false">' + esc(w) + '</button>'; }).join('');
+    $('#wave-chips').addEventListener('click', function (e) {
+      var b = e.target.closest('.chip'); if (!b) return; wave = b.getAttribute('data-w');
+      $$('.chip', this).forEach(function (c) { c.setAttribute('aria-pressed', c === b); }); renderWps();
+    });
+    renderWps();
+  }
+
+  route();
+})();
+</script>
