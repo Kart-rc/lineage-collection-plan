@@ -245,7 +245,7 @@ footer.src { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--li
 
 <section class="view" id="v-market">
   <div class="sec">
-    <h2>Five ways the market gets lineage down to the column</h2>
+    <h2>Five product families, and when each first sees a change</h2>
     <p class="key">Each family sees a change at a different moment. Only one sees it while it can still be stopped, and that one mostly ends at the edge of a single SQL project.</p>
     <figure class="fig">
       <div class="canvas">
@@ -362,6 +362,7 @@ footer.src { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--li
           <tr><th scope="row">SQL and dbt element extraction</th><td><span class="tag">Adopt</span> SQLGlot with the dbt manifest</td><td>The same parser sits under DataHub, SQLMesh and Recce. Do not write one.</td></tr>
           <tr><th scope="row">Runtime column lineage</th><td><span class="tag">Adopt</span> OpenLineage for Spark, dbt, Airflow, Trino</td><td>Switched on centrally; no work per team.</td></tr>
           <tr><th scope="row">Warehouse truth</th><td><span class="tag">Adopt</span> the platform's lineage and access history</td><td>Complete for what ran, including ad hoc and BI queries.</td></tr>
+          <tr><th scope="row">Pull-request impact inside the dbt project</th><td><span class="tag">Adopt</span> Recce's or SQLMesh's change classification</td><td>Open, documented and able to block. Build only the check that crosses hops.</td></tr>
           <tr><th scope="row">Anomaly and DQ detection</th><td><span class="tag w">Keep or buy</span> an observability product</td><td>Detection is a commodity. Its findings arrive as results on elements.</td></tr>
           <tr><th scope="row">Stored procedures and legacy ETL, if the wider estate has them</th><td><span class="tag w">Buy</span> a scanner suite as a collector</td><td>Thousands of constructs already handled. Not worth rebuilding.</td></tr>
           <tr><th scope="row">Service code to topic fields</th><td><span class="tag a">Build</span> and trial one code-based vendor</td><td>No open tool emits lineage from code analysis. A week on <code>payments-svc</code> against the golden graph settles build or buy.</td></tr>
@@ -382,7 +383,7 @@ footer.src { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--li
           <tr><td>No catalog covers services, streams and ML</td><td>Confirmed. Amazon MSK and Managed Flink have no lineage capture at all.</td><td>The decision stands</td></tr>
           <tr><td>SageMaker Unified Studio accepts run events only</td><td>Confirmed from the API model. A column lineage facet inside a run event is honoured.</td><td>Static CI evidence cannot be projected there; runtime column edges can</td></tr>
           <tr><td>Unity Catalog keeps long history</td><td>395 days rolling in system tables; external lineage is declarative, in preview and capped</td><td>Still the strongest platform case</td></tr>
-          <tr><td>Marquez could be the first-slice store</td><td>Accepts static events and serves point-in-time column lineage, but its README's recommended release dates from October 2024</td><td>Good reference design, weak long-term dependency</td></tr>
+          <tr><td>Marquez could be the first-slice store</td><td>Accepts static events and serves point-in-time column lineage, but its README's recommended release dates from October 2024</td><td>A data model worth copying, a release cadence that argues against depending on it</td></tr>
           <tr><td>DataHub could be the store</td><td>No lineage history; its OpenLineage endpoint treats every event as a run event; stale edges persist in incremental mode</td><td>If chosen, history and removal live in the owned writer and the lake</td></tr>
           <tr><td>New since the ADR</td><td>Snowflake's OpenLineage ingestion for external lineage went generally available in September 2026 with column detail kept</td><td>A better projection target</td></tr>
         </tbody>
@@ -997,7 +998,7 @@ var HOPS = [
     ours: 'Flink SQL runs through the planner in a CI harness and the mapping is read from the plan. DataStream code gets a declared mapping that the owner verifies.' },
   { short: 'Sink', name: 'A connector lands the topic in the lake', path: 'auth.enrich.v1 → raw.card_auth',
     what: 'Which topic field lands in which lake column.',
-    market: 'Sink connectors emit dataset-level events at best. Warehouse lineage does not see a write that bypasses SQL.',
+    market: 'DataHub\'s Kafka Connect source builds field-level lineage by matching schemas between tables and topics, which is by name. Debezium emits OpenLineage events with schemas and no column facet. Warehouse lineage does not see a write that bypasses SQL.',
     ours: 'The connector configuration and its field mapping are parsed. It is usually identity by name, so confidence is high.' },
   { short: 'dbt SQL', name: 'A model builds the fact table', path: 'raw.card_auth → fct_card_auth',
     what: 'Column to column, with joins and filters recorded as indirect dependencies.',
@@ -1026,7 +1027,7 @@ var COVER = [
   { name: 'Query-log tools', c: 'DDNFFPNN' },
   { name: 'Platform-native catalogs', c: 'NDDFPPPD' },
   { name: 'CI tools on the code diff', c: 'PNNFFNNN' },
-  { name: 'Open standard and open platforms', c: 'DDDFPDDN' },
+  { name: 'Open standard and open platforms', c: 'DDPFPDDN' },
   { name: 'This build', c: 'PPFFFFFP', ours: true }
 ];
 

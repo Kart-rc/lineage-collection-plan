@@ -138,9 +138,9 @@ The full assessment, with sources and evidence grades, is in [doc 05](05-vendor-
 | SageMaker Unified Studio accepts run events only | Confirmed from the API model: "Only open-lineage run event are supported". A column lineage facet inside a run event is honoured | Static CI evidence still cannot be projected to it; runtime column edges can |
 | Google keeps lineage 30 days and drops columns on custom events | Table-level only for custom OpenLineage events is confirmed. The 30-day figure appears only in third-party sources | Keep it listed as a fact to check |
 | Unity Catalog keeps long history | Confirmed with limits: 395 days rolling in system tables; indefinite in the API for lineage captured after September 2024; external lineage is declarative, in preview, and capped | Strongest platform case, unchanged |
-| Marquez is a candidate first-slice store | It accepts static job and dataset events and serves point-in-time column lineage, but its last tagged release in the README is from October 2024 | Good reference design; weak as a long-term dependency |
+| Marquez is a candidate first-slice store | It accepts static job and dataset events and serves point-in-time column lineage, but its README still lists a release from October 2024 as the recommended one | A data model worth copying; a release cadence that argues against depending on it |
 | DataHub is a candidate store | Its OpenLineage endpoint treats every event as a run event, it has no lineage history, and stale edges persist in incremental mode | If DataHub is the store, history and removal must live in the owned writer and the lake |
-| New since the ADR | Snowflake made OpenLineage ingestion for external lineage generally available in September 2026, with column lineage preserved. OpenLineage added an explicit lineage facet in which run events accumulate and job and dataset events replace | A better projection target; and the standard now carries the same replace-or-accumulate rule this spec uses |
+| New since the ADR | Snowflake made OpenLineage ingestion for external lineage generally available in September 2026, with column lineage preserved. OpenLineage added an explicit lineage facet in which run events accumulate and job and dataset events replace | A better projection target, once confirmed at source. The standard now carries the same replace-or-accumulate rule this spec uses, but the facet is months old and still labelled experimental, so assume no consumer reads it yet |
 
 ### Adopt, buy or build, by need
 
@@ -149,6 +149,7 @@ The full assessment, with sources and evidence grades, is in [doc 05](05-vendor-
 | SQL and dbt element extraction | Adopt SQLGlot with the dbt manifest | The same parser underlies DataHub, SQLMesh and Recce; do not write one |
 | Runtime column lineage | Adopt the OpenLineage integrations for Spark, dbt, Airflow and Trino | Centrally enabled; no work per team |
 | Warehouse truth | Adopt the platform's own lineage and access history | Complete for what ran, including ad hoc and BI |
+| Pull-request impact inside the dbt project | Adopt the open change classification from Recce or SQLMesh | It is documented, open and able to block. Build only the check that crosses hops |
 | Anomaly and DQ detection | Keep or buy an observability product | Detection is a commodity; its findings arrive as results on elements |
 | Legacy ETL and stored procedures, if the wider estate has them | Buy a scanner suite and treat it as a collector | Thousands of constructs already handled; not worth rebuilding |
 | Service code to topic fields | Build with code rules, and trial one code-based vendor on `payments-svc` | No open tool emits lineage from code analysis. Two vendors cover this hop; one of them, by its own docs, bundles the code and sends it to its service for analysis, which needs a security decision before any trial |
