@@ -19,6 +19,7 @@ Service names, volumes, PR numbers and timings are examples, not measurements.
 | [docs/05-vendor-assessment-element-level-lineage.md](docs/05-vendor-assessment-element-level-lineage.md) | How lineage vendors get to element (column and field) level and where each stops, judged against four objectives: baseline lineage, incremental lineage when the source changes, impact analysis during code changes, and faster detection and resolution. Covers scanner suites, query-log catalogs and observability products, platform catalogs, CI tools and open source, with evidence grades. |
 | [docs/06-element-lineage-factory-spec.md](docs/06-element-lineage-factory-spec.md) | Build spec for element-level lineage on the slice, delivered with an AI factory: requirements with IDs, the element model and envelope v2, the incremental engine, PR impact and RCA design, then the factory itself (oracle, stations, gates, 35 work packages, autonomy ladder, controls and metrics). |
 | [docs/adr/ADR-002-own-the-lineage-graph-of-record.md](docs/adr/ADR-002-own-the-lineage-graph-of-record.md) | Draft ADR on build vs buy: own the thin lineage core, adopt the rest. |
+| [site/lineage-plan-walkthrough.html](site/lineage-plan-walkthrough.html) | Interactive walkthrough of the plan. Pick a phase on the timeline and one map of the slice fills in: which edges are known, how sure the graph is of each, what is downstream of any node, and what happens to PR #482 at that phase. Below it, an evidence calculator for one edge and the edge lifecycle. |
 | [site/lineage-starter-kit.html](site/lineage-starter-kit.html) | Interactive starter kit with two tabs. **The 30-day plan** has the prep list, a 22-working-day checklist, the first collector walkthrough, a simulator and the gate. **Assumptions, risks and readiness** covers inflows and outflows, the cost of acting vs not acting, 14 assumptions, a 5 whys, 10 rated risks and the day-1 checklist. |
 | [site/lineage-components.html](site/lineage-components.html) | Interactive diagram of the 26 collection components in six layers. Each component shows its input and output, and five traces follow one event end to end. |
 | [site/element-lineage-blueprint.html](site/element-lineage-blueprint.html) | Interactive explainer for docs 05 and 06 with five views. **Market** shows when each vendor family first sees a change and rates 28 products. **Fit to the slice** shows who sees fields on each of the eight hops. **What to build** traces the four flows on PR #482. **AI factory** shows the stations, gates and work packages. **Decide** holds the assumptions, alternatives and open decisions. |
@@ -28,7 +29,7 @@ Service names, volumes, PR numbers and timings are examples, not measurements.
 
 ## Opening the pages
 
-The three HTML files are self-contained apart from Google Fonts. Open any of them directly in a browser. To host them, turn on GitHub Pages for this repo with `/site` as the folder. Checklist ticks are saved in your browser only.
+The four HTML files are self-contained apart from Google Fonts. Open any of them directly in a browser. To host them, turn on GitHub Pages for this repo with `/site` as the folder. Checklist ticks are saved in your browser only.
 
 ## Note on the markdown docs
 
