@@ -289,7 +289,7 @@ edge key = <from URN>#<field> | DERIVES | <to URN>#<field>
 | Direct | Aggregation | `fct_card_auth#declined` to `mcc_decline_7d` through a 7-day sum | Value impact, and a changed window is a logic change |
 | Indirect | Join, filter, group by, sort, window, conditional | `status = 'AUTH'` filters `fct_card_auth`; `mcc` is the group-by key of the feature | Row-set impact: reported separately and never blocks alone |
 
-**3. Honest gaps.** An opaque unit produces a dataset-level edge with `opaque: true` and a reason code. The affected target elements are flagged `lineage_gap`. Impact reports then say "field-level unknown through `txn-enrichment` (DataStream API)" instead of ending the path quietly. The gap count per hop is a coverage metric.
+**3. Gaps are stated.** An opaque unit produces a dataset-level edge with `opaque: true` and a reason code. The affected target elements are flagged `lineage_gap`. Impact reports then say "field-level unknown through `txn-enrichment` (DataStream API)" instead of ending the path quietly. The gap count per hop is a coverage metric.
 
 **An element edge record**
 
@@ -508,7 +508,7 @@ So this spec is what one commentator calls a light factory: agents execute, peop
 | 8. Release | Pipeline, person approves | Merged build | Stage replay of a day of production evidence, accuracy report, change record | **G4 release gate:** accuracy does not drop; named approver |
 | 9. Operate and learn | People and agents | Incidents, reconciliation findings, owner feedback | New scenarios, spec changes | Weekly factory review |
 
-Three feedback paths keep the loop honest. A failed verification returns to the builder with the failing category. A rejected change at G2 returns to the spec, because a change that passed the harness and still looks wrong means the spec or the oracle was incomplete. An escaped defect returns as a holdout scenario.
+Three feedback paths close the loop. A failed verification returns to the builder with the failing category. A rejected change at G2 returns to the spec, because a change that passed the harness and still looks wrong means the spec or the oracle was incomplete. An escaped defect returns as a holdout scenario.
 
 ### The oracle
 
@@ -692,6 +692,69 @@ No calendar compression is promised. The exit gates depend on owner sessions and
 | O3. Change impact | IA-1 to IA-9 | WP-31 to WP-34, WP-51 | Change replay; classification fixtures; gate scenarios | Phases 3 and 5 |
 | O4. Detect and resolve | IR-1 to IR-9 | WP-40 to WP-44 | Incident replay; plan snapshots; MTTD and MTTR series | Phase 5 |
 | Cross-cutting | XC-1 to XC-6 | WP-11, WP-27, WP-50 to WP-53 | Trace, round-trip, access and fault scenarios | All |
+
+## What people actually write
+
+Two artefacts carry most of the human effort in the factory. One of each is written out here so the level of precision is clear.
+
+### A work package
+
+```markdown
+# WP-20: dbt and SQL element extractor
+
+Serves:       O1 (BL-2, BL-3, BL-4, BL-5), O2 (IN-1)
+Start level:  3
+Depends on:   WP-10 URN library, WP-11 envelope v2
+Budget:       token ceiling, 6 build attempts, 1 working day
+
+## Scope
+Read a dbt project at a commit and emit envelope v2 evidence for every model:
+direct and indirect element dependencies, expression hashes, opaque reasons.
+
+## Inputs
+- twin/repos/analytics-dbt at the given commit: manifest.json and compiled SQL
+- Source schemas from the twin's schema store, as of that commit
+
+## Outputs
+- Evidence events that validate against specs/evidence/interfaces/envelope-v2.schema.json
+- One event set per model, with replaces: "unit"
+
+## Must hold
+- Parsing uses SQLGlot. No hand-written SQL parsing.
+- A reformatted or alias-renamed model yields identical element edges and expression hashes.
+- A model that cannot be resolved emits an opaque edge with a reason code. It never raises.
+- An indirect dependency is emitted once per target dataset.
+- No network access. No writes outside extractors/dbt_sql/ and its tests.
+
+## Done when
+- lineage-eval score --hop dbt-sql: field precision and recall at or above 0.90
+- Visible scenarios all pass; holdout pass rate at or above 0.90
+- Metamorphic suite all pass
+- The reviewer agent reports no open conformance finding
+```
+
+### A scenario
+
+```gherkin
+# Traces to IA-1, IA-2, IA-3, IA-4, IN-7
+Feature: A rename in an event schema is reported as breaking, with its readers
+
+  Scenario: PR #482 renames merchant_category_code to mcc
+    Given the twin at the base commit of payments-svc, with auth.events.v1 at schema v7
+    And the element graph built from the golden baseline
+    When a pull request removes "merchant_category_code" from auth-event.avsc
+      and adds "mcc" as a string with default ""
+    Then the report lists one change of kind "renamed", from merchant_category_code to mcc
+    And the change class is "breaking"
+    And the report states that the registry's BACKWARD check passes
+    And the downstream list contains auth.enrich.v1#mcc, raw.card_auth#mcc, fct_card_auth#mcc,
+      mcc_decline_7d, fraud-score-v12, fraud-svc and the Approval rate dashboard
+    And every row has an owner, a tier and an edge state
+    And the production graph is unchanged
+    And the report is posted within 5 minutes
+```
+
+The holdout corpus holds siblings of this scenario from the same family, such as a retype instead of a rename, or the same rename made in the dbt model. The builder never sees them. It only learns how many it passed.
 
 ## Risks
 

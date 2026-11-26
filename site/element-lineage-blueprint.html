@@ -217,6 +217,7 @@ ol.ladder b { font: 600 14px var(--f-body); }
 ol.ladder li.now { background: var(--accent-soft); margin: 0 -10px; padding-left: 10px; padding-right: 10px; border-radius: 6px; }
 @media (max-width: 800px) { ol.ladder li { grid-template-columns: 52px minmax(0, 1fr); } ol.ladder li > :nth-child(n+3) { grid-column: 2; } }
 
+.code pre { margin: 0; background: var(--sunk); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font: 12.5px/1.6 var(--f-mono); color: var(--ink); }
 footer.src { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -545,6 +546,60 @@ footer.src { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--li
       <div><h4>Twin of the slice</h4><p class="small">Kafka with a schema registry, a Flink mini cluster, a local SQL engine with the dbt project, a feature store, a model registry and a stub Git provider, started by one command. Agents never touch production.</p></div>
     </div>
     <p class="note">About two thirds of the scenarios are visible to the builder. The rest are holdout, split by scenario family and run by the harness in a separate job. The builder gets back a pass rate and failure categories, never the scenario text. Property tests cover the core (merge is idempotent, replay is deterministic) and metamorphic tests cover the extractors (reformatting a query must not change its edges).</p>
+  </div>
+
+  <div class="sec">
+    <h2>What people write instead of code</h2>
+    <p>Two artefacts carry most of the human effort: the work package, which bounds what an agent may build and how it is judged, and the scenario, which says what correct looks like. One of each, for the dbt extractor and for PR #482.</p>
+    <div class="cols2 code">
+      <div>
+        <h4>A work package</h4>
+<pre># WP-20: dbt and SQL element extractor
+Serves:      O1 (BL-2 to BL-5), O2 (IN-1)
+Start level: 3
+Budget:      token ceiling, 6 attempts, 1 day
+
+## Must hold
+- Parsing uses SQLGlot. No hand-written parser.
+- A reformatted or alias-renamed model yields
+  identical edges and expression hashes.
+- An unresolvable model emits an opaque edge
+  with a reason code. It never raises.
+- An indirect dependency is emitted once per
+  target dataset.
+- No network. No writes outside its own folder.
+
+## Done when
+- lineage-eval score --hop dbt-sql:
+  field precision and recall >= 0.90
+- Visible scenarios pass; holdout >= 0.90
+- Metamorphic suite passes
+- Reviewer agent has no open finding</pre>
+      </div>
+      <div>
+        <h4>A scenario</h4>
+<pre># Traces to IA-1, IA-2, IA-3, IA-4, IN-7
+Scenario: PR #482 renames a contract field
+  Given auth.events.v1 at schema v7
+  And the element graph from the golden baseline
+  When a pull request removes
+    "merchant_category_code" and adds "mcc"
+    as a string with default ""
+  Then the report lists one change of kind
+    "renamed"
+  And the change class is "breaking"
+  And it states the registry's BACKWARD
+    check passes
+  And the downstream list contains
+    auth.enrich.v1#mcc, raw.card_auth#mcc,
+    fct_card_auth#mcc, mcc_decline_7d,
+    fraud-score-v12, fraud-svc and the
+    Approval rate dashboard
+  And the production graph is unchanged
+  And the report is posted within 5 minutes</pre>
+      </div>
+    </div>
+    <p class="note">The holdout corpus holds siblings from the same family, such as a retype instead of a rename, or the same rename made in the dbt model. The builder never sees them. It only learns how many it passed.</p>
   </div>
 
   <div class="sec">
