@@ -125,7 +125,15 @@ def extract(unit, schemas):
         db, table = name.split(".")
         schema[db][table] = {f: "unknown" for f in schemas[name]}
     tree = qualify(sqlglot.parse_one(unit["sql"]), schema=dict(schema), validate_qualify_columns=False)
-    sources = {alias: URN[f"{t.db}.{t.name}"] for alias, t in build_scope(tree).sources.items()}
+    tables = {alias: f"{t.db}.{t.name}" for alias, t in build_scope(tree).sources.items()}
+    sources = {alias: URN[name] for alias, name in tables.items()}
+
+    def canon(node):
+        """The expression as text with every column qualified by its real table, so a reformat or a new alias is not a change."""
+        def real_table(n):
+            return exp.column(n.name, table=tables[n.table]) if isinstance(n, exp.Column) and n.table in tables else n
+        return node.copy().transform(real_table).sql(normalize=True)
+
     fields = []
     for proj in tree.expressions:
         out = proj.alias_or_name
@@ -142,35 +150,47 @@ def extract(unit, schemas):
                 cls, sub = "DIRECT", "IDENTITY"
             else:
                 cls, sub = "DIRECT", "AGGREGATION" if inner.find(exp.AggFunc) else "TRANSFORMATION"
-            edges.append((f"{sources[col.table]}#{col.name}", f"{dst}#{out}", "DERIVES", cls, sub, h(inner.sql())))
+            edges.append((f"{sources[col.table]}#{col.name}", f"{dst}#{out}", "DERIVES", cls, sub, h(canon(inner))))
     for clause, sub in (("where", "FILTER"), ("group", "GROUP_BY")):   # indirect: stored once, against the dataset
         node = tree.args.get(clause)
         for col in (node.find_all(exp.Column) if node else []):
             if col.table in sources:
-                edges.append((f"{sources[col.table]}#{col.name}", dst, "DERIVES", "INDIRECT", sub, h(node.sql())))
+                edges.append((f"{sources[col.table]}#{col.name}", dst, "DERIVES", "INDIRECT", sub, h(canon(node))))
     return sorted(set(edges)), fields, gaps
 
 
 class Graph:
-    """Edge versions with valid-from and valid-to. Static evidence is owned by the unit that produced it."""
+    """Edge versions with valid-from and valid-to. Static evidence is owned by the unit that produced it.
+
+    A version is one (edge key, attributes) pair. If two units describe the same edge differently, both versions
+    stay live side by side, each with its own support. That is a disagreement for the reconciler, never an overwrite.
+    """
 
     def __init__(self):
         self.live, self.closed, self.changes = {}, [], []
 
+    def _versions(self, keys):
+        return {k: {vid[1] for vid in self.live if vid[0] == k} for k in keys}
+
     def replace_unit(self, unit_id, edges, t):
-        new = {(e[0], e[1], e[2]): e[3:] for e in edges}
-        for key, edge in list(self.live.items()):
-            if unit_id in edge["support"] and (key not in new or new[key] != edge["attrs"]):
-                edge["support"].discard(unit_id)
-                if not edge["support"]:                          # nothing supports it any more: close, never delete
-                    self.closed.append({**self.live.pop(key), "valid_to": t})
-                    self.changes.append((t, "removed", key, unit_id))
-        for key, attrs in new.items():
-            if key in self.live and self.live[key]["attrs"] == attrs:
-                self.live[key]["support"].add(unit_id)
+        new = {((e[0], e[1], e[2]), e[3:]) for e in edges}
+        dropped = [vid for vid, edge in self.live.items() if unit_id in edge["support"] and vid not in new]
+        touched = {vid[0] for vid in dropped} | {vid[0] for vid in new if vid not in self.live}
+        before = self._versions(touched)
+        for vid in dropped:
+            self.live[vid]["support"].discard(unit_id)
+            if not self.live[vid]["support"]:                    # nothing supports it any more: close, never delete
+                self.closed.append({**self.live.pop(vid), "valid_to": t})
+        for vid in new:
+            if vid in self.live:
+                self.live[vid]["support"].add(unit_id)
             else:
-                self.live[key] = {"key": key, "attrs": attrs, "support": {unit_id}, "valid_from": t, "valid_to": None}
-                self.changes.append((t, "added", key, unit_id))
+                self.live[vid] = {"key": vid[0], "attrs": vid[1], "support": {unit_id}, "valid_from": t, "valid_to": None}
+        after = self._versions(touched)
+        for key in sorted(touched):
+            if before[key] != after[key]:
+                what = "added" if not before[key] else "removed" if not after[key] else "changed"
+                self.changes.append((t, what, key, unit_id))
 
     def as_of(self, t):
         return [e for e in list(self.live.values()) + self.closed
@@ -230,8 +250,13 @@ def downstream(graph, starts, t):
         for end in e["key"][:2]:
             if "#" in end:
                 fields[dataset(end)].add(end)
-    reached, queue = {}, [(s, 0, "value") for s in starts]
-    seen = set(starts)
+    reached, queue, seen = {}, [], set()
+    for start in starts:                                         # a dataset-level change touches every field of that dataset
+        whole = "#" not in start
+        for node in [start] + (sorted(fields[start]) if whole else []):
+            if node not in seen:
+                seen.add(node)
+                queue.append((node, 0, "row set" if whole else "value"))
     while queue:
         node, hops, kind = queue.pop(0)
         for e in out.get(node, []):
@@ -263,11 +288,42 @@ def pr_impact(graph, state, base, head, t):
                 changes.append({"element": f"{target}#{f}", "kind": "renamed to " + twin[0] if twin else "removed", "class": "BREAKING"})
             changes += [{"element": f"{target}#{f}", "kind": "added", "class": "NON-BREAKING"}
                         for f in new if not any(c["kind"].endswith(f) for c in changes)]
-        else:
-            changes.append({"element": URN[b["writes"]], "kind": "logic changed", "class": "POTENTIALLY BREAKING"})
+        else:                                                    # extract twice, then compare what feeds each output element
+            schemas = {u["writes"]: state[u["id"]]["fields"] for u in base if u.get("writes") and u["id"] in state}
+            target, feeds = URN[b["writes"]] if b.get("writes") else None, []
+            for unit in (b, hd):
+                into = defaultdict(set)
+                for e in extract(unit, schemas)[0]:
+                    into[e[1]].add((e[0],) + e[3:])
+                feeds.append(into)
+            old, new = feeds
+            for el in sorted(set(old) | set(new)):
+                if old.get(el) == new.get(el):
+                    continue                                     # same inputs, same normalized expression: not a change
+                if el == target:
+                    kind, cls = "row set changed", "POTENTIALLY BREAKING"          # a filter, join or grouping moved
+                elif el not in new:
+                    kind, cls = "removed", "BREAKING"
+                elif el not in old:
+                    kind, cls = "added", "NON-BREAKING"
+                else:
+                    kind, cls = "logic changed", "POTENTIALLY BREAKING"
+                changes.append({"element": el, "kind": kind, "class": cls})
     breaking = [c["element"] for c in changes if c["class"] != "NON-BREAKING"]
     return changes, downstream(graph, breaking, t)
 
+
+DBT_VARIANTS = {  # other pull requests against the same model, to show how each is classified
+    "a changed expression": """SELECT auth_id, card_bin, mcc, amount, CAST(auth_ts AS DATE) AS auth_date,
+           CASE WHEN status IN ('DECLINED', 'REVERSED') THEN 1 ELSE 0 END AS declined
+           FROM raw.card_auth WHERE status IN ('AUTH', 'DECLINED')""",
+    "a changed filter": """SELECT auth_id, card_bin, mcc, amount, CAST(auth_ts AS DATE) AS auth_date,
+           CASE WHEN status = 'DECLINED' THEN 1 ELSE 0 END AS declined
+           FROM raw.card_auth WHERE status = 'DECLINED'""",
+    "a table alias and a reformat": """select c.auth_id, c.card_bin, c.mcc, c.amount, cast(c.auth_ts as date) as auth_date,
+           case when c.status = 'DECLINED' then 1 else 0 end as declined
+           from raw.card_auth as c where c.status in ('AUTH', 'DECLINED')""",
+}
 
 EVENTS = [  # (time, kind, owner of the change, detail, elements touched, class) across the estate that night
     ("01:55", "deploy", "txn-enrichment", "config only", set(), "config"),
@@ -341,6 +397,14 @@ def run(check=False):
         say(f"   hop {hop}  {urn:<48} {team:<19} tier {tier}  {kind} impact")
     teams, tier1 = {r[3] for r in rows}, sum(1 for r in rows if r[4] == 1)
     say(f"   downstream: {len(rows)} assets, {len(teams)} teams, {tier1} tier 1.  Registry BACKWARD check would pass.")
+    say("   three other edits to fct_card_auth.sql, classified the same way:")
+    variants = {}
+    for label, sql in DBT_VARIANTS.items():
+        v_changes, v_reached = pr_impact(graph, state, base, units(AVRO_V7, dbt_sql=sql), "01:30")
+        variants[label] = (v_changes, v_reached)
+        what = "; ".join(f"{short(c['element'])} {c['kind']}" for c in v_changes) or "no element changed: non-breaking"
+        kinds = sorted({k for _, k in v_reached.values()})
+        say(f"     {label:<30} {what}" + (f"  ->  {len(v_reached)} assets, {' and '.join(kinds)} impact" if v_reached else ""))
 
     say("\nO2 INCREMENTAL: the change ships as a hotfix that skips the gate; schema v8 is registered at 02:05")
     before = len(graph.changes)
@@ -390,6 +454,26 @@ def run(check=False):
         assert same
         assert [c["kind"] for c in changes] == ["renamed to mcc"] and changes[0]["class"] == "BREAKING", changes
         assert (len(rows), len(teams), tier1) == (7, 5, 5), rows
+        fct, consumers = URN["analytics.fct_card_auth"], {URN["feast.mcc_decline_7d"], URN["bi.approval_rate"], MODEL, SERVICE}
+        v_changes, v_reached = variants["a changed expression"]
+        assert [(c["element"], c["kind"]) for c in v_changes] == [(fct + "#declined", "logic changed")], v_changes
+        assert set(v_reached) == consumers and {k for _, k in v_reached.values()} == {"value"}, v_reached
+        v_changes, v_reached = variants["a changed filter"]
+        assert [(c["element"], c["kind"]) for c in v_changes] == [(fct, "row set changed")], v_changes
+        assert set(v_reached) == consumers and {k for _, k in v_reached.values()} == {"row set"}, v_reached
+        assert variants["a table alias and a reformat"] == ([], {})
+        schemas = {u["writes"]: state[u["id"]]["fields"] for u in base if u.get("writes")}
+        aliased = units(AVRO_V7, dbt_sql=DBT_VARIANTS["a table alias and a reformat"])[3]
+        assert extract(aliased, schemas)[0] == extract(base[3], schemas)[0]          # same edges, same expression hashes
+        shared, k = Graph(), ("a#x", "b#y", "DERIVES")                               # two units, one edge, then they disagree
+        shared.replace_unit("u1", [k + ("DIRECT", "IDENTITY", "h1")], "01:00")
+        shared.replace_unit("u2", [k + ("DIRECT", "IDENTITY", "h1")], "01:00")
+        shared.replace_unit("u1", [k + ("DIRECT", "TRANSFORMATION", "h2")], "02:00")
+        assert {v[1][1]: sorted(e["support"]) for v, e in shared.live.items()} == {"IDENTITY": ["u2"], "TRANSFORMATION": ["u1"]}
+        assert [e["attrs"][1] for e in shared.as_of("01:30")] == ["IDENTITY"]
+        shared.replace_unit("u2", [k + ("DIRECT", "TRANSFORMATION", "h2")], "03:00")
+        assert len(shared.live) == 1 and [e["valid_to"] for e in shared.closed] == ["03:00"]
+        assert [e["attrs"][1] for e in shared.as_of("01:30")] == ["IDENTITY"] and [c[1] for c in shared.changes] == ["added", "changed", "changed"]
         assert reread == ["payments-svc/auth-event.avsc", "txn-enrichment/enrich.sql"] and len(skipped) == 6, (reread, skipped)
         assert [d[1:3] for d in diff] == [("removed", old)] and gaps and was and not now
         assert replay.digest() == graph.digest()

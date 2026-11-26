@@ -708,7 +708,7 @@ python3 code/element_lineage_demo.py --check
 | Objective | What the run does | Result on the slice |
 | --- | --- | --- |
 | O1. Baseline | Reads eight units and scores the element edges against a hand-written golden graph | 26 element edges with class and subtype. Precision 1.00, recall 0.93. The two missed edges are the service-to-topic hop, which has no extractor in the demo (WP-23) |
-| O3. Change impact | Diffs PR #482 by element before merge, classifies it and walks downstream | One breaking change, "renamed to mcc". Seven assets, five teams, five tier 1, on a change the registry's BACKWARD check would pass |
+| O3. Change impact | Diffs PR #482 by element before merge, classifies it and walks downstream | One breaking change, "renamed to mcc". Seven assets, five teams, five tier 1, on a change the registry's BACKWARD check would pass. Three other edits to the dbt model are classified the same way: a changed expression (logic changed, value impact), a changed filter (row set changed) and an alias with a reformat (no element changed) |
 | O2. Incremental | Registers schema v8 and re-reads only the units whose three hashes changed | Two units re-read, six skipped. One edge closed, one gap reported. The graph as of 02:00 still has the old edge, and a rebuild from the same evidence gives the same graph hash |
 | O4. Detect and resolve | Starts from a null-rate check failing at 02:42 and walks the incident window | Six changes in the window across the estate, three on the lineage path, the true cause ranked first. Two assets already affected, five not yet, and a fix order that starts upstream |
 
