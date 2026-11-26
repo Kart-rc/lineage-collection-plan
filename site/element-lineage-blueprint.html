@@ -288,7 +288,7 @@ footer.src { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--li
       <aside class="panel" id="vendor-panel" aria-live="polite"></aside>
     </div>
     <p class="legend"><span><span data-ball="4"></span>Strong</span><span><span data-ball="3"></span>Good</span><span><span data-ball="2"></span>Partial</span><span><span data-ball="1"></span>Limited</span><span><span data-ball="0"></span>None found</span></p>
-    <p class="note"><b>Read the ratings as judgments, not measurements.</b> They are a reading of the cited research, at element level, for an estate like the slice. The research ran with most vendor documentation hosts blocked, so the evidence column says how each row was sourced: <span class="tag a">At source</span> documentation, API definitions or package files read in full; <span class="tag w">Summaries</span> search summaries of vendor pages that could not be opened; <span class="tag">Thin</span> little retrieved. Re-read a vendor's own documentation before any of this goes into a contract.</p>
+    <p class="note"><b>Read the ratings as judgments, not measurements.</b> They are a reading of the cited research, at element level, for an estate like the slice. The first draft was researched with most vendor documentation blocked, and a verification pass then re-read the load-bearing claims at their sources. The evidence column says how each row stands now: <span class="tag a">At source</span> documentation, API definitions or package files read in full, which shows what the vendor states and not that it was tested; <span class="tag w">Summaries</span> search summaries of vendor pages that could not be opened; <span class="tag">Thin</span> little retrieved. Re-read a vendor's own documentation before any of this goes into a contract.</p>
   </div>
 
   <div class="sec">
@@ -365,7 +365,7 @@ footer.src { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--li
           <tr><th scope="row">Pull-request impact inside the dbt project</th><td><span class="tag">Adopt</span> Recce's or SQLMesh's change classification</td><td>Open, documented and able to block. Build only the check that crosses hops.</td></tr>
           <tr><th scope="row">Anomaly and DQ detection</th><td><span class="tag w">Keep or buy</span> an observability product</td><td>Detection is a commodity. Its findings arrive as results on elements.</td></tr>
           <tr><th scope="row">Stored procedures and legacy ETL, if the wider estate has them</th><td><span class="tag w">Buy</span> a scanner suite as a collector</td><td>Thousands of constructs already handled. Not worth rebuilding.</td></tr>
-          <tr><th scope="row">Service code to topic fields</th><td><span class="tag a">Build</span> and trial one code-based vendor</td><td>No open tool emits lineage from code analysis. A week on <code>payments-svc</code> against the golden graph settles build or buy.</td></tr>
+          <tr><th scope="row">Service code to topic fields</th><td><span class="tag a">Build</span> and trial one code-based vendor</td><td>No open tool emits lineage from code analysis. One vendor documents field-level lineage through Kafka. A week on <code>payments-svc</code> against the golden graph settles build or buy.</td></tr>
           <tr><th scope="row">Flink field mapping</th><td><span class="tag a">Build</span> on the Flink planner in CI</td><td>Nothing in the market provides it.</td></tr>
           <tr><th scope="row">Feature and model hops</th><td><span class="tag a">Build</span> small extractors</td><td>Platform ML lineage is artifact-level and separate from the catalog.</td></tr>
           <tr><th scope="row">Identity, evidence merge, history, diff, cross-system PR impact, RCA ranking</th><td><span class="tag a">Build</span> the thin core</td><td>No product fits here. It is what ADR-002 chose to own.</td></tr>
@@ -382,10 +382,12 @@ footer.src { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--li
         <tbody>
           <tr><td>No catalog covers services, streams and ML</td><td>Confirmed. Amazon MSK and Managed Flink have no lineage capture at all.</td><td>The decision stands</td></tr>
           <tr><td>SageMaker Unified Studio accepts run events only</td><td>Confirmed from the API model. A column lineage facet inside a run event is honoured.</td><td>Static CI evidence cannot be projected there; runtime column edges can</td></tr>
-          <tr><td>Unity Catalog keeps long history</td><td>395 days rolling in system tables; external lineage is declarative, in preview and capped</td><td>Still the strongest platform case</td></tr>
+          <tr><td>Unity Catalog keeps long history</td><td>395 days rolling in system tables; external lineage is declarative, capped and kept out of the system tables</td><td>Still the strongest platform case</td></tr>
+          <tr><td>Google keeps lineage 30 days</td><td>Confirmed on Google's own page, with table-level edges only for custom OpenLineage events</td><td>A view of recent lineage, not a record</td></tr>
           <tr><td>Marquez could be the first-slice store</td><td>Accepts static events and serves point-in-time column lineage, but its README's recommended release dates from October 2024</td><td>A data model worth copying, a release cadence that argues against depending on it</td></tr>
           <tr><td>DataHub could be the store</td><td>No lineage history; its OpenLineage endpoint treats every event as a run event; stale edges persist in incremental mode</td><td>If chosen, history and removal live in the owned writer and the lake</td></tr>
-          <tr><td>New since the ADR</td><td>Snowflake's OpenLineage ingestion for external lineage went generally available in September 2026 with column detail kept</td><td>A better projection target</td></tr>
+          <tr><td>New since the ADR</td><td>Snowflake's OpenLineage ingestion for external lineage went generally available in September 2026 with column detail kept, capped at 20,000 external edges per account</td><td>A projection target for one slice, not for an estate-wide field graph</td></tr>
+          <tr><td>New since the ADR</td><td>Amazon Managed Service for Apache Flink now runs Flink 2.x. AWS documents no lineage capture for it.</td><td>Dataset-level runtime evidence on the Flink hop is plausible but untested</td></tr>
         </tbody>
       </table>
     </div>
@@ -500,8 +502,8 @@ footer.src { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--li
         <h4>Why the gates stay</h4>
         <ul class="tight small">
           <li>The no-review variant is advocated, not demonstrated. Its results are self-reported, and one detailed practitioner account describes a failed attempt and codebases that struggle after three to six months.</li>
-          <li>DORA's 2025 report finds AI raises delivery throughput and also raises instability.</li>
-          <li>METR's 2025 trial found experienced developers 19% slower with AI tools; its 2026 update is inconclusive.</li>
+          <li>DORA's 2025 research finds that AI "improves throughput, but often at the cost of stability if your foundation isn't solid".</li>
+          <li>METR's 2025 trial found experienced developers took 19% longer with AI tools. Its February 2026 update estimates 18% less task time, with an interval that still includes no change.</li>
           <li>Published cost runs from about $13 per developer-day for typical use to a $1,000 per engineer-day benchmark.</li>
           <li>No regulator or card scheme was found endorsing development without human review.</li>
         </ul>
@@ -789,7 +791,7 @@ Scenario: PR #482 renames a contract field
           <tr><th scope="row">Which warehouse is on the slice?</th><td>Decides the access-history collector and the projection target</td><td>Data platform</td></tr>
           <tr><th scope="row">Does the wider estate need stored-procedure or legacy ETL lineage?</th><td>If yes, a scanner suite is a collector worth buying</td><td>Data governance</td></tr>
           <tr><th scope="row">Graph store: Neptune, or DataHub with history kept in the owned writer?</th><td>DataHub has no lineage history and takes run events only</td><td>Week-1 decision from ADR-002</td></tr>
-          <tr><th scope="row">Build the service-code scanner, or buy that hop?</th><td>One week on <code>payments-svc</code> against the golden graph settles it. One candidate sends code to its own service, which needs a security answer first.</td><td>Developer productivity</td></tr>
+          <tr><th scope="row">Build the service-code scanner, or buy that hop?</th><td>One week on <code>payments-svc</code> against the golden graph settles it. Both candidates reach into source code, so what leaves the environment needs a security answer first.</td><td>Developer productivity</td></tr>
         </tbody>
       </table>
     </div>
@@ -800,7 +802,7 @@ Scenario: PR #482 renames a contract field
     <ul class="tight">
       <li><b>Prevention is one part of the answer.</b> One vendor's analysis of 1,000 incident investigations put code changes at about a tenth of root causes; an earlier statement from the same vendor said about a third. Either way most incidents will not be stopped in a pull request, so detection and root-cause ranking carry as much of the outcome as the gate does.</li>
       <li><b>Two hops stay probable.</b> Field edges through service code and Flink come from static analysis and declared mappings. They are verified by owners for tier 1 fields and reported as gaps elsewhere.</li>
-      <li><b>The research has limits.</b> Most vendor documentation hosts were blocked during the research and the search allowance was capped. Open-source and standards claims were read at the source. Many vendor claims rest on search summaries. Re-read a vendor's own pages before a contract or an ADR change.</li>
+      <li><b>The research has limits.</b> The first draft was written with most vendor documentation blocked. A verification pass then re-read 50 load-bearing claims at their sources: 26 confirmed, 17 corrected here, 7 not checkable. IBM's and Informatica's documentation refuses automated requests, and every price and analyst ranking still comes from a search summary. Read those by hand before a contract or an ADR change.</li>
       <li><b>Accuracy targets are local.</b> No independent precision or recall for column lineage was found, and no independent measurement of lineage's effect on detection or resolution time. The golden graph and the Phase 0 baseline are the only yardsticks that count.</li>
     </ul>
   </div>
@@ -808,7 +810,7 @@ Scenario: PR #482 renames a contract field
 
 <footer class="src">
 <p><b>Where the detail lives.</b> The vendor assessment with sources and evidence grades is <code>docs/05-vendor-assessment-element-level-lineage.md</code>. The build spec with every requirement and work package is <code>docs/06-element-lineage-factory-spec.md</code>. Research notes are under <code>research_notes/</code>. Service names, PR numbers and timings on this page are the plan's illustrative slice, not measurements.</p>
-<p><b>Read in full at the source, 26 November 2026:</b>
+<p><b>Read in full at the source, 26 November 2026:</b> the vendor and publisher pages behind 50 claims, listed with verbatim quotes in the two <code>source_verification</code> notes, and
   <a href="https://github.com/OpenLineage/OpenLineage/blob/main/website/docs/spec/facets/dataset-facets/column_lineage_facet.md" target="_blank" rel="noopener">OpenLineage column lineage facet</a> ·
   <a href="https://github.com/OpenLineage/OpenLineage/blob/main/website/docs/integrations/flink/flink2.md" target="_blank" rel="noopener">OpenLineage Flink 2</a> ·
   <a href="https://github.com/dbt-labs/docs.getdbt.com/blob/current/website/docs/docs/explore/column-level-lineage.md" target="_blank" rel="noopener">dbt column-level lineage</a> ·
@@ -859,10 +861,10 @@ var VENDORS = [
     n: { b: 'Column to column for Informatica ETL and relational sources. About 99 source types by a third-party count.', i: 'Third-party reviews list lineage history and diff as unsupported.', c: 'Impact analysis in the UI and tool servers for agents in 2026. No pull-request check found.', r: 'Qualitative claims only.', x: 'Kafka and application-code coverage could not be confirmed.' },
     limits: 'No lineage history. The roadmap is now set inside Salesforce.',
     price: 'Consumption units with no public rate.' },
-  { id: 'collibra', name: 'Collibra Data Lineage', fam: 'scan', ev: 'B', mech: 'SQL parsing through Edge, platform tables, OpenLineage', s: { b: 3, i: 1, c: 1, r: 1, x: 1 },
-    how: 'Parses SQL and BI metadata through Collibra Edge, reads platform lineage tables (Unity Catalog, Dataplex) and ingests OpenLineage from Airflow, Glue and dbt.',
-    n: { b: 'A per-source support matrix. Stored-procedure coverage varies by database.', i: 'Sync behaviour, history and diff were not found in the retrieved material.', c: 'Lineage read APIs and a tool server positioned for impact analysis before a change ships. No pull-request check found.', r: 'Not evidenced.', x: 'Only what OpenLineage producers send.' },
-    limits: 'Docs exclude cursors and dynamic SQL. The older CLI harvester reached end of life on 31 July 2026.',
+  { id: 'collibra', name: 'Collibra Data Lineage', fam: 'scan', ev: 'A', mech: 'SQL parsing through Edge, platform tables, OpenLineage', s: { b: 3, i: 1, c: 1, r: 1, x: 1 },
+    how: 'Parses SQL and BI metadata through Collibra Edge, reads platform lineage tables (Unity Catalog, Dataplex) and builds lineage from OpenLineage for Airflow, AWS Glue and Alteryx. dbt has its own native integrations.',
+    n: { b: 'A per-source support matrix. Stored-procedure coverage varies by database.', i: 'Its docs say each successful synchronization "replaces all previously harvested lineage for that source". No history or diff is documented.', c: 'Lineage read APIs and a tool server with six lineage read tools for agents. No pull-request or CI integration is documented.', r: 'Not evidenced.', x: 'Only what OpenLineage producers send.' },
+    limits: 'Docs list cursors, dynamic queries and triggers as unsupported, and say dynamic SQL yields limited results. The older CLI harvester reached end of life on 31 July 2026.',
     price: 'No list price. Deal-tracker averages of about USD 166K to 197K a year, on a small sample.' },
   { id: 'octopai', name: 'Cloudera Octopai', fam: 'scan', ev: 'B', mech: 'Scheduled metadata extractors, central parsing', s: { b: 3, i: 2, c: 1, r: 1, x: 0 },
     status: 'Cloudera announced the acquisition on 14 November 2024.',
@@ -878,21 +880,21 @@ var VENDORS = [
     n: { b: 'Strongest claim on mainframe. Column level "where supported".', i: 'Point-in-time visibility is listed.', c: 'Database change impact analysis is listed.', r: 'Not evidenced.', x: 'Python and Java scanners are listed. Their depth is unknown.' },
     limits: 'Thin public documentation.', price: 'Not found.' },
 
-  { id: 'atlan', name: 'Atlan', fam: 'logs', ev: 'B', mech: 'Query-history parsing, API crawl, OpenLineage', s: { b: 3, i: 2, c: 3, r: 2, x: 1 },
+  { id: 'atlan', name: 'Atlan', fam: 'logs', ev: 'A', mech: 'Query-history parsing, API crawl, OpenLineage', s: { b: 3, i: 2, c: 2, r: 2, x: 1 },
     how: 'Parses warehouse query history, crawls source APIs and ingests OpenLineage.',
-    n: { b: 'Strong on the modern stack. A third-party review says direct lineage only, so join and filter columns are left out.', i: 'No lineage history or diff was found.', c: 'The one catalog with a documented pull-request integration: a GitHub and GitLab action comments downstream impact on dbt model changes. Data-contract checks are in preview.', r: 'Alerts propagate along lineage.', x: 'Only what OpenLineage producers send.' },
-    limits: 'Its BigQuery docs say stored procedures do not appear as lineage nodes. Dynamic SQL is not captured.',
+    n: { b: 'Strong on the modern stack. Its docs say column lineage covers direct and conditional transformations, and that JOIN, FILTER and GROUP BY "are excluded as too broad".', i: 'The documentation is silent on lineage history or diff.', c: 'A GitHub Action and a GitLab pipeline comment the impacted downstream assets on dbt model changes, with owners. The comment is asset level, and blocking is not documented. Contract impact analysis is in private preview.', r: 'Alerts propagate along lineage.', x: 'OpenLineage connectors for Airflow, Spark and Flink. Message queues such as Kafka get asset-level lineage only.' },
+    limits: 'Stored procedures and scalar UDFs do not become lineage nodes. Dynamic SQL through EXECUTE IMMEDIATE is not captured.',
     price: 'No list price. Deal-tracker median about USD 50K a year.' },
-  { id: 'alation', name: 'Alation', fam: 'logs', ev: 'B', mech: 'Query-log ingestion and metadata extraction', s: { b: 2, i: 2, c: 1, r: 1, x: 1 },
+  { id: 'alation', name: 'Alation', fam: 'logs', ev: 'A', mech: 'Query-log ingestion and metadata extraction', s: { b: 2, i: 2, c: 1, r: 1, x: 1 },
     how: 'Ingests query logs and extracted metadata, reads platform lineage tables and accepts OpenLineage.',
-    n: { b: 'Good for SQL and BI. Weak where ETL lives in stored procedures.', i: 'Refreshes with each ingestion run. No versioning found.', c: 'An impact analysis report, a lineage API and an agent SDK. No pull-request check.', r: 'Not evidenced.', x: 'An OpenLineage endpoint.' },
+    n: { b: 'Good for SQL and BI. Weak where ETL lives in stored procedures.', i: 'Refreshes with each ingestion run. No versioning found.', c: 'An impact analysis report: an upstream or downstream list to 50 levels, filterable to one column and exportable. No pull-request or CI integration is documented.', r: 'Not evidenced.', x: 'An OpenLineage endpoint on its cloud service, which creates lineage from COMPLETE events.' },
     limits: 'Code that has not run is invisible to query logs.',
     price: 'AWS Marketplace from USD 60K a year. Deal-tracker median about USD 141K.' },
-  { id: 'mc', name: 'Monte Carlo', fam: 'logs', ev: 'B', mech: 'Query-log SQL parsing, push API for gaps', s: { b: 3, i: 3, c: 3, r: 4, x: 1 },
+  { id: 'mc', name: 'Monte Carlo', fam: 'logs', ev: 'A', mech: 'Query-log SQL parsing, push API for gaps', s: { b: 3, i: 3, c: 3, r: 4, x: 1 },
     status: 'Repositioned in May 2026 around trust for AI agents. Third-party trackers reported large layoffs in March 2026; no company statement was found.',
     how: 'Parses warehouse query logs into table and field lineage, connects BI tools and GitHub, and accepts pushed lineage for sources it cannot pull.',
-    n: { b: 'Field level in the warehouse and BI. Its own toolkit rates PySpark and non-SQL pipelines as limited.', i: 'Continuous. Its toolkit gives table lineage in seconds to minutes and query logs after 15 to 20 minutes. Column lineage expires after 10 days.', c: 'A PR agent scores a pull request\'s risk on six weights, including lineage blast radius, with an experimental CI gate. It maps pull requests through dbt projects. An editor-time skill shows blast radius to a coding agent.', r: 'The fullest documented incident flow: it walks field lineage from an anomaly, overlays merged pull requests, scores each one\'s relevance and can name one as root cause, with a troubleshooting agent. Its customer figures, such as 83% lower time to resolution at one named firm, are vendor-published.', x: 'Kafka Connect jobs appear on lineage edges. Its docs say Spark lineage is not supported.' },
-    limits: 'The ten-day column lineage window. Bound to the warehouse and to dbt for pull requests.',
+    n: { b: 'Field level in the warehouse and BI. Its own toolkit rates PySpark and non-SQL pipelines as limited.', i: 'Continuous from query logs. The product documentation states no retention period. A toolkit file gives a 10-day expiry for column lineage, which may apply to pushed lineage only.', c: 'MC Prevent, on GitHub only, posts a low, medium or high risk comment scored over six weights, with lineage blast radius at 15% by default. An optional CI gate blocks the merge once it is a required status check. It needs the dbt integration to identify affected tables.', r: 'The fullest documented incident flow: an agent "automatically traverses lineage to find the root cause" across data changes, job failures and code changes. A pull request is marked as correlated only with the dbt integration. Its customer figures, such as 83% lower time to resolution at one named firm, are vendor-published.', x: 'Kafka Connect jobs appear on lineage edges. Its docs say Spark lineage is not supported.' },
+    limits: 'Bound to the warehouse, and to dbt for pull requests. Full pull-request reviews are chargeable.',
     price: 'Credit-metered. AWS Marketplace lists a USD 50K annual credit package.' },
   { id: 'datadog', name: 'Datadog Data Observability', fam: 'logs', ev: 'A', mech: 'Query history and job runs, inside an observability platform', s: { b: 3, i: 3, c: 3, r: 3, x: 2 },
     status: 'Datadog acquired Metaplane in April 2025.',
@@ -911,32 +913,32 @@ var VENDORS = [
     n: { b: 'Column edges where an origin supplies them. Non-SQL transformations need declared column lineage.', i: 'Ingests git commit diffs. Refresh cadence not found.', c: 'Building blocks only: commit diffs and an impact call. No pull-request comment found.', r: 'An agent gathers root-cause, change and commit evidence. Impact is ranked by owner and data-product priority.', x: 'Custom entities can be declared.' },
     limits: 'Declared lineage is only as good as its upkeep.', price: 'Not found.' },
 
-  { id: 'uc', name: 'Databricks Unity Catalog', fam: 'plat', ev: 'B', mech: 'Engine capture for workloads run on the platform', s: { b: 4, i: 4, c: 2, r: 2, x: 2 },
+  { id: 'uc', name: 'Databricks Unity Catalog', fam: 'plat', ev: 'A', mech: 'Engine capture for workloads run on the platform', s: { b: 4, i: 4, c: 2, r: 2, x: 2 },
     how: 'The engine records table and column lineage for queries, DataFrames and pipelines run through Unity Catalog, and exposes it in system tables.',
-    n: { b: 'Column level inside the platform. UDFs fall back to table level.', i: 'System tables keep a rolling 395 days by default. The lineage API keeps lineage captured after 1 September 2024 indefinitely.', c: 'System tables can be queried from CI for a column\'s blast radius. No native pull-request check.', r: 'Lineage-aware data quality monitoring entered preview in February 2026.', x: 'External assets can be declared with column mappings: in preview, capped, and not in the system tables. Not OpenLineage.' },
-    limits: 'Sees only workloads run through Unity Catalog.', price: 'Included in the platform.' },
-  { id: 'snow', name: 'Snowflake Horizon', fam: 'plat', ev: 'B', mech: 'Engine capture plus OpenLineage ingestion', s: { b: 4, i: 3, c: 2, r: 1, x: 2 },
+    n: { b: 'Column level inside the platform. UDFs fall back to table level.', i: 'Its docs say system tables "retain a rolling 395-day window of data by default", and that Catalog Explorer keeps lineage captured after 1 September 2024 indefinitely.', c: 'System tables can be queried from CI for a column\'s blast radius. No native pull-request check.', r: 'Lineage-aware data quality monitoring entered preview in February 2026.', x: 'External assets can be declared with column mappings, up to 10,000 objects and 100,000 relationships per metastore. They are not recorded in the lineage system tables. Not OpenLineage.' },
+    limits: 'Sees only workloads run through Unity Catalog. RDDs are not captured.', price: 'Included in the platform.' },
+  { id: 'snow', name: 'Snowflake Horizon', fam: 'plat', ev: 'A', mech: 'Engine capture plus OpenLineage ingestion', s: { b: 4, i: 3, c: 2, r: 1, x: 2 },
     status: 'Signed to acquire Select Star on 24 November 2025.',
     how: 'Records column lineage for what runs in Snowflake and, since 2026, accepts OpenLineage events for external lineage.',
-    n: { b: 'Column lineage in the UI and through a SQL function. Stored-procedure lineage in preview since May 2025.', i: 'About one year of history. Access history lags by up to three hours.', c: 'The lineage function can be called from CI. No native pull-request check.', r: 'Not researched.', x: 'OpenLineage ingestion for external lineage became generally available on 3 September 2026 and keeps column-to-column detail.' },
-    limits: 'OpenLineage v2 events are not supported per the retrieved docs. Edition requirements apply.', price: 'Included; edition-gated.' },
-  { id: 'gcp', name: 'Google Knowledge Catalog', fam: 'plat', ev: 'B', mech: 'Engine capture for BigQuery and managed Spark', s: { b: 3, i: 1, c: 2, r: 1, x: 1 },
+    n: { b: 'Column lineage in the UI and through a SQL function. Lineage for stored procedures and tasks has been generally available since October 2025, though the lineage function cannot return it.', i: 'Column and object lineage are retained for one year. Access history lags by up to three hours.', c: 'The lineage function can be called from CI. No native pull-request check.', r: 'Not researched.', x: 'OpenLineage ingestion for external lineage has been generally available since 3 September 2026 and keeps column-to-column detail. It takes COMPLETE events only.' },
+    limits: 'An account can hold at most 20,000 external lineage edges, and one event at most 15,000. OpenLineage version 2 is not supported.', price: 'Included. Needs Enterprise Edition.' },
+  { id: 'gcp', name: 'Google Knowledge Catalog', fam: 'plat', ev: 'A', mech: 'Engine capture for BigQuery and managed Spark', s: { b: 3, i: 1, c: 2, r: 1, x: 1 },
     status: 'Dataplex Universal Catalog was renamed Knowledge Catalog on 10 April 2026.',
     how: 'Records lineage for BigQuery jobs and managed Spark, and accepts OpenLineage run events.',
-    n: { b: 'Column lineage for BigQuery and managed Spark. Data Fusion and Vertex AI stay at table level.', i: 'Third-party sources say 30 days of retention. No Google page confirmed it.', c: 'A search API with column wildcards and a lineage tool server for agents, in preview since June 2026.', r: 'Not found.', x: 'Custom OpenLineage events are accepted as run events and kept at table level only.' },
-    limits: 'Short retention. No column lineage on external events.', price: 'Not researched.' },
+    n: { b: 'Column lineage only for BigQuery SQL and managed Spark jobs, on top-level columns, and not above 1,500 column links per job.', i: 'Its docs say "All lineage information is retained in the system for only 30 days".', c: 'A search API with column wildcards and a lineage tool server for agents, in preview since June 2026.', r: 'Not found.', x: 'Custom OpenLineage events are accepted as run events and produce table-level edges only. Job and dataset events are unsupported.' },
+    limits: 'Thirty-day retention. No column lineage on external events.', price: 'Not researched.' },
   { id: 'aws', name: 'AWS SageMaker Catalog', fam: 'plat', ev: 'A', mech: 'OpenLineage run events plus Glue and Redshift capture', s: { b: 2, i: 3, c: 1, r: 0, x: 1 },
     how: 'A lineage store in SageMaker Catalog (DataZone) that captures Glue and Redshift automatically and takes everything else as posted OpenLineage run events.',
-    n: { b: 'Column level for Spark DataFrame jobs on Glue 5.0+ and EMR. Everything else must be posted.', i: 'Lineage nodes are versioned by event time and their history can be listed. Retention not found.', c: 'APIs only: get a node, list its history, query the graph.', r: 'Not found.', x: 'Its API model says "Only open-lineage run event are supported". No capture for MSK, Managed Flink or services. ML lineage is a separate artifact-level graph.' },
+    n: { b: 'Automatic for Glue 5.0+ Spark DataFrame jobs, recent EMR releases, Glue-crawled assets and Redshift, whose queries are parsed daily. The support matrix lists no Athena, Airflow or dbt. Everything else must be posted.', i: 'Its docs say it "versions lineage with each event" and can show lineage at any point in time. No retention period is stated.', c: 'APIs only: get a node, list its history, query the graph.', r: 'Not found.', x: 'Its docs say it "only supports RunEvents". No capture is documented for MSK or Managed Flink, which now runs Flink 2.x. ML lineage is a separate artifact-level graph with no documented bridge.' },
     limits: 'Cannot take static lineage from CI.', price: 'No separate charge for lineage. Metered through catalog requests and storage.' },
   { id: 'msft', name: 'Microsoft Fabric and Purview', fam: 'plat', ev: 'B', mech: 'Item-level lineage view', s: { b: 1, i: 0, c: 1, r: 0, x: 0 },
     how: 'Fabric shows lineage between items in a workspace. Purview adds column lineage for a few sources.',
     n: { b: 'Fabric\'s lineage view is item level. Purview\'s Power BI column lineage works only with an Azure SQL Database source.', i: 'Not found.', c: 'Item-level impact analysis with a notify-contacts action.', r: 'Not found.', x: 'Not found.' },
     limits: 'No native column lineage across Fabric Lakehouse transformations.', price: 'Not researched.' },
-  { id: 'confluent', name: 'Confluent Stream Lineage', fam: 'plat', ev: 'B', mech: 'Topic and client topology from the platform', s: { b: 1, i: 1, c: 0, r: 1, x: 1 },
+  { id: 'confluent', name: 'Confluent Stream Lineage', fam: 'plat', ev: 'A', mech: 'Topic and client topology from the platform', s: { b: 1, i: 1, c: 0, r: 1, x: 1 },
     status: 'IBM closed its acquisition of Confluent on 17 March 2026.',
     how: 'Draws producers, topics, connectors, Flink statements and consumers from what the platform observes.',
-    n: { b: 'Topic, client and statement level. No field-level lineage was evidenced.', i: 'A live view with a short look-back window.', c: 'None found.', r: 'An operational view of what is flowing now.', x: 'Covers the streaming hop, at topic level.' },
+    n: { b: 'Topic, client and statement level. No field-level lineage was evidenced.', i: 'The past 10 minutes on the Essentials package. On Advanced, up to 24 hours, or a one-hour window on any of the last 7 days.', c: 'None found.', r: 'An operational view of what is flowing now.', x: 'Covers the streaming hop, at topic level.' },
     limits: 'Not a system of record.', price: 'Not researched.' },
 
   { id: 'dbt', name: 'dbt Catalog and Advanced CI', fam: 'ci', ev: 'A', mech: 'Static analysis of the project\'s SQL', s: { b: 3, i: 3, c: 2, r: 1, x: 0 },
@@ -953,25 +955,25 @@ var VENDORS = [
     how: 'Reads dbt artifacts for the base branch and the pull request, and analyzes the SQL of changed models.',
     n: { b: 'dbt projects only.', i: 'Compares two environments on every commit or pull request.', c: 'A column-level impact radius, three change classes with an explicit unknown, data diffs, a PR comment and a required check on GitHub and GitLab.', r: 'Not an incident tool.', x: 'Stops at the project boundary.' },
     limits: 'Python models and seeds are always treated as model-wide changes.', price: 'Open source. Cloud tiers not found.' },
-  { id: 'datafold', name: 'Datafold', fam: 'ci', ev: 'B', mech: 'Query-log lineage plus a data diff of the PR build', s: { b: 3, i: 2, c: 3, r: 1, x: 0 },
-    status: 'Independent. Its 2025 and 2026 launches centre on a migration agent.',
+  { id: 'datafold', name: 'Datafold', fam: 'ci', ev: 'A', mech: 'Query-log lineage plus a data diff of the PR build', s: { b: 3, i: 2, c: 2, r: 1, x: 0 },
+    status: 'Independent. Its recent launches centre on a migration agent, and its docs say pull-request testing is "available only in Datafold Classic".',
     how: 'Builds column lineage by parsing warehouse query logs with its own SQL compiler, enriched with dbt and BI metadata. In CI it builds the pull request into a staging schema and diffs the data against production.',
-    n: { b: 'Column level across the warehouse and BI, including tables outside dbt.', i: 'A scheduled scan of query history. Lineage that exists only in the pull request is not in the graph.', c: 'A pull-request comment with value-level data differences and the downstream BI and reverse-ETL assets, on GitHub, GitLab, Bitbucket and Azure DevOps. Whether it can block a merge was not confirmed.', r: 'Not found.', x: 'BI and reverse ETL. No application code.' },
-    limits: 'Anchored on what has already run in production.', price: 'Quote based. Deal-tracker median about USD 18K a year.' },
-  { id: 'foundational', name: 'Foundational', fam: 'ci', ev: 'B', mech: 'Static analysis of source code in git', s: { b: 3, i: 3, c: 4, r: 1, x: 3 },
+    n: { b: 'Column level across the warehouse and BI, including tables outside dbt.', i: 'A scan of query history on a schedule the user sets. Lineage that exists only in the pull request is not in the graph.', c: 'In Datafold Classic only: a pull-request comment with value-level data differences and the downstream BI and reverse-ETL assets, on GitHub, GitLab, Bitbucket and Azure DevOps. The only documented failing condition is a primary-key problem.', r: 'Not found.', x: 'BI and reverse ETL. No application code.' },
+    limits: 'Anchored on what has already run in production. Pull-request testing is not in the current product.', price: 'Quote based. Deal-tracker median about USD 18K a year.' },
+  { id: 'foundational', name: 'Foundational', fam: 'ci', ev: 'A', mech: 'Static analysis of source code in git', s: { b: 3, i: 3, c: 4, r: 1, x: 3 },
     status: 'Independent. A USD 8M seed round in 2024 is the only funding found.',
     how: 'Reads lineage from the source itself, without running it, across the repositories it is given.',
-    n: { b: 'Vendor docs list extraction for Spark, Scala, Python, SQLAlchemy, Kafka and .NET alongside SQL.', i: 'Re-analyzed on each code change.', c: 'Every pending pull request is scanned against end-to-end lineage and the result is posted as a native check. Non-blocking by default; it can be set to block.', r: 'Not found.', x: 'The widest claimed reach from code: services, stream producers and Spark jobs. Whether its Kafka extraction reaches Avro or Protobuf fields was not found.' },
-    limits: 'Every claim is vendor-authored and none could be tested. A small company to depend on.', price: 'Not found.' },
-  { id: 'gable', name: 'Gable', fam: 'ci', ev: 'A', mech: 'Static analysis of application code against data contracts', s: { b: 2, i: 3, c: 3, r: 0, x: 3 },
+    n: { b: 'Its docs publish extraction guides for SQL, Spark, Java, Scala, Python, .NET, COBOL and several ORMs, and say Spark lineage is produced by simulating the code in a sandbox.', i: 'Re-analyzed on each code change.', c: 'Every pending pull request is scanned and the result posted as a native check on GitHub or GitLab. Its docs say checks are non-blocking by default and can be set to block.', r: 'Not found.', x: 'Its docs claim field-level lineage through Kafka from producer, consumer, Kafka Streams and Kafka Connect code, resolved with Avro, Protobuf and JSON Schema definitions from a schema registry.' },
+    limits: 'The documentation was read at source, but every capability in it is a vendor claim and none was tested. It does not say where code is processed. A small company to depend on.', price: 'Not found.' },
+  { id: 'gable', name: 'Gable', fam: 'ci', ev: 'A', mech: 'Static analysis of application code in the customer\'s CI', s: { b: 2, i: 3, c: 2, r: 0, x: 3 },
     status: 'Independent. USD 27M raised, including a 2025 Series A.',
     how: 'Scans application code for data-flow paths from an ingress to an egress, maps ingress fields to egress fields, and checks schemas and code against data contracts in CI.',
-    n: { b: 'Field mappings for Java and TypeScript, with more languages through rule files. Each mapping carries a completeness flag: unknown, known incomplete or known complete. Kafka topics and other stores are declared by hand.', i: 'Per CI run. Two scans can be compared for added, removed and changed paths.', c: 'A contract check that writes a pull-request comment and fails the build at its BLOCK level.', r: 'Prevention only.', x: 'Avro, Protobuf and JSON Schema files, event emitters and service-to-store flows. The widest verified reach upstream of the warehouse.' },
-    limits: 'Its docs say code must be bundled and sent to its service for analysis. Some checks need a proxy database or a runnable job.', price: 'Not found.' },
+    n: { b: 'Field mappings for Java and TypeScript, with more languages through rule files. Each mapping carries a completeness flag: unknown, known incomplete or known complete. Kafka topics and other stores are declared by hand.', i: 'Per CI run. Two scans can be compared for added, removed and changed paths.', c: 'Its command-line package has a contract check that writes a pull-request comment and fails at a BLOCK level. The current documentation describes no contract checks, and says per-merge impact reports are "not yet generally available".', r: 'Prevention only.', x: 'Avro, Protobuf and JSON Schema files, event emitters and service-to-store flows. The widest verified reach upstream of the warehouse.' },
+    limits: 'Analysis runs in your own CI, and its docs say "code-level metadata is sent to the Gable platform". What that metadata holds needs a security review. The product is moving from contracts toward lineage.', price: 'Not found.' },
 
   { id: 'ol', name: 'OpenLineage', fam: 'oss', ev: 'A', mech: 'A standard event model with runtime collectors', s: { b: 3, i: 3, c: 1, r: 1, x: 2 },
     how: 'Integrations emit one event per job run with input and output datasets and, where the engine allows, a column lineage facet with direct and indirect dependencies.',
-    n: { b: 'Column lineage from Spark, Trino and Hive plans, and from SQL text for Airflow operators and dbt. None from Flink, Kafka Connect or Kafka Streams.', i: 'One event per run. A newer explicit lineage facet states that run events accumulate and job and dataset events replace.', c: 'Static job and dataset events can carry lineage from CI. No CI tool ships with it.', r: 'Data quality assertion facets.', x: 'Models streaming and service jobs. The field detail still has to come from the producer.' },
+    n: { b: 'Column lineage from Spark, Trino and Hive plans, and from SQL text for Airflow operators and dbt. None from Flink, Kafka Connect or Kafka Streams.', i: 'One event per run. A newer explicit lineage facet, still marked experimental, states that run events accumulate and job and dataset events replace.', c: 'Static job and dataset events can carry lineage from CI. No CI tool ships with it.', r: 'Data quality assertion facets.', x: 'Models streaming and service jobs. The field detail still has to come from the producer.' },
     limits: 'A format, not a store or a UI. Its dbt integration says column lineage was "tested with simple projections only".', price: 'Open source.' },
   { id: 'marquez', name: 'Marquez', fam: 'oss', ev: 'A', mech: 'Reference store for OpenLineage', s: { b: 2, i: 4, c: 1, r: 0, x: 1 },
     how: 'Stores OpenLineage events in Postgres with versions for datasets, jobs and runs.',
@@ -990,7 +992,7 @@ var VENDORS = [
 var HOPS = [
   { short: 'Service to topic', name: 'A service writes an event', path: 'payments-svc → auth.events.v1',
     what: 'Which request and domain fields the service writes into each field of the event.',
-    market: 'Tracing and stream monitoring show that the service produces to the topic, not which fields. Two young vendors read application code. Gable scans Java and TypeScript for field mappings and flags how complete each one is, but its docs say the code is sent to its service. Foundational documents extraction from Kafka, SQLAlchemy and .NET code; its field reach could not be verified.',
+    market: 'Tracing and stream monitoring show that the service produces to the topic, not which fields. Two young vendors read application code. Foundational\'s docs claim field-level lineage through Kafka from producer and consumer code, resolved with schema registry definitions. Gable scans Java and TypeScript in your CI for field mappings and flags how complete each one is. Neither claim has been tested here.',
     ours: 'The Avro schema gives the field inventory. Code rules find which fields the producer sets. The edge stays probable until the owner verifies the tier 1 fields.' },
   { short: 'Flink job', name: 'A stream job reshapes the event', path: 'auth.events.v1 → txn-enrichment → auth.enrich.v1',
     what: 'Which input fields feed each output field, including the rename of merchant_category_code to mcc.',
@@ -998,7 +1000,7 @@ var HOPS = [
     ours: 'Flink SQL runs through the planner in a CI harness and the mapping is read from the plan. DataStream code gets a declared mapping that the owner verifies.' },
   { short: 'Sink', name: 'A connector lands the topic in the lake', path: 'auth.enrich.v1 → raw.card_auth',
     what: 'Which topic field lands in which lake column.',
-    market: 'DataHub\'s Kafka Connect source builds field-level lineage by matching schemas between tables and topics, which is by name. Debezium emits OpenLineage events with schemas and no column facet. Warehouse lineage does not see a write that bypasses SQL.',
+    market: 'DataHub\'s Kafka Connect source builds field-level lineage by matching schemas between tables and topics, which is by name. Foundational\'s docs claim it from Kafka Connect code. Debezium emits OpenLineage events with schemas and no column facet. Warehouse lineage does not see a write that bypasses SQL.',
     ours: 'The connector configuration and its field mapping are parsed. It is usually identity by name, so confidence is high.' },
   { short: 'dbt SQL', name: 'A model builds the fact table', path: 'raw.card_auth → fct_card_auth',
     what: 'Column to column, with joins and filters recorded as indirect dependencies.',
@@ -1026,7 +1028,7 @@ var COVER = [
   { name: 'Scanner suites', c: 'NNNPFNNN' },
   { name: 'Query-log tools', c: 'DDNFFPNN' },
   { name: 'Platform-native catalogs', c: 'NDDFPPPD' },
-  { name: 'CI tools on the code diff', c: 'PNNFFNNN' },
+  { name: 'CI tools on the code diff', c: 'PNPFFNNN' },
   { name: 'Open standard and open platforms', c: 'DDPFPDDN' },
   { name: 'This build', c: 'PPFFFFFP', ours: true }
 ];
