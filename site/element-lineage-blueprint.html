@@ -409,6 +409,42 @@ footer.src { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--li
   </div>
 
   <div class="sec">
+    <h2>It runs: one night on the slice</h2>
+    <p>The four flows exist as a one-file reference in the repository, <code>code/element_lineage_demo.py</code>. It parses the slice's SQL with SQLGlot, keeps unit-owned evidence in a versioned graph, and asserts its own results. This is its output, abridged.</p>
+    <div class="code">
+<pre>$ python3 code/element_lineage_demo.py --check
+
+O1 BASELINE at 00:00
+   units read: 8   element edges: 26
+   against the golden graph: precision 1.00, recall 0.93
+   missed: 2 edges on the service-to-topic hop (no extractor in this demo: WP-23)
+
+O3 CHANGE IMPACT for PR #482 at 01:30, before merge
+   BREAKING     auth.events.v1#merchant_category_code  renamed to mcc
+   downstream: 7 assets, 5 teams, 5 tier 1.  Registry BACKWARD check would pass.
+
+O2 INCREMENTAL: the change ships as a hotfix that skips the gate; schema v8 is registered at 02:05
+   re-read 2 units, skipped 6 whose three hashes did not change
+   02:05 removed auth.events.v1#merchant_category_code -> auth.enrich.v1#mcc
+   graph as of 02:00 has the old edge: True.  As of 02:10: False.
+   rebuilt from the same evidence, same graph hash: True
+
+O4 DETECT AND RESOLVE: raw.card_auth#mcc null_rate 41% (threshold 1%) at 02:42, last pass 01:40
+   first failing element: auth.enrich.v1#mcc
+   changes in the window: 6 across the estate, 3 on the lineage path. Ranked:
+     1. 02:05 schema  payments-svc    auth.events.v1 v8 registered, field removed
+     2. 02:03 deploy  payments-svc    4f3c2a1, PR #482
+     3. 01:55 deploy  txn-enrichment  config only
+   already affected: auth.enrich.v1, raw.card_auth
+   not yet affected: approval-rate (03:00), analytics.fct_card_auth (03:00), mcc_decline_7d (04:00),
+                     fraud-score-v12 (04:00), fraud-svc (04:00)
+
+All checks passed.</pre>
+    </div>
+    <p class="note"><b>What this is and is not.</b> It demonstrates each mechanism on illustrative data and gives the factory's harness its first assertions. It does not measure detection or resolution time in production, and no independent evidence of lineage shortening incidents was found in the market. That number has to come from the Phase 0 baseline and real incidents. Building it also corrected the spec: the root-cause walk must cover the whole incident window, because by 02:42 the offending edge had already been closed at 02:05.</p>
+  </div>
+
+  <div class="sec">
     <h2>What changes in the graph model</h2>
     <p>The plan already names fields with a <code>#</code> suffix and has a <code>DERIVES</code> edge. Element level needs three additions.</p>
     <div class="cols2">
@@ -801,6 +837,7 @@ Scenario: PR #482 renames a contract field
     <h2>What to keep in proportion</h2>
     <ul class="tight">
       <li><b>Prevention is one part of the answer.</b> One vendor's analysis of 1,000 incident investigations put code changes at about a tenth of root causes; an earlier statement from the same vendor said about a third. Either way most incidents will not be stopped in a pull request, so detection and root-cause ranking carry as much of the outcome as the gate does.</li>
+      <li><b>Detect and resolve is demonstrated, not measured.</b> The reference script replays one incident on the slice and ranks the true cause first among six changes. That shows the mechanism. The effect on real detection and resolution time is unproven anywhere in the market, so the Phase 0 baseline is the only yardstick.</li>
       <li><b>Two hops stay probable.</b> Field edges through service code and Flink come from static analysis and declared mappings. They are verified by owners for tier 1 fields and reported as gaps elsewhere.</li>
       <li><b>The research has limits.</b> The first draft was written with most vendor documentation blocked. A verification pass then re-read 50 load-bearing claims at their sources: 26 confirmed, 17 corrected here, 7 not checkable. IBM's and Informatica's documentation refuses automated requests, and every price and analyst ranking still comes from a search summary. Read those by hand before a contract or an ADR change.</li>
       <li><b>Accuracy targets are local.</b> No independent precision or recall for column lineage was found, and no independent measurement of lineage's effect on detection or resolution time. The golden graph and the Phase 0 baseline are the only yardsticks that count.</li>
@@ -1080,7 +1117,7 @@ var FLOWS = [
     on: ['sig-dq', 'sig-run', 'ev-bus', 'ev-lake', 'co-res', 'co-score', 'g-graph', 'g-changes', 'u-rca', 'u-api'],
     steps: [
       ['A failing assertion arrives', 'From a contract rule, a DQ tool or an observability product. The platform does not have to own detection.', 'raw.card_auth#mcc null_rate 41% (threshold 1%) at 02:42'],
-      ['Walk upstream as of 02:42', 'On the graph as it was then, direct edges first.', 'raw.card_auth#mcc ← auth.enrich.v1#mcc ← auth.events.v1#merchant_category_code (absent in v8)'],
+      ['Walk upstream over the incident window', 'Every edge valid between the last passing check and the failure, including one that closed in between. Direct edges first.', 'raw.card_auth#mcc ← auth.enrich.v1#mcc ← auth.events.v1#merchant_category_code (absent in v8)'],
       ['Find the first failing element', 'The furthest upstream element with a failing check whose own inputs pass or have no check.', 'auth.enrich.v1#mcc · null 43%'],
       ['Rank the changes in the window', 'A transparent score: touches the path, falls between last pass and first fail, sits near the first failure, is a breaking class.', '1. 02:05 schema v8 registered  2. 02:03 deploy payments-svc (PR #482)  3. 01:55 deploy txn-enrichment'],
       ['Split the blast radius', 'Run events after the failure time separate what is already affected from what is not yet.', 'affected: auth.enrich.v1, raw.card_auth · not yet: fct_card_auth (03:00), mcc_decline_7d (04:00)'],

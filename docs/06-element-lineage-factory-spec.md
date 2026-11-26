@@ -251,7 +251,7 @@ Requirements use EARS phrasing so that agents and the harness can read them the 
 | ID | Requirement | Verified by |
 | --- | --- | --- |
 | IR-1 | When a DQ or contract check fails on an element, the system shall attach the upstream path, the ranked change events and the blast radius to the alert within 2 minutes. | Incident scenarios in the twin |
-| IR-2 | The system shall walk upstream on the graph as of the failure time, not the current graph. | Scenario where the edge changed after the incident |
+| IR-2 | The system shall walk upstream over the incident window: every edge valid at any time between the last passing check and the failure, including edges that closed in between. It shall not use the current graph. | Scenario where the offending edge closed before the alert; scenario where an edge changed after the incident |
 | IR-3 | The system shall identify the first failing element: the furthest upstream element with a failing check whose own inputs pass or have no check. | Multi-hop failure fixtures |
 | IR-4 | The system shall rank change events on the upstream path by a deterministic score, and shall show the terms of the score, the evidence path and any lineage gap on that path for each candidate. | Ranking fixtures; explanation snapshot; a scenario with an opaque hop |
 | IR-5 | On the incident replay corpus the true cause shall be ranked first on at least 70% of incidents and in the top three on at least 90%. | `lineage-eval replay incidents` |
@@ -424,7 +424,7 @@ The registry's own compatibility check is not enough, and PR #482 is the proof: 
 The incident flow answers two questions when a check fails: what is the most likely cause, and what must be fixed in which order?
 
 1. **Trigger.** A DQ or contract result arrives on the evidence topic as a failing assertion on an element at time *t*. The detector can be a contract rule, a DQ tool or an observability product; the platform does not need to own detection.
-2. **Walk upstream as of *t*.** Follow direct edges first, then indirect ones, collecting each ancestor's check state at *t*.
+2. **Walk upstream over the incident window.** Use every edge valid between the last passing check and *t*, because the edge that explains the failure has often been closed by the change that caused it. Follow direct edges first, then indirect ones, collecting each ancestor's check state at *t*.
 3. **Find the first failing element** (IR-3). That is where the investigation starts, usually several hops above where the alert fired.
 4. **Collect change events** on the path between the last passing check and *t*: schema registrations, merged PRs with their lineage diff, deploys, failed or late runs.
 5. **Score candidates** with a transparent sum: the change touches an element on the path, it falls between last pass and first fail, it sits near the first failing element, and its change class is breaking. Weights are calibrated on the incident replay corpus. A model may write the narrative from that bounded evidence set. It does not set the ranking, so the result is reproducible and explainable. The one benchmark found for this task, DataTrace, is the reason: seven frontier models averaged 48% top-1 root-cause accuracy, got worse as the lineage path grew, and gave a correct answer without supporting evidence in 15% to 23% of their correct cases. Showing the path is the control.
@@ -681,7 +681,7 @@ No calendar compression is promised. The exit gates depend on owner sessions and
 
 | When | Question | If yes | If no |
 | --- | --- | --- | --- |
-| End of wave 0 | Do the harness and twin score a hand-built reference extractor correctly? | Start wave 1 | Fix the oracle before any more code |
+| End of wave 0 | Do the harness and twin score the hand-built reference (`code/element_lineage_demo.py`) correctly? | Start wave 1 | Fix the oracle before any more code |
 | End of wave 1 | Did the core work packages hold their holdout pass rate with no escaped defect? | Run wave 2 at level 3 | Run wave 2 at level 2 and re-test after three packages |
 | After the first three wave 2 packages | Are lead time and person-minutes per change better than the plan's estimate for the same scope? | Continue; consider level 4 for rule additions | Fall back to AI-assisted delivery and keep the oracle |
 | Each phase gate | Does the plan's exit gate pass? | Next phase | Same rule as the plan: the phase is not done |
@@ -695,6 +695,26 @@ No calendar compression is promised. The exit gates depend on owner sessions and
 | O3. Change impact | IA-1 to IA-9 | WP-31 to WP-34, WP-51 | Change replay; classification fixtures; gate scenarios | Phases 3 and 5 |
 | O4. Detect and resolve | IR-1 to IR-9 | WP-40 to WP-44 | Incident replay; plan snapshots; MTTD and MTTR series | Phase 5 |
 | Cross-cutting | XC-1 to XC-6 | WP-11, WP-27, WP-50 to WP-53 | Trace, round-trip, access and fault scenarios | All |
+
+## Reference run
+
+[`code/element_lineage_demo.py`](../code/element_lineage_demo.py) runs the four objectives end to end on toy versions of the slice's repositories. It parses the SQL with SQLGlot, keeps unit-owned evidence in a versioned graph, and asserts its own results with `--check`. It is one file a person can read in ten minutes. It is the hand-built reference that the wave 0 decision point asks for, and the first set of fixtures for the oracle.
+
+```text
+pip install sqlglot
+python3 code/element_lineage_demo.py --check
+```
+
+| Objective | What the run does | Result on the slice |
+| --- | --- | --- |
+| O1. Baseline | Reads eight units and scores the element edges against a hand-written golden graph | 26 element edges with class and subtype. Precision 1.00, recall 0.93. The two missed edges are the service-to-topic hop, which has no extractor in the demo (WP-23) |
+| O3. Change impact | Diffs PR #482 by element before merge, classifies it and walks downstream | One breaking change, "renamed to mcc". Seven assets, five teams, five tier 1, on a change the registry's BACKWARD check would pass |
+| O2. Incremental | Registers schema v8 and re-reads only the units whose three hashes changed | Two units re-read, six skipped. One edge closed, one gap reported. The graph as of 02:00 still has the old edge, and a rebuild from the same evidence gives the same graph hash |
+| O4. Detect and resolve | Starts from a null-rate check failing at 02:42 and walks the incident window | Six changes in the window across the estate, three on the lineage path, the true cause ranked first. Two assets already affected, five not yet, and a fix order that starts upstream |
+
+**What it is and is not.** It demonstrates each mechanism and gives the harness its first assertions. It is a replay on illustrative data. It does not measure detection or resolution time in production. That takes the Phase 0 baseline and the four timestamps of IR-9 on real incidents, because no independent evidence of lineage shortening incidents was found in the market.
+
+**What building it changed.** The first draft of IR-2 said to walk the graph as of the failure time. The run showed that this loses the cause: by 02:42 the offending edge had already been closed at 02:05, so a read at one instant no longer contains the path to it. The walk has to cover every edge valid between the last passing check and the failure. IR-2 and the detect-and-resolve design now say so. This is the factory's loop at small scale: a scenario exposed a hole in the spec, and the spec was fixed before the code.
 
 ## What people actually write
 
