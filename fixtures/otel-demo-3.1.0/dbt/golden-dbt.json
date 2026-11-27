@@ -281,5 +281,11 @@
  "counts": {
   "direct": 30,
   "indirect": 5
+ },
+ "cross_check": {
+  "on": "2026-11-27",
+  "tool": "SQLGlot 30.35 column lineage on the SQL compiled by dbt 1.9.4",
+  "result": "30 of 30 direct edges agree once identifier quotes are normalized; the SELECT * in stg_shipping expands to the same 10 columns",
+  "note": "a cross-check only: the edges were written by hand first, and an extractor built on SQLGlot is still graded against them"
  }
 }

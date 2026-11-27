@@ -334,18 +334,18 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
     <div class="verdict">
       <div class="verdict-main">
         <div class="verdict-word">Ready<span>.</span></div>
-        <p>We have what the build needs: a real multi-service system to build against, a verified truth to grade every build, 32 decisions made, and a work package and a test for every component.</p>
-        <p class="muted small">What we don't have yet belongs to later stages: our own data products, access to them, and the cloud stage environment. Each is scheduled, and none blocks the start. Two sign-offs do.</p>
+        <p>We have what the build needs: a real multi-service system to build against, a verified truth to grade every build, 37 decisions, and for every work package acceptance criteria a harness can check.</p>
+        <p class="muted small">What we don't have yet belongs to later stages: our own data products, access to them, and the cloud stage environment. Each is scheduled, and none blocks the start. Three sign-offs do.</p>
       </div>
       <div class="lanes">
-        <div class="lane s-have"><b>Ready now</b><p>The reference system, its golden graph (89 citations checked against source), the twin that runs it, 32 decisions, 25 of 27 components.</p></div>
-        <div class="lane"><b style="color:var(--gate)">Needs you</b><p>Accept the graph store record (Neptune) and sign the golden graph. These are gates G1 and G3.</p></div>
+        <div class="lane s-have"><b>Ready now</b><p>The reference system and its golden graph (89 citations checked against source), the twin, 37 decisions, and the spec pack: measurable done-when for all 39 work packages, interfaces as schemas, visible scenarios.</p></div>
+        <div class="lane"><b style="color:var(--gate)">Needs you</b><p>Approve the spec pack and accept the graph store record (gate G1). Sign the golden graph (gate G3). Have someone who does not build write the holdout cases.</p></div>
         <div class="lane"><b class="muted">Comes later</b><p>Pick our second slice in wave 1. Then access to its code and warehouse, a Neptune stage instance, and model access for private repositories.</p></div>
       </div>
     </div>
     <div class="facts" aria-label="Key facts">
-      <div class="fact"><strong>32</strong><span>decisions made: 25 from evidence, 7 by you</span></div>
-      <div class="fact"><strong>25 / 27</strong><span>components ready to build; search and catalog UI wait for wave 5</span></div>
+      <div class="fact"><strong>37</strong><span>decisions: 25 from evidence, 7 by you, 5 drafted for your G1 approval</span></div>
+      <div class="fact"><strong>39 / 39</strong><span>work packages with measurable done-when; 97 checks in all</span></div>
       <div class="fact"><strong>18 / 18</strong><span>connections seen in the running system are in the golden graph</span></div>
       <div class="fact"><strong>2.0 min</strong><span>from a real payment failure to the first alert, with the right cause ranked first</span></div>
     </div>
@@ -469,7 +469,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
   <section id="inputs" aria-labelledby="h-inputs">
     <div class="sec-head">
       <div class="eyebrow">Do we have what we need?</div>
-      <h2 id="h-inputs">Twenty inputs a build like this needs, and where each one stands</h2>
+      <h2 id="h-inputs">Twenty-four inputs a build like this needs, and where each one stands</h2>
     </div>
     <div class="ready-head">
       <div class="counts" id="counts"></div>
@@ -480,14 +480,14 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
       </div>
     </div>
     <div class="inputs" id="inputs-list"></div>
-    <p class="conclusion"><b>What this means:</b> of the 12 inputs needed to start, 8 are in hand. Two more, the holdout scenarios and the twin's lineage platform, are the first work of wave 0 itself. The last two are your sign-offs. Everything still missing is needed for slice 2, on our own data, and is scheduled for wave 1 onward.</p>
+    <p class="conclusion"><b>What this means:</b> of the 16 inputs needed to start, 11 are in hand. Two more, the holdout scenarios and the twin's lineage platform, are the first work of wave 0 itself. The last three are your sign-offs. Everything still missing is needed for slice 2, on our own data, and is scheduled for wave 1 onward.</p>
   </section>
 
   <!-- ASSUMPTIONS -->
   <section id="assumptions" aria-labelledby="h-assume">
     <div class="sec-head">
       <div class="eyebrow">What we are assuming</div>
-      <h2 id="h-assume">Seven assumptions, and how each gets tested before it can hurt us</h2>
+      <h2 id="h-assume">Eight assumptions, and how each gets tested before it can hurt us</h2>
     </div>
     <div class="assume" id="assume"></div>
   </section>
@@ -514,9 +514,12 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
         <div><code>docs/09-component-build-sheet.md</code><span class="muted small">Each component: input, work package, test, status, and the run's evidence</span></div>
         <div><code>docs/06-element-lineage-factory-spec.md</code><span class="muted small">The factory: principles, gates, 39 work packages</span></div>
         <div><code>fixtures/otel-demo-3.1.0/</code><span class="muted small">Golden graph, replays, contracts, checks, aliases, run add-ons and run summaries</span></div>
-        <div><code>code/reference_slice.py · observed_edges.py · run_checks.py</code><span class="muted small">Oracle with citation checker; edge builder and scorer; check runner and narrowing</span></div>
+        <div><code>code/reference_slice.py · observed_edges.py · run_checks.py</code><span class="muted small">Oracle with citation checker; edge builder and scorer; check runner, incident replay and ranking</span></div>
+        <div><code>factory/</code><span class="muted small">The spec pack: constitution, parameters, requirements, interfaces, 39 work packages with done-when, visible scenarios</span></div>
+        <div><code>code/spec_pack.py</code><span class="muted small">Checks the spec pack and renders it; must report 0 errors before a work package starts</span></div>
       </div>
-      <pre class="cmd">python3 code/reference_slice.py --check &lt;demo checkout at 3.1.0&gt;      # 89 citations hold
+      <pre class="cmd">python3 code/spec_pack.py --check                                  # the spec pack is consistent
+python3 code/reference_slice.py --check &lt;demo checkout at 3.1.0&gt;      # 89 citations hold
 python3 code/observed_edges.py --selftest
 python3 code/observed_edges.py &lt;capture&gt; fixtures/otel-demo-3.1.0/golden-graph.json --aliases fixtures/otel-demo-3.1.0/aliases.json
 python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fixtures/otel-demo-3.1.0/capture-2026-11-27/change-events.jsonl</pre>
@@ -527,8 +530,8 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
   <section id="asks" aria-labelledby="h-asks">
     <div class="sec-head"><div class="eyebrow">What happens next</div><h2 id="h-asks">Three decisions, then wave 0 starts</h2></div>
     <div class="asks">
-      <div class="ask"><span class="when">Before wave 0 · gate G1</span><b>Accept the graph store record</b><p>ADR-002 names Neptune, which you chose on 27 November, with Neo4j standing in locally. It is still marked Proposed. Accepting it closes the spec gate.</p></div>
-      <div class="ask"><span class="when">During wave 0 · gate G3</span><b>Sign the golden graph</b><p>23 service edges, 36 field edges, 8 flag-gated edges and 20 flag edges, each cited to a line of source. It includes <code>frontend → currency</code>, added after the run. Builds are graded against it once you sign.</p></div>
+      <div class="ask"><span class="when">Before wave 0 · gate G1</span><b>Approve the spec pack</b><p>The constitution, parameters, 41 requirements, interfaces and done-when for 39 work packages in <code>factory/</code>, drafted on 27 November. ADR-002 (Neptune) goes with it; it is still marked Proposed.</p></div>
+      <div class="ask"><span class="when">During wave 0 · gate G3</span><b>Sign the golden graph, name the holdout authors</b><p>Sign the golden graph: 23 service edges, 36 field edges, 8 flag-gated and 20 flag edges on the demo, plus 35 for the dbt model. Name someone who does not build to write at least 7 changes and 7 incidents outside this repository.</p></div>
       <div class="ask"><span class="when">During wave 1</span><b>Choose slice 2</b><p>One of our data products, ideally one that crosses a service, a stream and Snowflake or Databricks. Then arrange access to its repositories and warehouse.</p></div>
     </div>
     <div class="talk">
@@ -555,13 +558,13 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
       "We want to know, for any field in our data, where it comes from and where it goes. With that we can stop breaking changes before they merge, and find the cause of bad data in minutes instead of hours.",
       "No product does this across service code, streams and warehouses, so we build it with an AI factory. Agents write the code, people approve at four gates, and every build is graded against a known truth.",
       "As that truth we used a real open-source online shop: a dozen services in ten languages. We ran it, and every connection lineage saw was one we expected. It watched card data being masked correctly, and caught a payment failure in two minutes with the right cause ranked first.",
-      "We can start now. I need two sign-offs, the graph store record and the golden graph. During the first wave we pick which of our own data products goes second."
+      "We can start now. Every work package has acceptance criteria a machine can check. I need three things: approve the spec, sign the golden graph, and have someone outside the build write the hidden test cases. During the first wave we pick which of our own data products goes second."
     ],
     engineers: [
       "The reference slice is the OpenTelemetry Demo at 3.1.0, specifically the order flow: frontend to checkout in Go, its gRPC and HTTP calls, the orders topic in Kafka, and accounting in C# writing three Postgres tables through EF Core. The golden graph has 23 service edges, 36 field edges, 8 flag-gated edges and 20 flag edges, and all 89 citations are verified against the source.",
       "Collection follows the run's evidence. Service edges come from traces, because Envoy only sees ingress. Kafka is joined on the topic name, because producer and consumer spans live in separate traces. Columns come from database spans parsed with SQLGlot, and pg_stat_statements covers clients without spans. The resolver never aliases an IP.",
       "The graph is Neptune over Bolt and openCypher, with Neo4j in the twin. Every edge version is bitemporal, and an edge that exists only under a flag carries a condition and a latent state, so must-not-flow checks see it before anyone flips the flag.",
-      "Wave 0 builds the harness, the holdout corpus and the twin's lineage platform. Agents work at level 2, so a person reads every change. The prototypes and the commands to rerun the proof are in code/ and fixtures/."
+      "Every work package has measurable done-when lines in factory/work-packages, and code/spec_pack.py keeps the requirements, scenarios, interfaces and fixtures consistent. Wave 0 builds the harness, the holdout corpus and the twin's lineage platform. Agents work at level 2, so a person reads every change."
     ]
   };
   let aud = "leaders";
@@ -833,12 +836,16 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
     ["What to build", "Build method", "have", "AI factory with 39 work packages, four gates, autonomy level 2 then 3.", "doc 06", "start"],
     ["What to build", "Architecture decisions", "have", "32 decisions: 25 from evidence, 7 by you, each with a \"revisit if\".", "doc 08", "start"],
     ["What to build", "Component breakdown", "have", "25 of 27 components with an input, a work package and a test. Search and catalog UI wait for wave 5.", "doc 09", "start"],
+    ["What to build", "Acceptance criteria per work package", "have", "Done-when for all 39 work packages, 97 lines, each with a number or a named sign-off; checked by code/spec_pack.py. A draft awaiting G1.", "factory/work-packages/", "start"],
+    ["What to build", "Interface contracts", "have", "Envelope v2 and lineage.changes as JSON Schema, the four queries as OpenAPI 3.1. Every golden edge and run event validates.", "factory/specs/*/interfaces/", "start"],
+    ["What to build", "Spec pack approval", "you", "The constitution, parameters, requirements, interfaces and work packages wait for your G1 approval.", "factory/README.md", "start"],
     ["What to test against", "A real multi-service system", "have", "OpenTelemetry Demo 3.1.0, a dozen services in ten languages, pinned and cited.", "doc 07", "start"],
     ["What to test against", "The truth (golden graph)", "part", "Built and verified: 89 citations hold. It waits for your sign-off at G3.", "fixtures/otel-demo-3.1.0/golden-graph.json", "start"],
-    ["What to test against", "Real changes to replay", "have", "C1 to C6 from git history, C7 from the run, each with what lineage must say.", "change-replay.json", "start"],
+    ["What to test against", "Real changes to replay", "have", "13 visible: C1 to C6 from git history, C7 from the run, C8 to C13 authored, each with expected readers and gate result. The holdout adds at least 7 more.", "change-replay.json", "start"],
+    ["What to test against", "Visible scenarios", "have", "Given/When/Then for every requirement, tagged with the requirement IDs they trace.", "factory/specs/*/scenarios/visible/", "start"],
     ["What to test against", "Real incidents to replay", "part", "I1 ran and was caught. I2 to I4 are defined, with checks ready, but have not yet run.", "incident-scenarios.json, checks.yaml", "later"],
-    ["What to test against", "Holdout scenarios", "not", "Defined in D15, such as renaming shipping_tracking_id. People author them in WP-02 and builders never see them.", "wave 0, WP-02", "start"],
-    ["What to test against", "Downstream hops", "part", "A stream processor, feature store and model (complement repo) plus dbt, chosen in D2 and not yet run.", "doc 07, wave 2", "later"],
+    ["What to test against", "Holdout scenarios", "not", "Custody rules written. People who do not build write at least 7 changes and 7 incidents outside this repository; D15's four examples are public, so they became visible cases.", "factory/oracle/holdout/README.md, WP-02", "start"],
+    ["What to test against", "Downstream hops", "part", "The thin dbt model is written, with 35 hand-written golden edges. The stream, feature store and model (complement repo) are chosen in D2 and not yet run.", "fixtures/otel-demo-3.1.0/dbt/, wave 2", "later"],
     ["How it runs", "Twin of the system", "have", "Runs in this sandbox with the capture add-on and a two-file override.", "fixtures/otel-demo-3.1.0/run/", "start"],
     ["How it runs", "Lineage platform in the twin", "not", "Kafka for evidence, Neo4j for the graph and Postgres for aliases (D23). Specified, built in WP-03.", "wave 0, WP-03", "start"],
     ["How it runs", "Neptune stage instance", "not", "Your choice (D12). Needs an AWS account and instance for WP-13's tests.", "wave 1", "later"],
@@ -880,7 +887,8 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
     ["Time order is enough to separate two changes on the same service during root-cause analysis.", "Ranking picks the wrong change when two land close together.", "Run I2 to I4 and the holdout incidents.", "wave 4"],
     ["The twin's traffic, about three orders a minute, is enough to tune the checks.", "Thresholds misfire on our volumes.", "Re-baseline every check on slice 2's real traffic.", "slice 2"],
     ["Agents can build extractors to spec at level 2, with a person reading each change.", "Waves take longer and cost more than planned.", "Track the holdout pass rate and cost per merged change, weekly.", "waves 0–1"],
-    ["Owners act on the reconciliation queue.", "The graph drifts from reality, and trust falls.", "Measure queue age from slice 2 onboarding.", "slice 2"]
+    ["Owners act on the reconciliation queue.", "The graph drifts from reality, and trust falls.", "Measure queue age from slice 2 onboarding.", "slice 2"],
+    ["The checks catch the failures that matter.", "Lineage never starts: some data problems fire no check at all.", "Grow the incident corpus with silent failures, and add data-quality checks such as items per order.", "wave 4"]
   ];
   document.getElementById("assume").innerHTML = `<div class="as-row"><span>We assume</span><span>If that is wrong</span><span>How we find out</span><span>When</span></div>` +
     ASSUME.map(([a, w, h, t]) => `<div class="as-row"><b>${a}</b><span data-l="If wrong:">${w}</span><span data-l="Test:">${h}</span><span class="when" data-l="When:">${t}</span></div>`).join("");
