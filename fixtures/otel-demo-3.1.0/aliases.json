@@ -1,0 +1,417 @@
+{
+ "source": {
+  "repo": "https://github.com/open-telemetry/opentelemetry-demo",
+  "tag": "3.1.0",
+  "captured": "2026-11-27, 14:06 to 14:35 UTC, collector otelcol-contrib 0.159.0, 23 containers"
+ },
+ "rules": [
+  {
+   "id": "no-ip",
+   "rule": "Never alias an IP address. checkout reaches its callees as 172.18.0.x and Envoy logs upstream hosts as IPs; both change on every restart."
+  },
+  {
+   "id": "server-span-wins",
+   "rule": "Resolve a call by the service.name on the callee's server span. Use the address only when the callee emits no span."
+  },
+  {
+   "id": "ingress-by-cluster",
+   "rule": "Envoy access logs resolve by upstream.cluster; the caller is known only by user agent, so ingress edges carry low confidence until a trace confirms them."
+  },
+  {
+   "id": "login-is-not-identity",
+   "rule": "A database login shared by several services is never used for attribution (D27)."
+  },
+  {
+   "id": "patterns-last",
+   "rule": "Exact rows win over pattern rows; {value} and {group} are filled from the matched name."
+  }
+ ],
+ "aliases": [
+  {
+   "kind": "address",
+   "value": "ad:9555",
+   "urn": "svc://otel-demo/ad",
+   "from": ".env:57,58"
+  },
+  {
+   "kind": "address",
+   "value": "cart:7070",
+   "urn": "svc://otel-demo/cart",
+   "from": ".env:63,64"
+  },
+  {
+   "kind": "address",
+   "value": "checkout:5050",
+   "urn": "svc://otel-demo/checkout",
+   "from": ".env:68,69"
+  },
+  {
+   "kind": "address",
+   "value": "currency:7001",
+   "urn": "svc://otel-demo/currency",
+   "from": ".env:73,74"
+  },
+  {
+   "kind": "address",
+   "value": "email:6060",
+   "urn": "svc://otel-demo/email",
+   "from": ".env:78,79"
+  },
+  {
+   "kind": "address",
+   "value": "frontend-proxy:8080",
+   "urn": "svc://otel-demo/frontend-proxy",
+   "from": ".env:87,90"
+  },
+  {
+   "kind": "address",
+   "value": "frontend:8080",
+   "urn": "svc://otel-demo/frontend",
+   "from": ".env:94,95"
+  },
+  {
+   "kind": "address",
+   "value": "image-provider:8081",
+   "urn": "svc://otel-demo/image-provider",
+   "from": ".env:99,100"
+  },
+  {
+   "kind": "address",
+   "value": "payment:50051",
+   "urn": "svc://otel-demo/payment",
+   "from": ".env:115,116"
+  },
+  {
+   "kind": "address",
+   "value": "product-catalog:3550",
+   "urn": "svc://otel-demo/product-catalog",
+   "from": ".env:120,121"
+  },
+  {
+   "kind": "address",
+   "value": "quote:8090",
+   "urn": "svc://otel-demo/quote",
+   "from": ".env:125,126"
+  },
+  {
+   "kind": "address",
+   "value": "recommendation:9001",
+   "urn": "svc://otel-demo/recommendation",
+   "from": ".env:130,131"
+  },
+  {
+   "kind": "address",
+   "value": "shipping:50050",
+   "urn": "svc://otel-demo/shipping",
+   "from": ".env:135,136"
+  },
+  {
+   "kind": "address",
+   "value": "flagd:8013",
+   "urn": "svc://otel-demo/flagd",
+   "from": ".env:143,144"
+  },
+  {
+   "kind": "address",
+   "value": "flagd:8016",
+   "urn": "svc://otel-demo/flagd",
+   "from": ".env:143,145"
+  },
+  {
+   "kind": "address",
+   "value": "flagd-ui:4000",
+   "urn": "svc://otel-demo/flagd-ui",
+   "from": ".env:148,149"
+  },
+  {
+   "kind": "address",
+   "value": "kafka:9092",
+   "urn": "kafka://otel-demo",
+   "from": ".env:153,154,155"
+  },
+  {
+   "kind": "address",
+   "value": "valkey-cart:6379",
+   "urn": "valkey://valkey-cart/cart",
+   "from": ".env:160,161"
+  },
+  {
+   "kind": "address",
+   "value": "astronomy-db:5432",
+   "urn": "postgres://astronomy-db/astronomy_db",
+   "from": "src/postgresql (compose service astronomy-db)"
+  },
+  {
+   "kind": "address",
+   "value": "agent:8010",
+   "urn": "svc://otel-demo/agent",
+   "from": "capture 2026-11-27 (load-generator url.full; the agent service is not in the twin)"
+  },
+  {
+   "kind": "rpc.service",
+   "value": "oteldemo.AdService",
+   "urn": "svc://otel-demo/ad",
+   "from": "pb/demo.proto"
+  },
+  {
+   "kind": "rpc.service",
+   "value": "oteldemo.CartService",
+   "urn": "svc://otel-demo/cart",
+   "from": "pb/demo.proto"
+  },
+  {
+   "kind": "rpc.service",
+   "value": "oteldemo.CheckoutService",
+   "urn": "svc://otel-demo/checkout",
+   "from": "pb/demo.proto"
+  },
+  {
+   "kind": "rpc.service",
+   "value": "oteldemo.CurrencyService",
+   "urn": "svc://otel-demo/currency",
+   "from": "pb/demo.proto"
+  },
+  {
+   "kind": "rpc.service",
+   "value": "oteldemo.PaymentService",
+   "urn": "svc://otel-demo/payment",
+   "from": "pb/demo.proto"
+  },
+  {
+   "kind": "rpc.service",
+   "value": "oteldemo.ProductCatalogService",
+   "urn": "svc://otel-demo/product-catalog",
+   "from": "pb/demo.proto"
+  },
+  {
+   "kind": "rpc.service",
+   "value": "oteldemo.RecommendationService",
+   "urn": "svc://otel-demo/recommendation",
+   "from": "pb/demo.proto"
+  },
+  {
+   "kind": "rpc.service",
+   "value": "flagd.evaluation.v1.Service",
+   "urn": "svc://otel-demo/flagd",
+   "from": "capture 2026-11-27"
+  },
+  {
+   "kind": "rpc.service",
+   "value": "flagd.evaluation.v2.Service",
+   "urn": "svc://otel-demo/flagd",
+   "from": "capture 2026-11-27"
+  },
+  {
+   "kind": "service.name",
+   "value": "*",
+   "urn": "svc://otel-demo/{value}",
+   "from": "convention: service.name is the compose service name",
+   "pattern": true
+  },
+  {
+   "kind": "service.name",
+   "value": "otelcol-contrib",
+   "urn": "svc://otel-demo/otel-collector",
+   "from": "capture 2026-11-27"
+  },
+  {
+   "kind": "envoy.cluster",
+   "value": "frontend",
+   "urn": "svc://otel-demo/frontend",
+   "from": "src/frontend-proxy/envoy.tmpl.yaml:199"
+  },
+  {
+   "kind": "envoy.cluster",
+   "value": "image-provider",
+   "urn": "svc://otel-demo/image-provider",
+   "from": "src/frontend-proxy/envoy.tmpl.yaml:212"
+  },
+  {
+   "kind": "envoy.cluster",
+   "value": "flagservice",
+   "urn": "svc://otel-demo/flagd",
+   "from": "src/frontend-proxy/envoy.tmpl.yaml:225"
+  },
+  {
+   "kind": "envoy.cluster",
+   "value": "flagd-ui",
+   "urn": "svc://otel-demo/flagd-ui",
+   "from": "src/frontend-proxy/envoy.tmpl.yaml:238"
+  },
+  {
+   "kind": "envoy.cluster",
+   "value": "loadgen",
+   "urn": "svc://otel-demo/load-generator",
+   "from": "src/frontend-proxy/envoy.tmpl.yaml:251"
+  },
+  {
+   "kind": "envoy.cluster",
+   "value": "opentelemetry_collector_grpc",
+   "urn": "svc://otel-demo/otel-collector",
+   "from": "src/frontend-proxy/envoy.tmpl.yaml:165"
+  },
+  {
+   "kind": "envoy.cluster",
+   "value": "opentelemetry_collector_http",
+   "urn": "svc://otel-demo/otel-collector",
+   "from": "src/frontend-proxy/envoy.tmpl.yaml:186"
+  },
+  {
+   "kind": "envoy.cluster",
+   "value": "-",
+   "urn": null,
+   "from": "capture 2026-11-27",
+   "note": "no upstream: request answered by Envoy itself"
+  },
+  {
+   "kind": "user_agent",
+   "value": "-",
+   "urn": null,
+   "from": "capture 2026-11-27",
+   "note": "no user agent: requests Envoy answered itself, with upstream.cluster '-'"
+  },
+  {
+   "kind": "user_agent",
+   "value": "python-requests/*",
+   "urn": "svc://otel-demo/load-generator",
+   "from": "capture 2026-11-27 (Locust HTTP user)",
+   "pattern": true
+  },
+  {
+   "kind": "user_agent",
+   "value": "Go-http-client/*",
+   "urn": "svc://otel-demo/otel-collector",
+   "from": "capture 2026-11-27 (http_check receiver probing frontend-proxy)",
+   "pattern": true
+  },
+  {
+   "kind": "messaging.destination.name",
+   "value": "orders",
+   "urn": "kafka://otel-demo/orders",
+   "from": "src/checkout/main.go:671"
+  },
+  {
+   "kind": "kafkametrics.topic",
+   "value": "orders",
+   "urn": "kafka://otel-demo/orders",
+   "from": "capture 2026-11-27"
+  },
+  {
+   "kind": "kafka.consumer_group",
+   "value": "accounting",
+   "urn": "svc://otel-demo/accounting",
+   "from": "src/accounting/Consumer.cs"
+  },
+  {
+   "kind": "kafka.consumer_group",
+   "value": "fraud-detection",
+   "urn": "svc://otel-demo/fraud-detection",
+   "from": "src/fraud-detection/src/main/kotlin/frauddetection/main.kt"
+  },
+  {
+   "kind": "kafka.client_id",
+   "value": "consumer-*-*",
+   "urn": "svc://otel-demo/{group}",
+   "from": "capture 2026-11-27 (Kafka Java client default consumer-<group>-<n>)",
+   "pattern": true
+  },
+  {
+   "kind": "db.namespace",
+   "value": "astronomy_db",
+   "urn": "postgres://astronomy-db/astronomy_db",
+   "from": "capture 2026-11-27"
+  },
+  {
+   "kind": "db.user",
+   "value": "astronomy_user",
+   "urn": null,
+   "from": "src/postgresql/init.sql",
+   "ambiguous": [
+    "svc://otel-demo/accounting",
+    "svc://otel-demo/product-catalog"
+   ],
+   "note": "shared login: never attribute access by login (D27); use the client span's service.name"
+  },
+  {
+   "kind": "db.table",
+   "value": "accounting.order",
+   "urn": "postgres://astronomy-db/astronomy_db.accounting.\"order\"",
+   "from": "src/postgresql/init.sql"
+  },
+  {
+   "kind": "db.table",
+   "value": "accounting.\"order\"",
+   "urn": "postgres://astronomy-db/astronomy_db.accounting.\"order\"",
+   "from": "src/postgresql/init.sql"
+  },
+  {
+   "kind": "postgresql.table.name",
+   "value": "accounting.order",
+   "urn": "postgres://astronomy-db/astronomy_db.accounting.\"order\"",
+   "from": "capture 2026-11-27 (postgresql receiver resource attribute)"
+  },
+  {
+   "kind": "db.table",
+   "value": "accounting.orderitem",
+   "urn": "postgres://astronomy-db/astronomy_db.accounting.orderitem",
+   "from": "src/postgresql/init.sql"
+  },
+  {
+   "kind": "postgresql.table.name",
+   "value": "accounting.orderitem",
+   "urn": "postgres://astronomy-db/astronomy_db.accounting.orderitem",
+   "from": "capture 2026-11-27 (postgresql receiver resource attribute)"
+  },
+  {
+   "kind": "db.table",
+   "value": "accounting.shipping",
+   "urn": "postgres://astronomy-db/astronomy_db.accounting.shipping",
+   "from": "src/postgresql/init.sql"
+  },
+  {
+   "kind": "postgresql.table.name",
+   "value": "accounting.shipping",
+   "urn": "postgres://astronomy-db/astronomy_db.accounting.shipping",
+   "from": "capture 2026-11-27 (postgresql receiver resource attribute)"
+  },
+  {
+   "kind": "db.table",
+   "value": "catalog.products",
+   "urn": "postgres://astronomy-db/astronomy_db.catalog.products",
+   "from": "src/postgresql/init.sql"
+  },
+  {
+   "kind": "postgresql.table.name",
+   "value": "catalog.products",
+   "urn": "postgres://astronomy-db/astronomy_db.catalog.products",
+   "from": "capture 2026-11-27 (postgresql receiver resource attribute)"
+  },
+  {
+   "kind": "db.system+address",
+   "value": "redis@valkey-cart",
+   "urn": "valkey://valkey-cart/cart",
+   "from": "capture 2026-11-27"
+  },
+  {
+   "kind": "flag.key",
+   "value": "*",
+   "urn": "flag://otel-demo/{value}",
+   "from": "src/flagd/demo.flagd.json",
+   "pattern": true
+  },
+  {
+   "kind": "servicegraph.node",
+   "value": "user",
+   "urn": null,
+   "from": "capture 2026-11-27",
+   "note": "virtual client: traffic with no instrumented parent (browser, health checks)"
+  },
+  {
+   "kind": "servicegraph.node",
+   "value": "unknown",
+   "urn": null,
+   "from": "capture 2026-11-27",
+   "note": "virtual server: an uninstrumented peer, here Valkey or the absent agent"
+  }
+ ]
+}

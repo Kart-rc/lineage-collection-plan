@@ -1,0 +1,44 @@
+# Owners and tiers for the reference slice (OpenTelemetry Demo 3.1.0).
+#
+# criticality: REAL. Copied from each service's OTEL_RESOURCE_ATTRIBUTES (service.criticality=...)
+#              in the demo's compose files at 3.1.0.
+# tier:        derived: critical -> 1, high -> 2, medium and low -> 3.
+# owner:       ILLUSTRATIVE. The demo's .github/CODEOWNERS assigns everything to one team
+#              (@open-telemetry/demo-approvers), so per-service owners are invented here to exercise
+#              routing, sign-off requests and the "who to call" answer. Replace them for a real estate.
+#
+# Read by the owner and tier overlay (WP-17). Each entry becomes OWNS evidence at weight 0.50 (declared).
+
+services:
+  frontend-proxy:  {criticality: critical, tier: 1, owner: team-web,           kind: gateway}
+  frontend:        {criticality: critical, tier: 1, owner: team-web,           kind: service}
+  checkout:        {criticality: critical, tier: 1, owner: team-payments,      kind: service}
+  payment:         {criticality: critical, tier: 1, owner: team-payments,      kind: service}
+  cart:            {criticality: high,     tier: 2, owner: team-commerce,      kind: service}
+  currency:        {criticality: high,     tier: 2, owner: team-commerce,      kind: service}
+  product-catalog: {criticality: high,     tier: 2, owner: team-catalog,       kind: service}
+  shipping:        {criticality: high,     tier: 2, owner: team-fulfilment,    kind: service}
+  ad:              {criticality: medium,   tier: 3, owner: team-catalog,       kind: service}
+  email:           {criticality: medium,   tier: 3, owner: team-fulfilment,    kind: service}
+  recommendation:  {criticality: medium,   tier: 3, owner: team-catalog,       kind: service}
+  quote:           {criticality: low,      tier: 3, owner: team-fulfilment,    kind: service}
+  accounting:      {criticality: low,      tier: 3, owner: team-finance-data,  kind: service}
+  fraud-detection: {criticality: low,      tier: 3, owner: team-fraud,         kind: service}
+  image-provider:  {criticality: low,      tier: 3, owner: team-web,           kind: service}
+  load-generator:  {criticality: low,      tier: 3, owner: team-platform,      kind: synthetic-traffic}
+  flagd:           {criticality: low,      tier: 3, owner: team-platform,      kind: platform}
+  flagd-ui:        {criticality: low,      tier: 3, owner: team-platform,      kind: platform}
+  kafka:           {criticality: low,      tier: 3, owner: team-platform,      kind: platform}
+
+# Data assets. Tier follows the most critical producer, not the demo's label for the broker or database.
+datasets:
+  kafka://otel-demo/orders:                                     {tier: 1, owner: team-payments,     producer: checkout}
+  postgres://astronomy-db/astronomy_db.accounting."order":     {tier: 3, owner: team-finance-data, producer: accounting}
+  postgres://astronomy-db/astronomy_db.accounting.orderitem:   {tier: 3, owner: team-finance-data, producer: accounting}
+  postgres://astronomy-db/astronomy_db.accounting.shipping:    {tier: 3, owner: team-finance-data, producer: accounting}
+  postgres://astronomy-db/astronomy_db.catalog.products:       {tier: 2, owner: team-catalog,      producer: product-catalog}
+  valkey://valkey-cart/cart:                                    {tier: 2, owner: team-commerce,     producer: cart}
+
+# Noted, not changed: the demo labels accounting and fraud-detection "low". In a card-payments estate
+# the equivalent consumers would be tier 1. The reference slice keeps the demo's own values so the
+# fixture stays traceable to the source.

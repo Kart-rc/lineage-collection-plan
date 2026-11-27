@@ -1,0 +1,55 @@
+# Checks the check runner (WP-39) evaluates in the twin. Each failing check becomes a data quality
+# assertion on an element or dataset, which is where root-cause analysis (O4) starts.
+#
+# Every metric name below was seen in a capture run of the demo at release 3.1.0 on 2026-11-27
+# (collector 0.159.0 with the kafkametrics and postgresql receivers, the span_metrics connector and the
+# servicegraph connector from fixtures/otel-demo-3.1.0/run/otelcol-capture.yml).
+# Thresholds are starting values, to be tuned on the baseline runs (decision D16).
+
+window: 2m            # each check compares the last window with the trailing baseline
+baseline: 10m         # rate checks widen their window until the baseline expects min_events in it (default 20):
+                      # at the twin's default load, about 3 orders a minute, that is a 7-minute window
+
+checks:
+  - id: orders-rate
+    node: kafka://otel-demo/orders
+    what: Messages published to orders per window stay within 50% to 300% of the trailing average
+    metric: kafka.partition.current_offset        # summed over partitions, as a rate
+    where: {topic: orders}
+    fail_if: rate_ratio < 0.5 or rate_ratio > 3.0
+    min_events: 20
+    catches: [I1, I2, I4]
+
+  - id: fraud-detection-lag
+    node: kafka://otel-demo/orders
+    reader: svc://otel-demo/fraud-detection
+    what: Consumer lag of the fraud-detection group stays under 500 messages
+    metric: kafka.consumer_group.lag_sum
+    where: {group: fraud-detection, topic: orders}
+    fail_if: value > 500
+    catches: [I2]
+
+  - id: accounting-order-rate
+    node: postgres://astronomy-db/astronomy_db.accounting."order"
+    what: Rows inserted per window stay within 50% of the trailing average
+    metric: postgresql.operations                 # the collector's postgresql receiver counts inserts per table
+    where: {postgresql.table.name: accounting.order, operation: ins}
+    fail_if: rate_ratio < 0.5
+    min_events: 20
+    catches: [I1, I4]
+
+  - id: checkout-errors
+    node: svc://otel-demo/checkout
+    what: Share of PlaceOrder server spans with error status stays under 5%
+    metric: traces.span.metrics.calls             # split by status.code; error share = STATUS_CODE_ERROR / all
+    where: {service.name: checkout, span.kind: SPAN_KIND_SERVER, span.name: oteldemo.CheckoutService/PlaceOrder}
+    fail_if: error_share > 0.05
+    catches: [I1, I4]
+
+  - id: product-catalog-latency
+    node: svc://otel-demo/product-catalog
+    what: 95th percentile of GetProduct server spans stays under 1 second
+    metric: traces.span.metrics.duration          # histogram in milliseconds
+    where: {service.name: product-catalog, span.kind: SPAN_KIND_SERVER, span.name: oteldemo.ProductCatalogService/GetProduct}
+    fail_if: p95 > 1s
+    catches: [I3]

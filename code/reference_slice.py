@@ -37,6 +37,7 @@ SERVICE_EDGES = [
     ("frontend", "cart", "CALLS", SERVICES_PY, 81, '("frontend", "cart")', True),
     ("frontend", "checkout", "CALLS", SERVICES_PY, 82, '("frontend", "checkout")', True),
     ("frontend", "shipping", "CALLS", "src/frontend/gateways/http/Shipping.gateway.ts", 31, "/get-quote", False),
+    ("frontend", "currency", "CALLS", "src/frontend/pages/api/currency.ts", 14, "CurrencyGateway.getSupportedCurrencies()", False),
     ("checkout", "cart", "CALLS", MAIN, 528, "cartSvcClient.GetCart", True),
     ("checkout", "product-catalog", "CALLS", MAIN, 546, "productCatalogSvcClient.GetProduct", True),
     ("checkout", "currency", "CALLS", MAIN, 563, "currencySvcClient.Convert", True),
@@ -108,12 +109,62 @@ READS = [
     (f"{ORDER}#order_id", "fraud-detection", KT, 70, "OrderResult.parseFrom(record.value())"),
 ]
 
+# 4. Flag-gated copies of personal data into span attributes, and the collector's redaction of them.
+# These edges exist only while the flag emitRawPii is on (commit 484dfd6). They are stored with a condition and
+# stay "latent" while the flag is off, so a must-not-flow check sees the path before anyone switches it on (D30).
+OTEL_SPAN = lambda s: f"otel://otel-demo/{s}/span"
+OTEL_OUT = "otel://otel-demo/otel-collector/traces"
+COLLECTOR = "src/otel-collector/otelcol-config.yml"
+PAY = "src/payment/charge.js"
+GATED = []   # (from, to, class, subtype, masking, condition, path, line, text)
+def ge(a, b, cls, sub, masking, cond, path, line, text):
+    GATED.append((a, b, cls, sub, masking, cond, path, line, text))
+RAW_PII = "flag://otel-demo/emitRawPii == on"
+ge(f"{PO_REQ}#email", f"{OTEL_SPAN('checkout')}#user.email", "DIRECT", "IDENTITY", False, RAW_PII, MAIN, 315, 'attribute.String("user.email", req.GetEmail())')
+ge(f"{PO_REQ}#credit_card.credit_card_number", f"{OTEL_SPAN('checkout')}#demo.payment.card_number", "DIRECT", "IDENTITY", False, RAW_PII, MAIN, 316, '"demo.payment.card_number"')
+ge(f"{PO_REQ}#credit_card.credit_card_cvv", f"{OTEL_SPAN('checkout')}#demo.payment.card_cvv", "DIRECT", "IDENTITY", False, RAW_PII, MAIN, 317, '"demo.payment.card_cvv"')
+ge(API("payment", "Charge", "request") + "#credit_card.credit_card_number", f"{OTEL_SPAN('payment')}#demo.payment.card_number", "DIRECT", "IDENTITY", False, RAW_PII, PAY, 73, "'demo.payment.card_number': number")
+ge(API("payment", "Charge", "request") + "#credit_card.credit_card_cvv", f"{OTEL_SPAN('payment')}#demo.payment.card_cvv", "DIRECT", "IDENTITY", False, RAW_PII, PAY, 74, "'demo.payment.card_cvv': cvv")
+ge(f"{OTEL_SPAN('checkout')}#user.email", f"{OTEL_OUT}#user.hash", "DIRECT", "TRANSFORMATION", True, None, COLLECTOR, 223, 'SHA256(attributes["user.email"])')
+for svc in ["checkout", "payment"]:
+    ge(f"{OTEL_SPAN(svc)}#demo.payment.card_number", f"{OTEL_OUT}#demo.payment.card_number", "DIRECT", "TRANSFORMATION", True, None, COLLECTOR, 226,
+       'replace_pattern(attributes["demo.payment.card_number"]')
+
 # Flows that must NOT exist. The oracle treats any path between these as a defect.
 MUST_NOT_FLOW = [
     (f"{PO_REQ}#credit_card.*", TOPIC, "Card data never reaches the orders topic"),
     (f"{PO_REQ}#credit_card.*", PG("accounting.*"), "Card data never reaches the accounting tables"),
     (f"{PO_REQ}#email", TOPIC, "The customer email is sent to the email service, not published"),
+    (f"{PO_REQ}#credit_card.credit_card_cvv", OTEL_OUT, "The collector deletes the CVV (otelcol-config.yml:222); it never leaves the collector"),
+    (f"{PO_REQ}#email", f"{OTEL_OUT}#user.email", "The collector deletes user.email (otelcol-config.yml:224); only its SHA-256 hash leaves"),
 ]
+
+# ---------------------------------------------------------------- feature flags and the services that read them (D29)
+# Runtime shows only some of these: checkout, product-catalog and email evaluate flags without emitting a span,
+# so the flag-to-service map comes from code. A flag change event joins the graph through these edges.
+FLAG_READS = [   # (flag, service, path, line, text)
+    ("adFailure", "ad", "src/ad/src/main/java/oteldemo/AdService.java", 164, '"adFailure"'),
+    ("adManualGc", "ad", "src/ad/src/main/java/oteldemo/AdService.java", 165, '"adManualGc"'),
+    ("adHighCpu", "ad", "src/ad/src/main/java/oteldemo/AdService.java", 166, '"adHighCpu"'),
+    ("aiRunawayAgent", "agent", "src/agent/src/agents/agents.py", 87, '"aiRunawayAgent"'),
+    ("aiSlowResponse", "agent", "src/agent/src/agents/llm.py", 40, '"aiSlowResponse"'),
+    ("cartFailure", "cart", "src/cart/src/services/CartService.cs", 82, '"cartFailure"'),
+    ("failedReadinessProbe", "cart", "src/cart/src/services/HealthCheckService.cs", 36, '"failedReadinessProbe"'),
+    ("emitRawPii", "checkout", MAIN, 313, "flags.EmitRawPii.Value"),
+    ("paymentUnreachable", "checkout", MAIN, 575, "flags.PaymentUnreachable.Value"),
+    ("kafkaQueueProblems", "checkout", MAIN, 716, "flags.KafkaQueueProblems.Value"),
+    ("emailMemoryLeak", "email", "src/email/email_server.rb", 67, '"emailMemoryLeak"'),
+    ("kafkaQueueProblems", "fraud-detection", KT, 66, 'getFeatureFlagValue("kafkaQueueProblems")'),
+    ("imageSlowLoad", "frontend", "src/frontend/components/ProductCard/ProductCard.tsx", 32, "useNumberFlagValue('imageSlowLoad', 0)"),
+    ("loadGeneratorFloodHomepage", "load-generator", "src/load-generator/locustfile.py", 226, '"loadGeneratorFloodHomepage"'),
+    ("paymentFailure", "payment", PAY, 40, '"paymentFailure"'),
+    ("emitRawPii", "payment", PAY, 41, '"emitRawPii"'),
+    ("productCatalogFailure", "product-catalog", "src/product-catalog/main.go", 443, "flags.ProductCatalogFailure.Value"),
+    ("productCatalogLockContention", "product-catalog", "src/product-catalog/main.go", 456, "flags.ProductCatalogLockContention.Value"),
+    ("recommendationCacheFailure", "recommendation", "src/recommendation/recommendation_server.py", 78, '"recommendationCacheFailure"'),
+    ("intlShippingSlowdown", "shipping", "src/shipping/src/shipping_service.rs", 67, '"intlShippingSlowdown"'),
+]
+FLAG = lambda k: f"flag://otel-demo/{k}"
 
 # ---------------------------------------------------------------- real changes, from the demo's git history
 CHANGES = [
@@ -142,6 +193,11 @@ CHANGES = [
      "change": "recommendation rewritten from Python to Java; it still calls product-catalog ListProducts",
      "class": "NO LINEAGE CHANGE", "why": "the edge must survive while its static evidence moves to a new file, language and extractor; a rescan that drops it is a defect",
      "elements": [SVC("recommendation") + " -> " + SVC("product-catalog")], "readers_at_3_1_0": []},
+    {"id": "C7", "commit": "484dfd6", "date": "2026-09-16", "title": "feat: add PII emission flag and layered redaction (#3869)",
+     "trigger": "flag emitRawPii switched from off to on in the twin; no code changes",
+     "change": "checkout and payment copy card number, CVV and email into span attributes; the collector hashes the email, keeps the last four card digits and deletes the CVV",
+     "class": "RUNTIME LINEAGE CHANGE (no commit)", "why": "lineage changes on a flag change event alone; five latent edges must turn active, the collector's three masking edges start carrying data, and the two must-not-flow rules on the collector output must still hold",
+     "elements": [FLAG("emitRawPii"), f"{OTEL_SPAN('checkout')}#demo.payment.card_number", f"{OTEL_OUT}#user.hash"], "readers_at_3_1_0": ["otel-collector"]},
 ]
 
 # ---------------------------------------------------------------- real failure scenarios, from the demo's feature flags (3.1.0)
@@ -181,6 +237,10 @@ def citations():
         yield e[4], e[5], e[6], f"{e[0]} -> {e[1]}"
     for e in READS:
         yield e[2], e[3], e[4], f"{e[0]} read by {e[1]}"
+    for e in GATED:
+        yield e[6], e[7], e[8], f"{e[0]} -> {e[1]} (when {e[5]})" if e[5] else f"{e[0]} -> {e[1]}"
+    for k, svc, p, l, x in FLAG_READS:
+        yield p, l, x, f"flag {k} read by {svc}"
     yield UPSTREAM_NOTE[0], UPSTREAM_NOTE[1], UPSTREAM_NOTE[2], "upstream note on Kafka trace links"
 
 
@@ -214,13 +274,21 @@ def write(out):
                           for a, b, t, p, l, x, up in SERVICE_EDGES],
         "field_edges": [{"from": a, "to": b, "type": "DERIVES", "class": c, "subtype": s, "evidence": ev(p, l, x)} for a, b, c, s, p, l, x in F],
         "field_reads": [{"element": a, "reader": SVC(r), "evidence": ev(p, l, x)} for a, r, p, l, x in READS],
+        "gated_field_edges": [{"from": a, "to": b, "type": "DERIVES", "class": c, "subtype": s, "masking": m, "condition": cond,
+                               "state_when_condition_false": "latent" if cond else "active", "evidence": ev(p, l, x)}
+                              for a, b, c, s, m, cond, p, l, x in GATED],
+        "flag_edges": [{"from": FLAG(k), "to": SVC(svc), "type": "CONFIGURES", "evidence": ev(p, l, x)} for k, svc, p, l, x in FLAG_READS],
         "must_not_flow": [{"from": a, "to": b, "why": w} for a, b, w in MUST_NOT_FLOW],
         "generated_without_source": [{"element": f"{ORDER}#order_id", "how": "uuid.NewUUID() in checkout", "evidence": ev(MAIN, 339, "uuid.NewUUID()")}],
     }
     json.dump(graph, open(os.path.join(out, "golden-graph.json"), "w"), indent=1)
     json.dump({"source": DEMO, "changes": CHANGES}, open(os.path.join(out, "change-replay.json"), "w"), indent=1)
+    for i in INCIDENTS:   # the join RCA makes: flag change event -> flag node -> the services that read it
+        i["flag_urn"] = FLAG(i["flag"])
+        i["flag_read_by"] = [SVC(svc) for k, svc, *_ in FLAG_READS if k == i["flag"]]
     json.dump({"source": DEMO, "incidents": INCIDENTS}, open(os.path.join(out, "incident-scenarios.json"), "w"), indent=1)
-    print(f"wrote {len(SERVICE_EDGES)} service edges, {len(F)} field edges, {len(CHANGES)} changes and {len(INCIDENTS)} incidents to {out}")
+    print(f"wrote {len(SERVICE_EDGES)} service edges, {len(F)} field edges, {len(GATED)} gated field edges, {len(FLAG_READS)} flag edges, "
+          f"{len(CHANGES)} changes and {len(INCIDENTS)} incidents to {out}")
 
 
 if __name__ == "__main__":

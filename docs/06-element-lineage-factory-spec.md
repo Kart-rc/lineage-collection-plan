@@ -495,7 +495,7 @@ So this spec is what one commentator calls a light factory: agents execute, peop
 6. **Everything runs in the twin.** No agent holds production credentials or reads production data.
 7. **Escaped defects become scenarios.** Every defect found after a gate adds a holdout scenario and, if the spec was wrong or silent, a spec change.
 8. **Autonomy is earned and can be lost.** It is set per work package from the strength of its oracle and its blast radius, and it moves on measured results.
-9. **Budgets stop the line.** A work package that exceeds its token or retry budget stops and goes to a person, the same as a failing gate.
+9. **Limits stop the line; cost is tracked.** A work package that exceeds its retry or wall-clock limit stops and goes to a person, the same as a failing gate. Token cost has no cap (decision D21); it is recorded per merged change and reviewed weekly.
 
 ### Stations and gates
 
@@ -567,18 +567,21 @@ Each work package is sized so that one agent can finish it in one sandbox agains
 | **Wave 1: core semantics** | | | | |
 | WP-10 | URN library with nested field paths | O1 | Property tests | 2 |
 | WP-11 | Envelope v2 schema and emit library | O1, O2 | Schema tests; v1 compatibility | 2 |
-| WP-12 | Merge and scorer with unit-owned static evidence | O1, O2 | Property tests; removal scenarios | 2 |
-| WP-13 | Bitemporal graph writer and as-of reads | O2 | Bitemporal property tests; replay determinism | 2 |
+| WP-12 | Merge and scorer with unit-owned static evidence; conditional edges with a latent state (D30) | O1, O2 | Property tests; removal scenarios; change C7 | 2 |
+| WP-13 | Bitemporal graph writer and as-of reads, on Neptune over Bolt with Neo4j standing in locally (D12, D23) | O2 | Bitemporal property tests on Neo4j and on a stage Neptune; replay determinism | 2 |
 | WP-14 | Lineage diff and the `lineage.changes` stream | O2 | Diff scenarios | 2 |
-| WP-15 | Identity resolver at element level | O1 | Alias fixtures; unresolved rate | 2 |
+| WP-15 | Identity resolver at element level, loading `aliases.json` and its rules, never aliasing an IP (D31) | O1 | Alias fixtures; every name in a capture resolves | 2 |
+| WP-16 | Daily reconciler and owner queues (D28) | O1, O2 | Static-only, runtime-only and disagreeing edges from the capture run | 2 |
+| WP-17 | Owner and tier overlay from the catalog file and service criticality (D24) | O1 | Every golden node owned and tiered | 2 |
+| WP-19 | Service edge builder: trace walk, topic joins, ingress logs (D7, D8) | O1, O2 | 13 upstream-asserted edges; golden service edges | 2 |
 | **Wave 2: element extractors, built in parallel** | | | | |
 | WP-20 | dbt and SQL extractor | O1 | Golden hop; metamorphic tests | 3 |
 | WP-21 | Avro and Protobuf schema differ and registry watcher | O1, O2 | Schema-change fixtures | 3 |
-| WP-22 | Flink SQL extractor on the planner harness | O1 | Golden hop | 3 |
+| WP-22 | Stream job extractor: PyFlink code and the declared feature registry first, Flink SQL on the planner harness later (D2) | O1 | Complement's feature registry | 3 |
 | WP-23 | Service producer and consumer field scanner | O1 | Golden hop; rule fixtures per framework | 3 |
-| WP-24 | Sink connector extractor | O1 | Golden hop | 3 |
+| WP-24 | Sink and ORM writer extractor, C# Entity Framework first (D10) | O1 | 17 golden accounting edges | 3 |
 | WP-25 | Feature repository and training config extractor | O1 | Golden hops | 3 |
-| WP-26 | Warehouse access-history collector at column level | O1, O2 | Recorded query fixtures | 3 |
+| WP-26 | Access-history collector at column level: Postgres statistics first, then Snowflake and Databricks (D22, D27) | O1, O2 | Recorded query fixtures; accounting writes from the capture | 3 |
 | WP-27 | OpenLineage ingestion with column facets | O1, O2 | Round-trip tests | 3 |
 | WP-28 | BI metadata extractor | O1 | Golden hop | 3 |
 | WP-29 | Model-assisted extractor for opaque units, with a verifier | O1 | Opaque fixtures; precision floor | 2 |
@@ -589,9 +592,10 @@ Each work package is sized so that one agent can finish it in one sandbox agains
 | WP-33 | PR bot in warn mode with feedback | O3 | Change replay, visible and holdout | 3 |
 | WP-34 | Contract gate in block mode | O3 | Gate policy scenarios | 2 |
 | **Wave 4: detect and resolve** | | | | |
+| WP-39 | Check runner for the twin's checks (D26) | O4 | Each check fails on its incidents and passes on the baseline | 3 |
 | WP-40 | DQ and contract result ingestion on elements | O4 | Assertion fixtures | 3 |
-| WP-41 | Change-event timeline | O4 | Timeline fixtures | 3 |
-| WP-42 | RCA ranker | O4 | Incident replay, visible and holdout | 3 |
+| WP-41 | Change-event timeline; flag changes join through flag edges (D29) | O4 | Timeline fixtures; the change events of the 27 November run | 3 |
+| WP-42 | RCA ranker: narrow to the failing callee, then rank (D32) | O4 | Incident replay, visible and holdout | 3 |
 | WP-43 | Remediation planner and circuit breaker | O4 | Plan snapshots; breaker scenario | 2 |
 | WP-44 | MTTD and MTTR recorder | O4 | Timestamp fixtures | 3 |
 | **Wave 5: projections and operations** | | | | |
@@ -648,7 +652,7 @@ What people stop doing is typing extractor code. What they start doing is writin
 | Cost per merged change | Model tokens and compute | Budget control |
 | Rework rate | Work packages reopened after merge | Spec stability |
 
-Budgets are set per work package before it starts: a token ceiling, a retry ceiling and a wall-clock ceiling. Hitting any one stops the run and raises it to a person.
+Limits are set per work package before it starts: a retry ceiling and a wall-clock ceiling. Hitting either stops the run and raises it to a person. Token cost is not capped (D21) but is recorded per run, so the weekly review sees cost per merged change by work package.
 
 ### Failure modes of the factory
 
@@ -658,7 +662,7 @@ Budgets are set per work package before it starts: a token ceiling, a retry ceil
 | The oracle is wrong | A correct extractor fails; owners dispute golden edges | G3; owner re-signs; the disputed edge is excluded until settled |
 | Spec drift | Code fixed by hand; the next agent run reverts it | Principle 1; the harness checks that every changed file traces to a work package |
 | Review becomes the constraint | Person-minutes per change rise; G2 queue grows | Promote families with strong oracles; shrink work packages |
-| Cost runs away | Cost per merged change rises without quality | Budgets stop the line; tighten context; split the package |
+| Cost runs away | Cost per merged change rises without quality | The weekly review catches it; wall-clock limits stop loops; tighten context; split the package |
 | The twin diverges from production | Passes in the twin, fails on stage replay | Stage replay is G4; each divergence adds a twin fixture |
 | An agent reaches for more access | Attempted write to a protected path or blocked egress | Denied by the sandbox; logged; demotion |
 
@@ -730,7 +734,7 @@ Two artefacts carry most of the human effort in the factory. One of each is writ
 Serves:       O1 (BL-2, BL-3, BL-4, BL-5), O2 (IN-1)
 Start level:  3
 Depends on:   WP-10 URN library, WP-11 envelope v2
-Budget:       token ceiling, 6 build attempts, 1 working day
+Limits:       6 build attempts, 1 working day; cost recorded
 
 ## Scope
 Read a dbt project at a commit and emit envelope v2 evidence for every model:

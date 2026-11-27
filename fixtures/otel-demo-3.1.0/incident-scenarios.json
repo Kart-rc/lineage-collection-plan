@@ -13,7 +13,11 @@
    "first_symptom": "checkout PlaceOrder errors",
    "downstream_effect": "fewer messages on orders, fewer rows in accounting.order, fewer records consumed by fraud-detection",
    "true_cause": "payment Charge failing",
-   "lineage_walk": "accounting.order row rate drops -> orders topic rate drops -> checkout errors -> payment"
+   "lineage_walk": "accounting.order row rate drops -> orders topic rate drops -> checkout errors -> payment",
+   "flag_urn": "flag://otel-demo/paymentFailure",
+   "flag_read_by": [
+    "svc://otel-demo/payment"
+   ]
   },
   {
    "id": "I2",
@@ -23,7 +27,12 @@
    "first_symptom": "consumer lag on group fraud-detection",
    "downstream_effect": "checkout sends 100 extra copies of each order; accounting skips the duplicates on its primary key",
    "true_cause": "producer overload plus a 1 second consumer delay",
-   "lineage_walk": "lag on orders/fraud-detection -> orders topic volume spike -> checkout producer"
+   "lineage_walk": "lag on orders/fraud-detection -> orders topic volume spike -> checkout producer",
+   "flag_urn": "flag://otel-demo/kafkaQueueProblems",
+   "flag_read_by": [
+    "svc://otel-demo/checkout",
+    "svc://otel-demo/fraud-detection"
+   ]
   },
   {
    "id": "I3",
@@ -33,7 +42,11 @@
    "first_symptom": "slow GetProduct calls",
    "downstream_effect": "slow checkout and frontend pages; no data written wrongly",
    "true_cause": "an ACCESS EXCLUSIVE lock on catalog.products",
-   "lineage_walk": "checkout latency -> product-catalog -> catalog.products"
+   "lineage_walk": "checkout latency -> product-catalog -> catalog.products",
+   "flag_urn": "flag://otel-demo/productCatalogLockContention",
+   "flag_read_by": [
+    "svc://otel-demo/product-catalog"
+   ]
   },
   {
    "id": "I4",
@@ -43,7 +56,11 @@
    "first_symptom": "checkout PlaceOrder errors",
    "downstream_effect": "no new orders anywhere downstream",
    "true_cause": "checkout's payment address, not the payment service",
-   "lineage_walk": "orders topic silent -> checkout errors -> payment edge has no traffic"
+   "lineage_walk": "orders topic silent -> checkout errors -> payment edge has no traffic",
+   "flag_urn": "flag://otel-demo/paymentUnreachable",
+   "flag_read_by": [
+    "svc://otel-demo/checkout"
+   ]
   }
  ]
 }

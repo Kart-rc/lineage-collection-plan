@@ -19,7 +19,7 @@ What makes it fit for this build, and not only for a demo:
 
 What it does not have: a stream processor, a warehouse with dbt, a feature store or a model. Those hops need a second, smaller reference, covered at the end of this document.
 
-The golden graph, change set and incident set are in [`fixtures/otel-demo-3.1.0/`](../fixtures/otel-demo-3.1.0/). [`code/reference_slice.py`](../code/reference_slice.py) holds them with a citation for every edge and checks each citation against the demo's source. At 3.1.0, all 60 citations hold.
+The golden graph, change set and incident set are in [`fixtures/otel-demo-3.1.0/`](../fixtures/otel-demo-3.1.0/). [`code/reference_slice.py`](../code/reference_slice.py) holds them with a citation for every edge and checks each citation against the demo's source. At 3.1.0, all 89 citations hold.
 
 ## How the illustrative slice maps
 
@@ -61,10 +61,12 @@ load-generator ──HTTP──▶ frontend-proxy (Envoy) ──HTTP──▶ fr
 
 | Part | Count | Notes |
 | --- | --- | --- |
-| Service and dataset edges | 22 | 13 are asserted in live traces by the demo's own test suite. The other 9 come from code and configuration |
+| Service and dataset edges | 23 | 13 are asserted in live traces by the demo's own test suite. The other 10 come from code and configuration; `frontend → currency` was added after the first capture |
 | Field edges | 36 | 29 identity, 7 transformation (currency conversion and masking) |
 | Field reads without a write | 1 | `fraud-detection` reads `order_id` |
-| Flows that must not exist | 3 | Card fields to the topic, card fields to the accounting tables, the customer email to the topic |
+| Flag-gated field edges | 8 | Exist only while `emitRawPii` is on: card number, CVV and email into span attributes, then the collector's hashing and masking (decision D30) |
+| Flag edges | 20 | Which service reads which of the 18 feature flags, from code (D29) |
+| Flows that must not exist | 5 | Card fields to the topic, card fields to the accounting tables, the customer email to the topic, the CVV and the raw email to the collector's export |
 | Fields generated with no source | 1 | `order_id`, from `uuid.NewUUID()` in checkout |
 
 Names follow one scheme, which [doc 08](08-build-decisions.md) adopts for the build:
@@ -72,6 +74,8 @@ Names follow one scheme, which [doc 08](08-build-decisions.md) adopts for the bu
 | Kind | Example |
 | --- | --- |
 | Service | `svc://otel-demo/checkout` |
+| Feature flag | `flag://otel-demo/paymentFailure` |
+| Span attribute | `otel://otel-demo/checkout/span#user.email` |
 | A call's message field | `api://otel-demo/checkout/PlaceOrder/request#address.zip_code` |
 | Topic field | `kafka://otel-demo/orders#shipping_address.zip_code` |
 | Repeated field | `kafka://otel-demo/orders#items[].cost.units` |
@@ -109,8 +113,9 @@ From the demo's git history, in [`change-replay.json`](../fixtures/otel-demo-3.1
 | C4 | `5f83ad1` | 2025-11-07 | The three tables move from `public` to an `accounting` schema | Breaking for readers of old names | Old dataset edges close, new ones open, history stays readable |
 | C5 | `66a5b73` | 2026-06-29 | Product review service removed | Retirement | The node and its edges retire; they do not vanish |
 | C6 | `c7b195f` | 2026-10-12 | Recommendation rewritten from Python to Java | No lineage change | The call to product-catalog survives while its evidence moves to a new language |
+| C7 | `484dfd6` (adds the flag) | flipped 2026-11-27 | `emitRawPii` switched on in the twin, with no code change | Runtime lineage change | Five latent edges turn active on the flag event and the collector's three masking edges start carrying data; the CVV and raw email still never leave the collector |
 
-C6 is after 3.1.0. So is the reason the citation checker matters: run against the demo's `main` branch today, 299 commits later, 33 of the 60 citations no longer point at the right line, even though most of the edges still exist.
+C6 is after 3.1.0. So is the reason the citation checker matters: run against the demo's `main` branch today, 299 commits later, 33 of the first 60 citations no longer point at the right line, even though most of the edges still exist.
 
 ## Real failures to replay
 
@@ -134,15 +139,24 @@ DEMO_VERSION=3.1.0 OTEL_COLLECTOR_CONFIG_EXTRAS=/path/to/otelcol-capture.yml \
   docker compose -f compose.yaml -f compose.full.yaml -f capture.override.yaml up -d
 ```
 
+In a sandbox without IPv6, or one that refuses `ulimit`, run `sh sandbox.sh <demo checkout>` first and add `-f sandbox.override.yaml`. It mounts IPv4-only copies of two nginx templates and the flag UI's runtime config, and starts the flag UI without its `ulimit` call.
+
 The add-on and override are in [`fixtures/otel-demo-3.1.0/run/`](../fixtures/otel-demo-3.1.0/run/). After the load generator has run for ten minutes, score what was captured against the golden graph:
 
 ```text
-python3 code/observed_edges.py <capture folder> fixtures/otel-demo-3.1.0/golden-graph.json
+python3 code/observed_edges.py <capture folder> fixtures/otel-demo-3.1.0/golden-graph.json --aliases fixtures/otel-demo-3.1.0/aliases.json
+python3 code/run_checks.py <capture folder> fixtures/otel-demo-3.1.0 --events <change events>
 ```
 
-[`code/observed_edges.py`](../code/observed_edges.py) builds call edges from the trace walk (D7) and Kafka edges from the topic name (D8), then lists golden edges not seen and observed edges not in the golden graph: the first entries for the reconciliation queue. Its self-test passes; it has not yet seen a real capture. Note that the demo's collector, as shipped, mounts the host's Docker socket and root filesystem; the add-on replaces both with empty placeholders and drops the two receivers that use them.
+[`code/observed_edges.py`](../code/observed_edges.py) builds call edges from the trace walk (D7) and Kafka edges from the topic name (D8), then lists golden edges not seen and observed edges not in the golden graph: the first entries for the reconciliation queue. It also scores database access down to columns and checks that every name in the capture resolves. [`code/run_checks.py`](../code/run_checks.py) evaluates the checks window by window and, at the first failure, narrows the change events through the graph. Note that the demo's collector, as shipped, mounts the host's Docker socket and root filesystem; the add-on replaces both with empty placeholders and drops the two receivers that use them.
 
-**Status: not yet run.** The images were pulled in the build session on 27 November 2026, and starting the containers was refused by that session's permission check. The runtime evidence (observed edges, Kafka consumer lag, Postgres row counts, the effect of each flag) is the first task once a person allows Docker in the factory's sandbox. Until then, the golden graph rests on code, configuration and the upstream test suite.
+**Status: ran on 27 November 2026,** from 14:06 to 14:39 UTC, with 23 containers, the load generator's HTTP users, and two flags flipped: `emitRawPii` for two minutes, then `paymentFailure` at 50% for five (incident I1). Results are in [doc 09](09-component-build-sheet.md#evidence-from-the-first-capture-run) and the evidence files in [`fixtures/otel-demo-3.1.0/capture-2026-11-27/`](../fixtures/otel-demo-3.1.0/capture-2026-11-27/). In short:
+
+- Every service and topic edge observed is golden.
+- All 13 upstream-asserted edges were seen.
+- Runtime confirms all 17 accounting columns the code says are written.
+- The flag-gated card and email edges appeared 13 seconds after the flip, masked as the collector config says.
+- Checkout errors caught I1 two minutes after the flip.
 
 ## The hops it does not cover
 

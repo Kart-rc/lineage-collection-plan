@@ -109,6 +109,18 @@
    }
   },
   {
+   "from": "svc://otel-demo/frontend",
+   "to": "svc://otel-demo/currency",
+   "type": "CALLS",
+   "upstream_asserted": false,
+   "evidence": {
+    "path": "src/frontend/pages/api/currency.ts",
+    "line": 14,
+    "text": "CurrencyGateway.getSupportedCurrencies()",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/frontend/pages/api/currency.ts#L14"
+   }
+  },
+  {
    "from": "svc://otel-demo/checkout",
    "to": "svc://otel-demo/cart",
    "type": "CALLS",
@@ -759,6 +771,358 @@
    }
   }
  ],
+ "gated_field_edges": [
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#email",
+   "to": "otel://otel-demo/checkout/span#user.email",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "masking": false,
+   "condition": "flag://otel-demo/emitRawPii == on",
+   "state_when_condition_false": "latent",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 315,
+    "text": "attribute.String(\"user.email\", req.GetEmail())",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L315"
+   }
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#credit_card.credit_card_number",
+   "to": "otel://otel-demo/checkout/span#demo.payment.card_number",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "masking": false,
+   "condition": "flag://otel-demo/emitRawPii == on",
+   "state_when_condition_false": "latent",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 316,
+    "text": "\"demo.payment.card_number\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L316"
+   }
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#credit_card.credit_card_cvv",
+   "to": "otel://otel-demo/checkout/span#demo.payment.card_cvv",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "masking": false,
+   "condition": "flag://otel-demo/emitRawPii == on",
+   "state_when_condition_false": "latent",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 317,
+    "text": "\"demo.payment.card_cvv\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L317"
+   }
+  },
+  {
+   "from": "api://otel-demo/payment/Charge/request#credit_card.credit_card_number",
+   "to": "otel://otel-demo/payment/span#demo.payment.card_number",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "masking": false,
+   "condition": "flag://otel-demo/emitRawPii == on",
+   "state_when_condition_false": "latent",
+   "evidence": {
+    "path": "src/payment/charge.js",
+    "line": 73,
+    "text": "'demo.payment.card_number': number",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/payment/charge.js#L73"
+   }
+  },
+  {
+   "from": "api://otel-demo/payment/Charge/request#credit_card.credit_card_cvv",
+   "to": "otel://otel-demo/payment/span#demo.payment.card_cvv",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "masking": false,
+   "condition": "flag://otel-demo/emitRawPii == on",
+   "state_when_condition_false": "latent",
+   "evidence": {
+    "path": "src/payment/charge.js",
+    "line": 74,
+    "text": "'demo.payment.card_cvv': cvv",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/payment/charge.js#L74"
+   }
+  },
+  {
+   "from": "otel://otel-demo/checkout/span#user.email",
+   "to": "otel://otel-demo/otel-collector/traces#user.hash",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "TRANSFORMATION",
+   "masking": true,
+   "condition": null,
+   "state_when_condition_false": "active",
+   "evidence": {
+    "path": "src/otel-collector/otelcol-config.yml",
+    "line": 223,
+    "text": "SHA256(attributes[\"user.email\"])",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/otel-collector/otelcol-config.yml#L223"
+   }
+  },
+  {
+   "from": "otel://otel-demo/checkout/span#demo.payment.card_number",
+   "to": "otel://otel-demo/otel-collector/traces#demo.payment.card_number",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "TRANSFORMATION",
+   "masking": true,
+   "condition": null,
+   "state_when_condition_false": "active",
+   "evidence": {
+    "path": "src/otel-collector/otelcol-config.yml",
+    "line": 226,
+    "text": "replace_pattern(attributes[\"demo.payment.card_number\"]",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/otel-collector/otelcol-config.yml#L226"
+   }
+  },
+  {
+   "from": "otel://otel-demo/payment/span#demo.payment.card_number",
+   "to": "otel://otel-demo/otel-collector/traces#demo.payment.card_number",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "TRANSFORMATION",
+   "masking": true,
+   "condition": null,
+   "state_when_condition_false": "active",
+   "evidence": {
+    "path": "src/otel-collector/otelcol-config.yml",
+    "line": 226,
+    "text": "replace_pattern(attributes[\"demo.payment.card_number\"]",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/otel-collector/otelcol-config.yml#L226"
+   }
+  }
+ ],
+ "flag_edges": [
+  {
+   "from": "flag://otel-demo/adFailure",
+   "to": "svc://otel-demo/ad",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/ad/src/main/java/oteldemo/AdService.java",
+    "line": 164,
+    "text": "\"adFailure\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/ad/src/main/java/oteldemo/AdService.java#L164"
+   }
+  },
+  {
+   "from": "flag://otel-demo/adManualGc",
+   "to": "svc://otel-demo/ad",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/ad/src/main/java/oteldemo/AdService.java",
+    "line": 165,
+    "text": "\"adManualGc\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/ad/src/main/java/oteldemo/AdService.java#L165"
+   }
+  },
+  {
+   "from": "flag://otel-demo/adHighCpu",
+   "to": "svc://otel-demo/ad",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/ad/src/main/java/oteldemo/AdService.java",
+    "line": 166,
+    "text": "\"adHighCpu\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/ad/src/main/java/oteldemo/AdService.java#L166"
+   }
+  },
+  {
+   "from": "flag://otel-demo/aiRunawayAgent",
+   "to": "svc://otel-demo/agent",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/agent/src/agents/agents.py",
+    "line": 87,
+    "text": "\"aiRunawayAgent\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/agent/src/agents/agents.py#L87"
+   }
+  },
+  {
+   "from": "flag://otel-demo/aiSlowResponse",
+   "to": "svc://otel-demo/agent",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/agent/src/agents/llm.py",
+    "line": 40,
+    "text": "\"aiSlowResponse\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/agent/src/agents/llm.py#L40"
+   }
+  },
+  {
+   "from": "flag://otel-demo/cartFailure",
+   "to": "svc://otel-demo/cart",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/cart/src/services/CartService.cs",
+    "line": 82,
+    "text": "\"cartFailure\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/cart/src/services/CartService.cs#L82"
+   }
+  },
+  {
+   "from": "flag://otel-demo/failedReadinessProbe",
+   "to": "svc://otel-demo/cart",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/cart/src/services/HealthCheckService.cs",
+    "line": 36,
+    "text": "\"failedReadinessProbe\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/cart/src/services/HealthCheckService.cs#L36"
+   }
+  },
+  {
+   "from": "flag://otel-demo/emitRawPii",
+   "to": "svc://otel-demo/checkout",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 313,
+    "text": "flags.EmitRawPii.Value",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L313"
+   }
+  },
+  {
+   "from": "flag://otel-demo/paymentUnreachable",
+   "to": "svc://otel-demo/checkout",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 575,
+    "text": "flags.PaymentUnreachable.Value",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L575"
+   }
+  },
+  {
+   "from": "flag://otel-demo/kafkaQueueProblems",
+   "to": "svc://otel-demo/checkout",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 716,
+    "text": "flags.KafkaQueueProblems.Value",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L716"
+   }
+  },
+  {
+   "from": "flag://otel-demo/emailMemoryLeak",
+   "to": "svc://otel-demo/email",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/email/email_server.rb",
+    "line": 67,
+    "text": "\"emailMemoryLeak\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/email/email_server.rb#L67"
+   }
+  },
+  {
+   "from": "flag://otel-demo/kafkaQueueProblems",
+   "to": "svc://otel-demo/fraud-detection",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/fraud-detection/src/main/kotlin/frauddetection/main.kt",
+    "line": 66,
+    "text": "getFeatureFlagValue(\"kafkaQueueProblems\")",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/fraud-detection/src/main/kotlin/frauddetection/main.kt#L66"
+   }
+  },
+  {
+   "from": "flag://otel-demo/imageSlowLoad",
+   "to": "svc://otel-demo/frontend",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/frontend/components/ProductCard/ProductCard.tsx",
+    "line": 32,
+    "text": "useNumberFlagValue('imageSlowLoad', 0)",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/frontend/components/ProductCard/ProductCard.tsx#L32"
+   }
+  },
+  {
+   "from": "flag://otel-demo/loadGeneratorFloodHomepage",
+   "to": "svc://otel-demo/load-generator",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/load-generator/locustfile.py",
+    "line": 226,
+    "text": "\"loadGeneratorFloodHomepage\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/load-generator/locustfile.py#L226"
+   }
+  },
+  {
+   "from": "flag://otel-demo/paymentFailure",
+   "to": "svc://otel-demo/payment",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/payment/charge.js",
+    "line": 40,
+    "text": "\"paymentFailure\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/payment/charge.js#L40"
+   }
+  },
+  {
+   "from": "flag://otel-demo/emitRawPii",
+   "to": "svc://otel-demo/payment",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/payment/charge.js",
+    "line": 41,
+    "text": "\"emitRawPii\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/payment/charge.js#L41"
+   }
+  },
+  {
+   "from": "flag://otel-demo/productCatalogFailure",
+   "to": "svc://otel-demo/product-catalog",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/product-catalog/main.go",
+    "line": 443,
+    "text": "flags.ProductCatalogFailure.Value",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/product-catalog/main.go#L443"
+   }
+  },
+  {
+   "from": "flag://otel-demo/productCatalogLockContention",
+   "to": "svc://otel-demo/product-catalog",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/product-catalog/main.go",
+    "line": 456,
+    "text": "flags.ProductCatalogLockContention.Value",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/product-catalog/main.go#L456"
+   }
+  },
+  {
+   "from": "flag://otel-demo/recommendationCacheFailure",
+   "to": "svc://otel-demo/recommendation",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/recommendation/recommendation_server.py",
+    "line": 78,
+    "text": "\"recommendationCacheFailure\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/recommendation/recommendation_server.py#L78"
+   }
+  },
+  {
+   "from": "flag://otel-demo/intlShippingSlowdown",
+   "to": "svc://otel-demo/shipping",
+   "type": "CONFIGURES",
+   "evidence": {
+    "path": "src/shipping/src/shipping_service.rs",
+    "line": 67,
+    "text": "\"intlShippingSlowdown\"",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/shipping/src/shipping_service.rs#L67"
+   }
+  }
+ ],
  "must_not_flow": [
   {
    "from": "api://otel-demo/checkout/PlaceOrder/request#credit_card.*",
@@ -774,6 +1138,16 @@
    "from": "api://otel-demo/checkout/PlaceOrder/request#email",
    "to": "kafka://otel-demo/orders",
    "why": "The customer email is sent to the email service, not published"
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#credit_card.credit_card_cvv",
+   "to": "otel://otel-demo/otel-collector/traces",
+   "why": "The collector deletes the CVV (otelcol-config.yml:222); it never leaves the collector"
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#email",
+   "to": "otel://otel-demo/otel-collector/traces#user.email",
+   "why": "The collector deletes user.email (otelcol-config.yml:224); only its SHA-256 hash leaves"
   }
  ],
  "generated_without_source": [

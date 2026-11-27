@@ -95,6 +95,24 @@
     "svc://otel-demo/recommendation -> svc://otel-demo/product-catalog"
    ],
    "readers_at_3_1_0": []
+  },
+  {
+   "id": "C7",
+   "commit": "484dfd6",
+   "date": "2026-09-16",
+   "title": "feat: add PII emission flag and layered redaction (#3869)",
+   "trigger": "flag emitRawPii switched from off to on in the twin; no code changes",
+   "change": "checkout and payment copy card number, CVV and email into span attributes; the collector hashes the email, keeps the last four card digits and deletes the CVV",
+   "class": "RUNTIME LINEAGE CHANGE (no commit)",
+   "why": "lineage changes on a flag change event alone; five latent edges must turn active, the collector's three masking edges start carrying data, and the two must-not-flow rules on the collector output must still hold",
+   "elements": [
+    "flag://otel-demo/emitRawPii",
+    "otel://otel-demo/checkout/span#demo.payment.card_number",
+    "otel://otel-demo/otel-collector/traces#user.hash"
+   ],
+   "readers_at_3_1_0": [
+    "otel-collector"
+   ]
   }
  ]
 }

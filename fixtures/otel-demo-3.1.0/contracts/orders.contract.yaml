@@ -1,0 +1,73 @@
+# ODCS-style data contract for the orders topic of the reference slice.
+# Schema derived from pb/demo.proto (message OrderResult, package oteldemo) at demo release 3.1.0.
+# Consumers are generated from the golden graph, not typed by hand.
+# Enforced by the contract gate (WP-34) in CI, and checked at runtime by the check runner (WP-39).
+
+kind: DataContract
+apiVersion: v3.0.2
+id: otel-demo.orders
+name: orders
+version: 1.0.0
+status: active
+owner: team-payments
+tier: 1
+server: {type: kafka, host: kafka:9092, topic: orders, format: protobuf, messageType: oteldemo.OrderResult}
+source: https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/pb/demo.proto#L208-L214
+
+schema:
+  - name: OrderResult
+    logicalType: object
+    properties:
+      - {name: order_id,             field: 1, logicalType: string, required: true, unique: true}
+      - {name: shipping_tracking_id, field: 2, logicalType: string, required: true}
+      - name: shipping_cost
+        field: 3
+        logicalType: object
+        properties:
+          - {name: currency_code, field: 1, logicalType: string,  required: true}
+          - {name: units,         field: 2, logicalType: integer, physicalType: int64}
+          - {name: nanos,         field: 3, logicalType: integer, physicalType: int32}
+      - name: shipping_address
+        field: 4
+        logicalType: object
+        classification: personal
+        properties:
+          - {name: street_address, field: 1, logicalType: string}
+          - {name: city,           field: 2, logicalType: string}
+          - {name: state,          field: 3, logicalType: string}
+          - {name: country,        field: 4, logicalType: string}
+          - {name: zip_code,       field: 5, logicalType: string, note: "int32 until commit 133d089 (2022-11-21); change C1"}
+      - name: items
+        field: 5
+        logicalType: array
+        items:
+          logicalType: object
+          properties:
+            - name: item
+              field: 1
+              properties:
+                - {name: product_id, field: 1, logicalType: string,  required: true}
+                - {name: quantity,   field: 2, logicalType: integer, physicalType: int32}
+            - name: cost
+              field: 2
+              properties:
+                - {name: currency_code, field: 1, logicalType: string, required: true}
+                - {name: units,         field: 2, logicalType: integer, physicalType: int64}
+                - {name: nanos,         field: 3, logicalType: integer, physicalType: int32}
+
+# Fields that must never appear on this topic (must-not-flow in the golden graph).
+forbidden:
+  - {pattern: "credit_card.*", why: "Card data stays between checkout and payment"}
+  - {pattern: "email",         why: "The customer email goes to the email service only"}
+
+# Breaking-change policy for the gate: removing, renaming or retyping a field, or changing a field number.
+compatibility: {mode: BACKWARD_TRANSITIVE, fieldNumbersAreContract: true}
+
+quality:
+  - {rule: rowRate,    description: "Messages per minute stay within 50% of the trailing 10-minute average", check: orders-rate}
+  - {rule: notNull,    column: order_id}
+  - {rule: validRange, column: "items[].cost.nanos", min: 0, max: 999999999}
+
+consumers:   # generated from fixtures/otel-demo-3.1.0/golden-graph.json
+  - {service: accounting,      group: accounting,      reads: [order_id, shipping_tracking_id, shipping_cost.*, shipping_address.*, "items[].*"]}
+  - {service: fraud-detection, group: fraud-detection, reads: [order_id]}

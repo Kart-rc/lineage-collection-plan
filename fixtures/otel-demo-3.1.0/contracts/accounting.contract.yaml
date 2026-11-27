@@ -1,0 +1,50 @@
+# ODCS-style data contract for the accounting tables of the reference slice.
+# Schema copied from src/postgresql/init.sql at demo release 3.1.0; writer is src/accounting/Consumer.cs.
+
+kind: DataContract
+apiVersion: v3.0.2
+id: otel-demo.accounting
+name: accounting
+version: 1.0.0
+status: active
+owner: team-finance-data
+tier: 3
+server: {type: postgres, host: astronomy-db, database: astronomy_db, schema: accounting}
+source: https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/postgresql/init.sql#L28-L55
+
+schema:
+  - name: order
+    physicalName: accounting."order"
+    properties:
+      - {name: order_id, physicalType: TEXT, primaryKey: true}
+  - name: shipping
+    physicalName: accounting.shipping
+    properties:
+      - {name: shipping_tracking_id,        physicalType: TEXT,   primaryKey: true}
+      - {name: shipping_cost_currency_code, physicalType: TEXT,   required: true}
+      - {name: shipping_cost_units,         physicalType: BIGINT, required: true}
+      - {name: shipping_cost_nanos,         physicalType: INT,    required: true}
+      - {name: street_address,              physicalType: TEXT,   classification: personal}
+      - {name: city,                        physicalType: TEXT,   classification: personal}
+      - {name: state,                       physicalType: TEXT}
+      - {name: country,                     physicalType: TEXT}
+      - {name: zip_code,                    physicalType: TEXT,   classification: personal}
+      - {name: order_id,                    physicalType: TEXT,   required: true, references: accounting."order".order_id}
+  - name: orderitem
+    physicalName: accounting.orderitem
+    properties:
+      - {name: item_cost_currency_code, physicalType: TEXT,   required: true}
+      - {name: item_cost_units,         physicalType: BIGINT, required: true}
+      - {name: item_cost_nanos,         physicalType: INT,    required: true}
+      - {name: product_id,              physicalType: TEXT,   required: true, primaryKey: true}
+      - {name: quantity,                physicalType: INT,    required: true}
+      - {name: order_id,                physicalType: TEXT,   required: true, primaryKey: true, references: accounting."order".order_id}
+
+forbidden:
+  - {pattern: "credit_card*", why: "Card data never reaches accounting"}
+
+quality:
+  - {rule: rowRate, table: accounting."order", description: "New orders per minute stay within 50% of the trailing 10-minute average", check: accounting-order-rate}
+  - {rule: referentialIntegrity, table: accounting.orderitem, column: order_id}
+
+consumers: []   # nothing downstream in the demo; the dbt model of decision D2 becomes the first
