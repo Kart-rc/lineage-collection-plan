@@ -1,0 +1,35 @@
+{
+ "schemaVersion": "2",
+ "eventType": "EVIDENCE",
+ "eventTime": "2026-11-27T12:00:00Z",
+ "producer": "lineage-examples/ci_static@0.1.0",
+ "edge": {
+  "type": "DERIVES",
+  "from": {
+   "namespace": "api://otel-demo",
+   "name": "checkout/PlaceOrder/request"
+  },
+  "to": {
+   "namespace": "kafka://otel-demo",
+   "name": "orders"
+  }
+ },
+ "evidence": {
+  "source": "ci_static",
+  "weight": 0.6,
+  "runtime": false,
+  "observedAt": "2026-11-27T12:00:00Z",
+  "rawRef": "archive://ci_static/dt=2026-11-27/9296858b76e7",
+  "replaces": "unit",
+  "location": {
+   "path": "src/checkout/main.go",
+   "line": 387,
+   "text": "ShippingAddress:    req.Address"
+  }
+ },
+ "unit": {
+  "urn": "unit://git/opentelemetry-demo/src/checkout/main.go",
+  "contentHash": "sha256:8de0081dc68c6940564f1dd1ae76267a66416b0bc5b2f289bb46f4c2fb625cf5",
+  "commit": "dedc017"
+ }
+}

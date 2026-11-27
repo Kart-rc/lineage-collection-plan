@@ -1,0 +1,227 @@
+openapi: 3.1.0
+info:
+  title: Lineage query API
+  version: 0.1.0-draft
+  description: |
+    The four queries the PR bot, the RCA service, the UI and coding agents use (doc 06, Interfaces).
+    Every query takes as_of and min_confidence. Requirements: IA-4, IA-9, IN-5, IN-6, IN-7, IR-2, IR-4, XC-2, XC-5.
+    The agent tool server (WP-51) exposes the same four operations as tools.
+servers:
+  - url: https://lineage.internal/api/v1
+security:
+  - sso: []
+components:
+  securitySchemes:
+    sso:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    AsOf:
+      name: as_of
+      in: query
+      description: Valid time to read the graph at. Defaults to now (IN-5).
+      schema: {type: string, format: date-time}
+    RecordedAsOf:
+      name: recorded_as_of
+      in: query
+      description: Transaction time; the graph as it was recorded then (IN-5).
+      schema: {type: string, format: date-time}
+    MinConfidence:
+      name: min_confidence
+      in: query
+      schema: {type: number, minimum: 0, maximum: 1, default: 0.6}
+    Urn:
+      name: urn
+      in: query
+      required: true
+      description: A node or element URN, e.g. postgres://astronomy-db/astronomy_db.accounting.shipping#zip_code
+      schema: {type: string, pattern: '^[a-z][a-z0-9+.-]*://\S+$'}
+  schemas:
+    Ref:
+      type: object
+      required: [urn]
+      properties:
+        urn: {type: string}
+        owner: {type: string}
+        tier: {type: integer, minimum: 1, maximum: 3}
+        personal: {type: boolean, description: 'Tagged as personal data; values for these are shown only to allowed roles (XC-5)'}
+    EdgeSummary:
+      type: object
+      required: [from, to, type, state, confidence]
+      properties:
+        from: {type: string}
+        to: {type: string}
+        type: {type: string}
+        class: {type: string, enum: [DIRECT, INDIRECT]}
+        subtype: {type: string}
+        state: {type: string, enum: [candidate, probable, confirmed, verified, dormant, retired, disputed]}
+        confidence: {type: number}
+        condition: {type: [string, "null"]}
+        conditionState: {type: [string, "null"], enum: [active, latent, null]}
+        gap: {type: boolean, description: 'True when the hop is opaque and field-level lineage is unknown'}
+    ElementChange:
+      type: object
+      required: [element, kind, class]
+      properties:
+        element: {type: string}
+        kind: {type: string, enum: [added, removed, renamed, retyped, nullability_changed, logic_changed, row_set_changed]}
+        from: {type: [string, "null"], description: 'Old name or type'}
+        to: {type: [string, "null"]}
+        class: {type: string, enum: [breaking, potentially_breaking, non_breaking, unknown]}
+    Downstream:
+      type: object
+      required: [hop, target, via]
+      properties:
+        hop: {type: integer, minimum: 1}
+        target: {$ref: '#/components/schemas/Ref'}
+        via: {$ref: '#/components/schemas/EdgeSummary'}
+        impact: {type: string, enum: [value, row_set], description: 'Direct dependencies carry value impact; indirect ones carry row-set impact, reported separately (IA-4)'}
+    ImpactReport:
+      type: object
+      required: [as_of, changes, downstream, gate]
+      properties:
+        as_of: {type: string, format: date-time}
+        overlay: {type: [object, "null"], properties: {repository: {type: string}, pr: {type: integer}}}
+        changes: {type: array, items: {$ref: '#/components/schemas/ElementChange'}}
+        downstream: {type: array, items: {$ref: '#/components/schemas/Downstream'}}
+        gate:
+          type: object
+          required: [mode, result]
+          properties:
+            mode: {type: string, enum: [observe, warn, block]}
+            result: {type: string, enum: [pass, warn, fail, unavailable]}
+            reasons: {type: array, items: {type: string}}
+    Candidate:
+      type: object
+      required: [rank, change, score, terms, path]
+      properties:
+        rank: {type: integer, minimum: 1}
+        change: {type: object, description: 'A CHANGE_EVENT from the envelope schema'}
+        score: {type: number}
+        terms: {type: object, additionalProperties: {type: number}, description: 'Every term of the score, so the ranking is explainable (IR-4)'}
+        path: {type: array, items: {$ref: '#/components/schemas/EdgeSummary'}}
+        gaps: {type: array, items: {type: string}}
+    UpstreamResult:
+      type: object
+      required: [start, window, first_failing, path, candidates]
+      properties:
+        start: {type: string}
+        window: {type: object, properties: {from: {type: string, format: date-time}, to: {type: string, format: date-time}}}
+        first_failing: {type: [string, "null"], description: 'The furthest upstream element with a failing check whose own inputs pass (IR-3)'}
+        path: {type: array, items: {$ref: '#/components/schemas/EdgeSummary'}}
+        candidates: {type: array, items: {$ref: '#/components/schemas/Candidate'}}
+        blast_radius:
+          type: object
+          properties:
+            affected: {type: array, items: {$ref: '#/components/schemas/Ref'}}
+            not_yet_affected: {type: array, items: {$ref: '#/components/schemas/Ref'}}
+    Diff:
+      type: object
+      required: [from, to, added, removed, changed]
+      properties:
+        from: {type: string}
+        to: {type: string}
+        added: {type: array, items: {$ref: '#/components/schemas/EdgeSummary'}}
+        removed: {type: array, items: {$ref: '#/components/schemas/EdgeSummary'}}
+        changed:
+          type: array
+          items:
+            type: object
+            required: [before, after, causes]
+            properties:
+              before: {$ref: '#/components/schemas/EdgeSummary'}
+              after: {$ref: '#/components/schemas/EdgeSummary'}
+              causes: {type: array, items: {type: string}}
+    Explanation:
+      type: object
+      required: [edge, versions, evidence]
+      properties:
+        edge: {$ref: '#/components/schemas/EdgeSummary'}
+        versions:
+          type: array
+          items:
+            type: object
+            properties:
+              validFrom: {type: string, format: date-time}
+              validTo: {type: [string, "null"], format: date-time}
+              recordedAt: {type: string, format: date-time}
+              state: {type: string}
+        evidence:
+          type: array
+          items:
+            type: object
+            required: [source, weight, observedAt, rawRef, producer]
+            properties:
+              source: {type: string}
+              weight: {type: number}
+              observedAt: {type: string, format: date-time}
+              rawRef: {type: string, description: 'Every edge traces to its raw input (XC-2)'}
+              producer: {type: string}
+              location: {type: object, properties: {path: {type: string}, line: {type: integer}, text: {type: string}}}
+    Problem:
+      type: object
+      required: [title, detail]
+      properties:
+        title: {type: string}
+        detail: {type: string}
+  responses:
+    BadRequest:
+      description: The query cannot be answered as asked; detail says which parameter to fix
+      content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}
+    Unavailable:
+      description: The platform is unavailable. Callers in CI must fail open (IA-6)
+      content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}
+paths:
+  /impact:
+    get:
+      operationId: impact
+      summary: What a change to an element or asset affects downstream (IA-4, IA-9)
+      parameters:
+        - $ref: '#/components/parameters/Urn'
+        - $ref: '#/components/parameters/AsOf'
+        - $ref: '#/components/parameters/MinConfidence'
+        - {name: repository, in: query, schema: {type: string}, description: 'With pr, read the PR overlay instead of production (IN-7)'}
+        - {name: pr, in: query, schema: {type: integer, minimum: 1}}
+        - {name: change, in: query, schema: {type: string, enum: [removed, renamed, retyped, nullability_changed, logic_changed]}, description: 'Ask before a PR exists what this change would break'}
+        - {name: max_hops, in: query, schema: {type: integer, minimum: 1, maximum: 20, default: 10}}
+      responses:
+        '200': {description: 'Impact report', content: {application/json: {schema: {$ref: '#/components/schemas/ImpactReport'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /upstream:
+    get:
+      operationId: upstream
+      summary: Walk upstream from a failing node over an incident window, with ranked change events (IR-2, IR-3, IR-4, IR-6)
+      parameters:
+        - $ref: '#/components/parameters/Urn'
+        - {name: window_from, in: query, required: true, schema: {type: string, format: date-time}, description: 'Time of the last passing check'}
+        - {name: window_to, in: query, required: true, schema: {type: string, format: date-time}, description: 'Time of the failure. Every edge valid at any time in the window is walked, including edges that closed in it'}
+        - $ref: '#/components/parameters/RecordedAsOf'
+        - $ref: '#/components/parameters/MinConfidence'
+      responses:
+        '200': {description: 'Upstream path and ranked causes', content: {application/json: {schema: {$ref: '#/components/schemas/UpstreamResult'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /diff:
+    get:
+      operationId: diff
+      summary: Lineage diff between two valid times or two commits (IN-6)
+      parameters:
+        - {name: from, in: query, required: true, schema: {type: string}, description: 'An RFC 3339 time or a commit SHA'}
+        - {name: to, in: query, required: true, schema: {type: string}}
+        - {name: scope, in: query, schema: {type: string}, description: 'Optional URN prefix to limit the diff'}
+        - $ref: '#/components/parameters/MinConfidence'
+      responses:
+        '200': {description: 'Edges added, removed and changed, with causes', content: {application/json: {schema: {$ref: '#/components/schemas/Diff'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /explain:
+    get:
+      operationId: explain
+      summary: Every version of one edge and the evidence behind it (XC-2)
+      parameters:
+        - {name: edge, in: query, required: true, schema: {type: string, pattern: '^\S+ \| [A-Z_]+ \| \S+$'}, description: 'Edge key: <from URN> | <type> | <to URN>'}
+        - $ref: '#/components/parameters/AsOf'
+      responses:
+        '200': {description: 'Versions and evidence', content: {application/json: {schema: {$ref: '#/components/schemas/Explanation'}}}}
+        '404': {description: 'No such edge', content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}

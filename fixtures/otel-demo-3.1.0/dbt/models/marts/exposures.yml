@@ -1,0 +1,8 @@
+version: 2
+exposures:
+  - name: finance_orders_dashboard
+    type: dashboard
+    owner: {name: team-finance-data}
+    description: The downstream reader for impact walks and the blast radius. Refreshed daily at 18:00 UTC.
+    depends_on: [ref('fct_order_value')]
+    meta: {urn: "bi://finance/finance_orders_dashboard", tier: 2, refresh: "0 18 * * *"}

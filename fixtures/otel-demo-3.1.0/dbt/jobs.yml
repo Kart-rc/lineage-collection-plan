@@ -1,0 +1,16 @@
+# The scheduled job that runs the thin dbt model in the twin. IR-6 uses its runs to split the blast radius;
+# IR-8 uses its circuit breaker opt-in.
+jobs:
+  - id: orders_mart
+    command: dbt build --select staging marts
+    schedule: "*/15 * * * *"                 # every 15 minutes
+    owner: team-finance-data
+    circuit_breaker:
+      opt_in: true                           # IR-8: pause when an upstream tier 1 element is failing
+      watch: [kafka://otel-demo/orders, postgres://astronomy-db/astronomy_db.accounting.orderitem]
+      resume: person                         # only on a person's instruction
+  - id: finance_dashboard_refresh
+    command: refresh bi://finance/finance_orders_dashboard
+    schedule: "0 18 * * *"
+    owner: team-finance-data
+    circuit_breaker: {opt_in: false}

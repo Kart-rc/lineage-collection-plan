@@ -200,6 +200,47 @@ CHANGES = [
      "elements": [FLAG("emitRawPii"), f"{OTEL_SPAN('checkout')}#demo.payment.card_number", f"{OTEL_OUT}#user.hash"], "readers_at_3_1_0": ["otel-collector"]},
 ]
 
+# Authored visible changes (not from git history), applied to 3.1.0 plus the thin dbt model. The four named in D15 are
+# public, so they are visible cases; the holdout corpus must be different changes, written outside this repository.
+STG = lambda m: f"postgres://astronomy-db/astronomy_db.analytics_staging.{m}"
+MART = "postgres://astronomy-db/astronomy_db.analytics_marts.fct_order_value"
+CHANGES += [
+    {"id": "C8", "commit": None, "authored": True, "base": "3.1.0 + dbt model", "title": "Reformat fct_order_value.sql",
+     "change": "whitespace, keyword case and CTE alias names change; the logic does not",
+     "class": "NON-BREAKING", "why": "normalized expressions are unchanged, so element edges and expression hashes must be identical",
+     "elements": [MART], "expected_readers": [], "expected_gate": "pass"},
+    {"id": "C9", "commit": None, "authored": True, "base": "3.1.0", "title": "Change the email service's confirmation template",
+     "change": "src/email (Ruby) changes how the confirmation is built; no rule set reads Ruby in wave 2",
+     "class": "UNKNOWN (treated as potentially breaking)", "why": "a change in a unit the platform cannot parse is reported as unknown, never as safe",
+     "elements": [SVC("email")], "expected_readers": [], "expected_gate": "warn"},
+    {"id": "C10", "commit": None, "authored": True, "base": "3.1.0 + dbt model", "title": "Rename OrderResult.shipping_tracking_id to tracking_id (D15)",
+     "change": "field 2 of OrderResult renamed in pb/demo.proto; only checkout is updated in the same change",
+     "class": "BREAKING for readers by name", "why": "the field number is unchanged, so bytes still parse, but accounting reads the field by its generated name (Consumer.cs:118) and no longer compiles",
+     "elements": [f"{ORDER}#shipping_tracking_id"],
+     "expected_readers": [SVC("accounting"), PG("accounting.shipping") + "#shipping_tracking_id", STG("stg_shipping") + "#shipping_tracking_id"], "expected_gate": "block"},
+    {"id": "C11", "commit": None, "authored": True, "base": "3.1.0 + dbt model", "title": "Retype CartItem.quantity from int32 to int64 (D15)",
+     "change": "quantity retyped in pb/demo.proto",
+     "class": "BREAKING", "why": "int32 and int64 differ on the wire for negative values and in generated code; every reader of quantity must regenerate",
+     "elements": [f"{ORDER}#items[].item.quantity"],
+     "expected_readers": [SVC("accounting"), PG("accounting.orderitem") + "#quantity", STG("stg_order_items") + "#quantity", STG("stg_order_items") + "#line_total",
+                          MART + "#item_count", MART + "#items_value", MART + "#order_value", "bi://finance/finance_orders_dashboard"], "expected_gate": "block"},
+    {"id": "C12", "commit": None, "authored": True, "base": "3.1.0 + dbt model", "title": "Remove column state from accounting.shipping (D15)",
+     "change": "Consumer.cs stops writing state; the column is dropped",
+     "class": "BREAKING for stg_shipping only", "why": "stg_shipping selects *, so its output loses state; nothing reads stg_shipping#state downstream",
+     "elements": [PG("accounting.shipping") + "#state"], "expected_readers": [STG("stg_shipping") + "#state"], "expected_gate": "warn"},
+    {"id": "C13", "commit": None, "authored": True, "base": "3.1.0", "title": "Add OrderResult.promo_code as field 6 (D15)",
+     "change": "a new optional field with a new number",
+     "class": "NON-BREAKING", "why": "a new field number is backward compatible; no reader breaks and the gate must pass",
+     "elements": [f"{ORDER}#promo_code"], "expected_readers": [], "expected_gate": "pass"},
+]
+# Expected readers and gate results for the history changes, for the impact replay (IA-4, IA-5, IA-8)
+for c in CHANGES:
+    c.setdefault("expected_readers", {
+        "C1": [PG("accounting.shipping") + "#zip_code", SVC("shipping"), SVC("frontend"), SVC("load-generator")],
+        "C4": [SVC("accounting")]}.get(c["id"], []))
+    c.setdefault("expected_gate", {"C1": "block", "C2": "warn", "C3": "pass", "C4": "warn", "C5": "pass", "C6": "pass", "C7": "pass"}.get(c["id"], "pass"))
+
+
 # ---------------------------------------------------------------- real failure scenarios, from the demo's feature flags (3.1.0)
 INCIDENTS = [
     {"id": "I1", "flag": "paymentFailure", "variant": "50%", "injected_at": SVC("payment"),

@@ -4,11 +4,11 @@ Nov 26, 2026 · @kart
 
 ## Spec on a page
 
-Extend the owned lineage core to element level, end to end, on the card-authorization slice, and build it with an AI factory. People write the specification, the golden graph and the scenarios. Agents write and check the code. People approve at four named gates.
+Extend the owned lineage core to element level, end to end, on the reference slice, and build it with an AI factory. The reference slice is the OpenTelemetry Demo's order flow at release 3.1.0 ([doc 07](07-reference-slice-otel-demo.md)), with a thin dbt model over its accounting tables, joined later by a stream, feature and model complement (decisions D1 and D2). The card-authorization slice in the plan stays as the explanation. People write the specification, the golden graph and the scenarios. Agents write and check the code. People approve at four named gates.
 
-"Element" means a field, column or attribute: a payload field in a service, a field in a Kafka topic, a column in a table, a feature, a model input. The target is one unbroken element path from `payments-svc` to `fraud-svc`, kept current as code and schemas change, and used in the pull request and in the incident.
+"Element" means a field, column or attribute: a payload field in a service, a field in a Kafka topic, a column in a table, a feature, a model input. The target is one unbroken element path from the checkout request in `frontend` through `checkout`, the `orders` topic and `accounting` to the finance mart and its dashboard, kept current as code and schemas change, and used in the pull request and in the incident.
 
-**Why build at all.** The [vendor assessment](05-vendor-assessment-element-level-lineage.md) found no product that delivers element lineage across all eight hops of the slice. Products are strong where SQL runs: scanner suites on stored procedures and legacy ETL, query-log tools and platform catalogs on cloud warehouses, and CI tools inside a dbt or SQLMesh project. None documents field-level lineage for the service, Kafka, Flink or feature-store hops. No cloud catalog accepts lineage from code that has not yet run. Pull-request impact exists only inside SQL projects. So ADR-002 stands: own the thin core, adopt the extractors and collectors the market already does well, and build the hops nobody covers.
+**Why build at all.** The [vendor assessment](05-vendor-assessment-element-level-lineage.md) found no product that delivers element lineage across every hop of a slice like this one. Products are strong where SQL runs: scanner suites on stored procedures and legacy ETL, query-log tools and platform catalogs on cloud warehouses, and CI tools inside a dbt or SQLMesh project. None documents field-level lineage for the service, Kafka, Flink or feature-store hops. No cloud catalog accepts lineage from code that has not yet run. Pull-request impact exists only inside SQL projects. So ADR-002 stands: own the thin core, adopt the extractors and collectors the market already does well, and build the hops nobody covers.
 
 **Four objectives, four capabilities**
 
@@ -69,7 +69,7 @@ Two stocks decide whether the flows are healthy. The evidence lake must only gro
 
 | Decision | Cost of acting | Cost of not acting |
 | --- | --- | --- |
-| Take lineage to element level | An extractor per technology with a long tail of constructs; a golden graph of about 40 field edges that owners must keep current; more nodes and edges to store | Impact stops at "this table is affected", so every report still needs a person to read SQL; a field rename such as PR #482 passes the registry check and breaks seven assets unseen |
+| Take lineage to element level | An extractor per technology with a long tail of constructs; a golden graph of about 40 field edges that owners must keep current; more nodes and edges to store | Impact stops at "this table is affected", so every report still needs a person to read SQL; a field rename such as change C10 passes the registry check and breaks three readers unseen |
 | Keep it incremental, not rescanned | A change detector per signal, unit hashing, bitemporal writes | The graph is a snapshot that is wrong between scans; RCA reads today's graph for last night's incident |
 | Build with a factory | About three weeks of oracle, twin and harness before feature code; token spend; a new operating discipline; the risk that agents satisfy tests without satisfying intent | Extractor breadth arrives serially at the speed of six engineers; each new technology or slice needs more of them; the oracle is still needed for Phase 0 but is used only as a report |
 | Keep people at the gates | Gate latency; approver time | In a card-payments estate, unreviewed changes to gate policy, IAM or the scorer are an audit finding and a real risk |
@@ -154,7 +154,7 @@ The full assessment, with sources and evidence grades, is in [doc 05](05-vendor-
 | Pull-request impact inside the dbt project | Adopt the open change classification from Recce or SQLMesh | It is documented, open and able to block. Build only the check that crosses hops |
 | Anomaly and DQ detection | Keep or buy an observability product | Detection is a commodity; its findings arrive as results on elements |
 | Legacy ETL and stored procedures, if the wider estate has them | Buy a scanner suite and treat it as a collector | Thousands of constructs already handled; not worth rebuilding |
-| Service code to topic fields | Build with code rules, and trial one code-based vendor on `payments-svc` | No open tool emits lineage from code analysis. Two vendors cover this hop. Foundational documents field-level lineage through Kafka from producer and consumer code and does not say where code is processed. Gable runs in your own CI and sends code-level metadata to its platform. Either way, security decides what may leave the environment before any trial |
+| Service code to topic fields | Build with code rules, and trial one code-based vendor on the demo's `checkout` service (D17) | No open tool emits lineage from code analysis. Two vendors cover this hop. Foundational documents field-level lineage through Kafka from producer and consumer code and does not say where code is processed. Gable runs in your own CI and sends code-level metadata to its platform. Either way, security decides what may leave the environment before any trial |
 | Flink field mapping | Build on the Flink planner in CI | Nothing in the market provides it |
 | Feature and model hops | Build small extractors over the feature repository and registry | Platform ML lineage is artifact-level and separate from the catalog |
 | Identity, evidence merge, history, diff, cross-system PR impact, RCA ranking | Build: the thin core | This is where no product fits, and it is what ADR-002 chose to own |
@@ -177,7 +177,7 @@ The full assessment, with sources and evidence grades, is in [doc 05](05-vendor-
 
 **In scope**
 
-- Element-level edges for every hop of the slice, from `payments-svc` to `fraud-svc`, including the BI dashboard.
+- Element-level edges for every hop of the reference slice listed under "Baseline: one extractor per hop", including the dashboard exposure of the dbt model.
 - The four capabilities in the table above, on the plan's architecture.
 - The factory: spec pack, oracle, twin, harness, stations, gates and metrics.
 
@@ -198,7 +198,7 @@ The full assessment, with sources and evidence grades, is in [doc 05](05-vendor-
 | Extraction unit | The smallest thing an extractor can re-read alone: a dbt model, one SQL statement, a schema subject version, a feature view, a producer mapping in a service |
 | Opaque unit | A unit whose element mapping cannot be resolved: dynamic SQL, an untyped UDF, reflection |
 | Oracle | The golden graph, the scenario corpus and the harness that scores against them |
-| Twin | A local copy of the slice's systems, seeded with toy repos and schemas, where agents build and test |
+| Twin | The reference system itself, the demo running under Docker with the capture add-on, plus a separate lineage platform beside it, where agents build and test (D13, D23) |
 | Work package | One unit of factory work with its own requirements, interfaces, scenarios and oracle |
 
 ## Requirements
@@ -211,10 +211,10 @@ Requirements use EARS phrasing so that agents and the harness can read them the 
 | --- | --- | --- |
 | BL-1 | The system shall represent every field of every tier 1 asset in the slice as a node with the URN `<dataset URN>#<field path>`, using a dotted path for nested fields and `[]` for array items. | URN property tests; golden graph node check |
 | BL-2 | When an extractor reads an extraction unit, it shall emit one evidence record per element mapping, carrying the dependency class and subtype, a hash of the normalized expression, and the extractor name and version. | Envelope schema validation; fixture tests per extractor |
-| BL-3 | The system shall provide an extractor for each hop of the slice as listed under "Baseline: one extractor per hop". | Golden graph recall per hop |
+| BL-3 | The system shall provide an extractor for each hop of the slice as listed under "Baseline: one extractor per hop". | Golden graph recall per hop, on the hops of the reference slice listed in doc 06 (Baseline: one extractor per hop) |
 | BL-4 | If an extractor cannot resolve an element mapping, then it shall emit a dataset-level edge marked opaque with a reason code, and shall not drop the unit. | Opaque fixtures; gap count on the coverage report |
-| BL-5 | The system shall store an indirect dependency once, from the source element to the target dataset, and shall not fan it out to every target column. | Graph size check on the join-heavy fixture |
-| BL-6 | The baseline shall reach field-edge precision of at least 90% and recall of at least 90% against the golden graph once runtime evidence is on. | `lineage-eval score` on the slice |
+| BL-5 | The system shall store an indirect dependency once, from the source element to the target dataset, and shall not fan it out to every target column. | Graph size check on the join-heavy fixture: fct_order_value in the thin dbt model (fixtures/otel-demo-3.1.0/dbt) |
+| BL-6 | The baseline shall reach field-edge precision of at least 90% and recall of at least 90% against the golden graph once runtime evidence is on. | `lineage-eval score` on the reference slice: golden-graph.json plus the dbt golden edges |
 | BL-7 | When the graph is rebuilt from the evidence lake, the system shall produce the same graph hash as the live graph at the same as-of time. | Replay determinism test |
 
 ### O2. Incremental lineage
@@ -223,10 +223,10 @@ Requirements use EARS phrasing so that agents and the harness can read them the 
 | --- | --- | --- |
 | IN-1 | When a commit lands on a default branch, the system shall re-extract only the units whose content hash, input schema hash or extractor version changed. | Unit-invalidation scenarios; extractor call count |
 | IN-2 | When a unit is re-extracted, the system shall replace that unit's prior static evidence as one atomic set, closing any element edge the new extraction no longer supports. If one extraction would close more than a set share of an extractor's edges, then the system shall hold the write and raise an alert. | Removal scenarios: delete a column, delete a model; a broken-extractor scenario |
-| IN-3 | When a schema version is registered or a tier 1 table's DDL changes, the system shall publish a schema-change event and re-extract every unit that reads the changed dataset. | `SELECT *` scenario: upstream column added |
+| IN-3 | When a schema version is registered or a tier 1 table's DDL changes, the system shall publish a schema-change event and re-extract every unit that reads the changed dataset. | `SELECT *` scenario: a column added to accounting.shipping reaches stg_shipping |
 | IN-4 | The system shall write every edge version with valid-from, valid-to and recorded-at times, and shall never overwrite an edge in place. | Bitemporal property tests |
-| IN-5 | The system shall return the graph as of any valid time, and the graph as it was recorded at any transaction time. | As-of scenarios, including late-arriving access history |
-| IN-6 | The system shall produce a lineage diff between any two times or commits: elements and edges added, removed and changed, with the evidence that caused each change. | Diff scenarios against hand-written expected diffs |
+| IN-5 | The system shall return the graph as of any valid time, and the graph as it was recorded at any transaction time. | As-of scenarios on change C4 (tables move schema), including late-arriving access history |
+| IN-6 | The system shall produce a lineage diff between any two times or commits: elements and edges added, removed and changed, with the evidence that caused each change. | Diff scenarios against hand-written expected diffs for changes C3, C4, C5 and C7 |
 | IN-7 | While a pull request is open, the system shall hold its static evidence in an overlay keyed by repository and PR number, invisible to production impact and RCA queries. | Overlay isolation scenario |
 | IN-8 | When runtime evidence for an edge has not been seen for 30 days, the system shall mark the edge dormant and keep it. | Clock-advance scenario |
 | IN-9 | When the same evidence is delivered more than once, the system shall leave the graph unchanged. | Idempotency property test |
@@ -239,7 +239,7 @@ Requirements use EARS phrasing so that agents and the harness can read them the 
 | IA-1 | When a pull request opens or updates in an onboarded repository, the system shall post an impact report within 5 minutes at the 95th percentile. | Timing in the twin; production probe |
 | IA-2 | The report shall list each changed element with its change kind: added, removed, renamed, retyped, nullability changed, logic changed, or row set changed. | Change-kind fixtures per extractor |
 | IA-3 | The system shall classify each change as breaking, potentially breaking, non-breaking or unknown. It shall classify a change that leaves the normalized expression unchanged as non-breaking, and a change in a unit it cannot parse as unknown, which is reported and treated as potentially breaking. | Classification fixtures, including formatting-only diffs and an opaque unit |
-| IA-4 | The report shall list downstream elements and assets by hop with owner, tier, edge state and confidence, following direct dependencies for value impact and reporting indirect dependencies separately as row-set impact. | PR #482 scenario; direct and indirect fixtures |
+| IA-4 | The report shall list downstream elements and assets by hop with owner, tier, edge state and confidence, following direct dependencies for value impact and reporting indirect dependencies separately as row-set impact. | Change C1 scenario (zip_code retyped); direct and indirect fixtures from the thin dbt model |
 | IA-5 | While the gate is in block mode, the system shall fail the check only when a tier 1 contract element with confirmed downstream readers is removed, renamed or retyped without a version bump or sign-off from those readers' owners. | Gate policy scenarios |
 | IA-6 | If the lineage platform is unavailable, then the check shall pass with a "lineage check unavailable" comment and raise an alert. | Fail-open scenario |
 | IA-7 | The report shall offer a "this is wrong" action per row, and a disputed edge shall drop to candidate until reviewed. | Feedback scenario |
@@ -251,14 +251,14 @@ Requirements use EARS phrasing so that agents and the harness can read them the 
 | ID | Requirement | Verified by |
 | --- | --- | --- |
 | IR-1 | When a DQ or contract check fails on an element, the system shall attach the upstream path, the ranked change events and the blast radius to the alert within 2 minutes. | Incident scenarios in the twin |
-| IR-2 | The system shall walk upstream over the incident window: every edge valid at any time between the last passing check and the failure, including edges that closed in between. It shall not use the current graph. | Scenario where the offending edge closed before the alert; scenario where an edge changed after the incident |
+| IR-2 | The system shall walk upstream over the incident window: every edge valid at any time between the last passing check and the failure, including edges that closed in between. It shall not use the current graph. | Scenario where the offending edge closed before the alert (C4 inside an incident window); scenario where an edge changed after the incident |
 | IR-3 | The system shall identify the first failing element: the furthest upstream element with a failing check whose own inputs pass or have no check. | Multi-hop failure fixtures |
 | IR-4 | The system shall rank change events on the upstream path by a deterministic score, and shall show the terms of the score, the evidence path and any lineage gap on that path for each candidate. | Ranking fixtures; explanation snapshot; a scenario with an opaque hop |
 | IR-5 | On the incident replay corpus the true cause shall be ranked first on at least 70% of incidents and in the top three on at least 90%. | `lineage-eval replay incidents` |
-| IR-6 | The system shall split the blast radius into assets already affected and assets not yet affected, using run events after the failure time. | Scheduled-run fixtures |
-| IR-7 | The system shall emit a remediation plan in topological order with an action per node type and the owning team. | Plan snapshot for the PR #482 hotfix scenario |
-| IR-8 | Where a job has opted in to the circuit breaker, the system shall pause it when an upstream tier 1 element is failing, and shall resume it only on a person's instruction. | Circuit breaker scenario |
-| IR-9 | The system shall record, per incident, when bad data landed, when the alert fired, when the cause was identified and when remediation completed. | MTTD and MTTR report against the Phase 0 baseline |
+| IR-6 | The system shall split the blast radius into assets already affected and assets not yet affected, using run events after the failure time. | Scheduled-run fixtures: the dbt job's runs after the failure time |
+| IR-7 | The system shall emit a remediation plan in topological order with an action per node type and the owning team. | Plan snapshots for incident I1 and for change C1 deployed to the twin |
+| IR-8 | Where a job has opted in to the circuit breaker, the system shall pause it when an upstream tier 1 element is failing, and shall resume it only on a person's instruction. | Circuit breaker scenario on the opted-in dbt job |
+| IR-9 | The system shall record, per incident, when bad data landed, when the alert fired, when the cause was identified and when remediation completed. | MTTD and MTTR report against baseline replays run without lineage (D16) |
 
 ### Cross-cutting
 
@@ -287,68 +287,69 @@ edge key = <from URN>#<field> | DERIVES | <to URN>#<field>
 
 | Class | Subtype | Example on the slice | How impact treats it |
 | --- | --- | --- | --- |
-| Direct | Identity | `raw.card_auth#mcc` to `fct_card_auth#mcc`; a rename is identity with two names | Value impact: a removed or retyped source breaks the target |
-| Direct | Transformation | `auth_ts` to `auth_date` through a cast | Value impact, and a changed expression is a logic change |
-| Direct | Aggregation | `fct_card_auth#declined` to `mcc_decline_7d` through a 7-day sum | Value impact, and a changed window is a logic change |
-| Indirect | Join, filter, group by, sort, window, conditional | `status = 'AUTH'` filters `fct_card_auth`; `mcc` is the group-by key of the feature | Row-set impact: reported separately and never blocks alone |
+| Direct | Identity | `orders#shipping_address.zip_code` to `accounting.shipping#zip_code`; a rename is identity with two names, as `item_cost_currency_code` to `stg_order_items#currency_code` | Value impact: a removed or retyped source breaks the target |
+| Direct | Transformation | `item_cost_units` and `item_cost_nanos` to `stg_order_items#item_cost` through arithmetic; the email to `user.hash` through SHA-256, with masking | Value impact, and a changed expression is a logic change |
+| Direct | Aggregation | `stg_order_items#line_total` to `fct_order_value#items_value` through a sum per order | Value impact, and a changed grouping is a logic change |
+| Indirect | Join, filter, group by, sort, window, conditional | `quantity > 0` filters `stg_order_items`; `order_id` is the join and group-by key of `fct_order_value` | Row-set impact: reported separately and never blocks alone |
 
-**3. Gaps are stated.** An opaque unit produces a dataset-level edge with `opaque: true` and a reason code. The affected target elements are flagged `lineage_gap`. Impact reports then say "field-level unknown through `txn-enrichment` (DataStream API)" instead of ending the path quietly. The gap count per hop is a coverage metric.
+**3. Gaps are stated.** An opaque unit produces a dataset-level edge with `opaque: true` and a reason code. The affected target elements are flagged `lineage_gap`. Impact reports then say "field-level unknown through `email` (Ruby, no rule set)" instead of ending the path quietly. The gap count per hop is a coverage metric.
 
 **An element edge record**
 
 ```json
 {
-  "from": "warehouse://prod/analytics.fct_card_auth#declined",
-  "to": "feast://fraud/mcc_decline_7d#value",
+  "from": "postgres://astronomy-db/astronomy_db.analytics_staging.stg_order_items#line_total",
+  "to": "postgres://astronomy-db/astronomy_db.analytics_marts.fct_order_value#items_value",
   "type": "DERIVES",
   "class": "DIRECT",
   "subtype": "AGGREGATION",
   "expr_hash": "sha256:7c0e…",
   "evidence": [
-    {"source": "ci_static", "tool": "feature-repo-extractor@1.2.0",
-     "unit": "unit://git/fraud-features/feature_views/mcc_decline.py#mcc_decline_7d",
-     "commit": "b81d09a", "seen": "2026-11-24T10:12:00Z"},
-    {"source": "openlineage", "tool": "feast-materialize", "seen": "2026-11-26T04:00:41Z"}
+    {"source": "ci_static", "tool": "dbt-sql-extractor@0.1.0",
+     "unit": "unit://git/lineage-collection-plan/fixtures/otel-demo-3.1.0/dbt/models/marts/fct_order_value.sql",
+     "commit": "4ff1f88", "seen": "2026-11-27T14:30:00Z"},
+    {"source": "openlineage", "tool": "dbt-ol", "seen": "2026-11-27T14:30:39Z"}
   ],
   "confidence": 0.98,
   "state": "confirmed",
-  "valid_from": "2026-10-02T00:00:00Z",
+  "condition": null,
+  "valid_from": "2026-11-27T14:30:00Z",
   "valid_to": null,
-  "recorded_at": "2026-11-26T04:03:10Z"
+  "recorded_at": "2026-11-27T14:30:41Z"
 }
 ```
 
 ### Evidence envelope v2
 
-The envelope keeps its shape and gains a `unit` block and an `elements` list. Collectors that only know datasets keep sending v1; the core accepts both.
+The envelope keeps its shape and gains a `unit` block, an `elements` list, `columns` for runtime column access, a `condition` for edges that exist only under a flag (D30), the `CONFIGURES` edge type for flags (D29), and two more event types: `QUALITY_ASSERTION` from the check runner (D26) and `CHANGE_EVENT` for the RCA timeline. Collectors that only know datasets keep sending v1; the core accepts both. The contract is the JSON Schema at [`factory/specs/evidence/interfaces/envelope-v2.schema.json`](../factory/specs/evidence/interfaces/envelope-v2.schema.json); every golden edge, check result and change event from the twin validates against it (`python3 code/spec_pack.py --check`).
 
 ```json
 {
+  "schemaVersion": "2",
   "eventType": "EVIDENCE",
-  "eventTime": "2026-11-26T14:02:11Z",
-  "producer": "lineage-extractors/dbt-sql@2.0.0",
+  "eventTime": "2026-11-27T12:00:00Z",
+  "producer": "lineage-extractors/go-assembly@0.1.0",
   "unit": {
-    "urn": "unit://git/analytics-dbt/models/marts/fct_card_auth.sql",
+    "urn": "unit://git/opentelemetry-demo/src/checkout/main.go",
     "contentHash": "sha256:5d1c…",
-    "inputSchemaHash": "sha256:a07e…",
-    "commit": "9f3c2e1",
-    "pr": 482
+    "commit": "dedc017",
+    "pr": null
   },
   "edge": {
     "type": "DERIVES",
-    "from": {"namespace": "iceberg://s3-prod", "name": "raw.card_auth"},
-    "to": {"namespace": "warehouse://prod", "name": "analytics.fct_card_auth"},
+    "from": {"namespace": "api://otel-demo", "name": "checkout/PlaceOrder/request"},
+    "to": {"namespace": "kafka://otel-demo", "name": "orders"},
     "elements": [
-      {"from": "mcc", "to": "mcc", "class": "DIRECT", "subtype": "IDENTITY", "exprHash": "sha256:11aa…"},
-      {"from": "auth_ts", "to": "auth_date", "class": "DIRECT", "subtype": "TRANSFORMATION", "exprHash": "sha256:77c0…"},
-      {"from": "status", "to": null, "class": "INDIRECT", "subtype": "FILTER", "exprHash": "sha256:be42…"}
+      {"from": "address.zip_code", "to": "shipping_address.zip_code", "class": "DIRECT", "subtype": "IDENTITY", "exprHash": "sha256:11aa…"},
+      {"from": "user_currency", "to": "items[].cost.currency_code", "class": "DIRECT", "subtype": "TRANSFORMATION", "exprHash": "sha256:77c0…"}
     ],
     "opaque": []
   },
   "evidence": {
     "source": "ci_static", "weight": 0.60, "runtime": false,
-    "observedAt": "2026-11-26T14:02:09Z", "replaces": "unit",
-    "rawRef": "evidence_raw/ci_static/dt=2026-11-26/part-0031.parquet"
+    "observedAt": "2026-11-27T12:00:00Z", "replaces": "unit",
+    "rawRef": "archive://ci_static/dt=2026-11-27/part-0031.parquet",
+    "location": {"path": "src/checkout/main.go", "line": 387, "text": "ShippingAddress:    req.Address"}
   }
 }
 ```
@@ -362,16 +363,17 @@ Two rules change in the core's merge step.
 
 The baseline is not one scan. It is one extractor per hop, each chosen for the best source of element truth at that hop, plus a runtime source that confirms it where one exists.
 
-| Hop on the slice | Static source of element truth | Runtime confirmation | Expected state after both |
+| Hop on the reference slice | Static source of element truth | Runtime confirmation | Expected state after both |
 | --- | --- | --- | --- |
-| `payments-svc` to `auth.events.v1` | Avro schema plus code rules for which fields the producer sets | OTel producer span (dataset level) | Probable; verified by the owner for tier 1 fields |
-| `auth.events.v1` to `auth.enrich.v1` through `txn-enrichment` | Flink SQL through the planner in a CI harness; a declared mapping for DataStream code | OpenLineage Flink event (dataset level) | Probable; verified by the owner |
-| `auth.enrich.v1` to `raw.card_auth` | Sink connector configuration and its field mapping | OpenLineage or connector status | Probable to confirmed |
-| `raw.card_auth` to `fct_card_auth` | dbt manifest and compiled SQL through a column-lineage parser | OpenLineage dbt column facet; warehouse access history | Confirmed |
-| `fct_card_auth` to the Approval rate dashboard | BI metadata API for the fields a dashboard uses | Warehouse access history by service account | Confirmed |
-| `fct_card_auth` to `mcc_decline_7d` | Feature repository: source columns, entity keys, aggregation | Materialization run event | Confirmed |
-| `mcc_decline_7d` to `fraud-score-v12` | Training configuration and the model signature in the registry | Training run event | Confirmed |
-| `fraud-score-v12` to `fraud-svc` | Registry deployment record and the serving request schema | Inference call edge from gateway logs | Confirmed |
+| `frontend` to `checkout`: the PlaceOrder request | Protobuf descriptors from `pb/demo.proto`; the TypeScript gateway that builds the request | Server span on checkout (call level) | Probable for fields; confirmed for the call |
+| `checkout` assembles `OrderResult` onto the `orders` topic | Go code rules on the struct literal (`main.go:381–389`) plus the descriptors | Producer span with the destination name (dataset level) | Probable; verified by the owner for tier 1 fields |
+| `checkout` to `payment`: the card pass-through | Go code rule (`main.go:583`) and the Node.js handler (`charge.js:60`) | Client and server spans | Probable for fields; confirmed for the call |
+| `orders` through `accounting` into the three accounting tables | C# Entity Framework mapping (`Consumer.cs:98–130`) | Database client spans carrying the batched INSERT columns (D27); `pg_stat_statements` for clients without spans | Confirmed, per column |
+| `orders` to `fraud-detection` | Kotlin protobuf parse (`main.kt:70`) | Consumer span and consumer-group metrics | Probable (reads only) |
+| `catalog.products` read by `product-catalog` | Go SQL (`main.go:234`) | Database spans with the SELECT's 8 columns | Confirmed |
+| `checkout` and `payment` span attributes to the telemetry export, only while `emitRawPii` is on | Go and Node.js code (`main.go:315–317`, `charge.js:73–74`) and the collector's transform config | Span attributes at the exporter while the flag is on | Latent while off; confirmed when seen (D30) |
+| Accounting tables through the dbt staging models and mart to the dashboard exposure | dbt manifest and compiled SQL through SQLGlot | dbt run events (OpenLineage); access history under the `analytics_dbt` login | Confirmed |
+| Complement: PyFlink job to Feast features to the MLflow model to the FastAPI service | Declared feature registry and PyFlink code; Feast repository; MLflow signature | OpenLineage from Feast; inference spans | Probable to confirmed |
 
 **What the research says about these choices**
 
@@ -417,7 +419,7 @@ The PR flow answers one question before merge: which elements does this change t
 6. **Rank and render.** Order by tier, then edge state, then hops, then recent read volume. Post one comment and one check status. Request sign-off from the owners of confirmed tier 1 readers.
 7. **Gate.** Warn by default. Block only under IA-5. Fail open under IA-6.
 
-The registry's own compatibility check is not enough, and PR #482 is the proof: removing `merchant_category_code` and adding `mcc` with a default passes BACKWARD compatibility while breaking seven assets. The element diff sees a rename with five tier 1 readers.
+The registry's own compatibility check is not enough, and change C10 shows why: renaming `OrderResult.shipping_tracking_id` keeps field number 2, so a protobuf compatibility check passes, while `accounting` reads the field by its generated name and stops compiling, and the column and the dbt model below it lose their source. The element diff sees a rename with three readers. (In the plan's illustrative slice the same lesson was PR #482.)
 
 ### Detect and resolve
 
@@ -519,14 +521,14 @@ The first version of all four exists for the reference slice in [doc 07](07-refe
 
 Four things make "correct" machine-checkable for this system.
 
-- **The golden graph.** About 15 service and dataset edges and 40 element edges for the slice, written with the owners in Phase 0 and stored as fixtures. The harness reports precision and recall per edge type and per hop.
-- **The change replay corpus.** The last ten schema and logic changes on the slice, each with the base commit, the head commit and the consumers that actually broke. It scores O3.
-- **The incident replay corpus.** Six months of incidents on the slice, each with the failing check, the timeline of change events and the true cause. It scores O4.
-- **The twin.** Kafka with a schema registry, a Flink mini cluster, a local SQL engine standing in for the warehouse with the dbt project, a local feature store and model registry, object storage, and a stub Git provider, all started by one command and seeded with toy versions of the slice's repositories. Every scenario runs here.
+- **The golden graph.** 23 service and dataset edges, 36 field edges, 8 flag-gated edges and 20 flag edges on the demo, each cited to a line of source and checked by `code/reference_slice.py --check`, plus 35 hand-written edges for the thin dbt model. The harness reports precision and recall per edge type and per hop.
+- **The change replay corpus.** At least 20 changes, each with the base, the trigger, the consumers that actually broke and the expected gate result. Visible today: C1 to C7 from the demo's history and the twin, C8 to C13 authored. It scores O3.
+- **The incident replay corpus.** At least 20 incidents, each with the injection, the failing checks, the timeline of change events and the true cause. Visible today: I1 to I10, run in the twin. It scores O4.
+- **The twin.** The demo itself under Docker at release 3.1.0, with the capture add-on, flags as fault injection and a separate lineage platform beside it (Kafka for evidence, Neo4j, Postgres, a Parquet archive). Every scenario runs here.
 
 Around them sit property tests for the core (noisy-OR is monotonic, merge is idempotent, replay is deterministic, as-of reads are stable) and metamorphic tests for the extractors (renaming an alias, reordering a CTE or reformatting a query must not change the element edges).
 
-The corpus is split. About two thirds of the scenarios are visible to builders. The rest are holdout. The split is by scenario family, so a builder cannot pass the holdout by memorizing the visible ones.
+The corpus is split. About two thirds of the scenarios are visible to builders. The rest are holdout, written and kept outside this repository by people who do not build ([`factory/oracle/holdout/README.md`](../factory/oracle/holdout/README.md)). The split is by scenario family, so a builder cannot pass the holdout by memorizing the visible ones.
 
 ### Spec pack layout
 
@@ -587,7 +589,7 @@ Each work package is sized so that one agent can finish it in one sandbox agains
 | WP-29 | Model-assisted extractor for opaque units, with a verifier | O1 | Opaque fixtures; precision floor | 2 |
 | **Wave 3: incremental and impact** | | | | |
 | WP-30 | Change detectors and unit invalidation | O2 | Invalidation scenarios; call counts | 3 |
-| WP-31 | PR overlay and impact query API | O3 | Overlay isolation; PR #482 scenario | 3 |
+| WP-31 | PR overlay and impact query API | O3 | Overlay isolation; change C1 scenario | 3 |
 | WP-32 | Change classifier | O3 | Classification fixtures | 3 |
 | WP-33 | PR bot in warn mode with feedback | O3 | Change replay, visible and holdout | 3 |
 | WP-34 | Contract gate in block mode | O3 | Gate policy scenarios | 2 |
@@ -728,62 +730,53 @@ Two artefacts carry most of the human effort in the factory. One of each is writ
 
 ### A work package
 
-```markdown
-# WP-20: dbt and SQL element extractor
+All 39 are written out in [`factory/work-packages/`](../factory/work-packages/README.md), rendered from one YAML source that `code/spec_pack.py` checks: every requirement served, every dependency real, every "done when" line measurable, every fixture present. This is WP-20 as an agent receives it:
 
-Serves:       O1 (BL-2, BL-3, BL-4, BL-5), O2 (IN-1)
-Start level:  3
-Depends on:   WP-10 URN library, WP-11 envelope v2
-Limits:       6 build attempts, 1 working day; cost recorded
+```markdown
+# WP-20: dbt and SQL extractor
+
+Wave 2 · family extractors · start level 3 (level 2 until wave 1 meets its holdout rate, D18)
+Serves:      BL-2, BL-3, BL-4, BL-5, IN-3
+Depends on:  WP-10 URN library, WP-11 envelope v2
+Limits:      6 build attempts, 1 working day; cost recorded
 
 ## Scope
-Read a dbt project at a commit and emit envelope v2 evidence for every model:
-direct and indirect element dependencies, expression hashes, opaque reasons.
+Read a dbt project at a commit and emit envelope v2 evidence for every model, with SQLGlot.
 
 ## Inputs
-- twin/repos/analytics-dbt at the given commit: manifest.json and compiled SQL
-- Source schemas from the twin's schema store, as of that commit
-
-## Outputs
-- Evidence events that validate against specs/evidence/interfaces/envelope-v2.schema.json
-- One event set per model, with replaces: "unit"
+- fixtures/otel-demo-3.1.0/dbt/ (the thin dbt model over the accounting tables)
+- jaffle-shop (read-only corpus)
 
 ## Must hold
-- Parsing uses SQLGlot. No hand-written SQL parsing.
-- A reformatted or alias-renamed model yields identical element edges and expression hashes.
-- A model that cannot be resolved emits an opaque edge with a reason code. It never raises.
-- An indirect dependency is emitted once per target dataset.
-- No network access. No writes outside extractors/dbt_sql/ and its tests.
+- SQLGlot only; no hand-written SQL parsing
+- SELECT * expands against the input schema as of the commit
+- An unresolved model emits an opaque edge with a reason code; it never raises
 
 ## Done when
-- lineage-eval score --hop dbt-sql: field precision and recall at or above 0.90
-- Visible scenarios all pass; holdout pass rate at or above 0.90
-- Metamorphic suite all pass
-- The reviewer agent reports no open conformance finding
+- Thin dbt model: precision and recall >= 0.90 against golden-dbt.json (30 direct, 5 indirect)
+- Metamorphic suite (alias rename, CTE reorder, reformat): 100% identical edges and expression hashes
+- jaffle-shop: precision >= 0.90 on the sample a person labels in WP-02
+- Every visible scenario traced to its requirements passes; holdout pass rate >= 0.90
 ```
 
 ### A scenario
 
-```gherkin
-# Traces to IA-1, IA-2, IA-3, IA-4, IN-7
-Feature: A rename in an event schema is reported as breaking, with its readers
+The visible scenarios are in `factory/specs/*/scenarios/visible/`, 48 of them, each tagged with the requirements it traces. This one is the reference slice's version of the plan's PR #482:
 
-  Scenario: PR #482 renames merchant_category_code to mcc
-    Given the twin at the base commit of payments-svc, with auth.events.v1 at schema v7
-    And the element graph built from the golden baseline
-    When a pull request removes "merchant_category_code" from auth-event.avsc
-      and adds "mcc" as a string with default ""
-    Then the report lists one change of kind "renamed", from merchant_category_code to mcc
-    And the change class is "breaking"
-    And the report states that the registry's BACKWARD check passes
-    And the downstream list contains auth.enrich.v1#mcc, raw.card_auth#mcc, fct_card_auth#mcc,
-      mcc_decline_7d, fraud-score-v12, fraud-svc and the Approval rate dashboard
-    And every row has an owner, a tier and an edge state
-    And the production graph is unchanged
-    And the report is posted within 5 minutes
+```gherkin
+@S-IA-01 @IA-2 @IA-3 @IA-4 @IA-5 @IA-8
+Scenario: Retyping the shipping zip code is breaking, and the gate blocks it (C1)
+  Given the graph at the base of change C1, with the orders topic at tier 1 and its readers confirmed at runtime
+  When a pull request against the demo fork retypes Address.zip_code from int32 to string in pb/demo.proto
+  Then the report lists one change of kind retyped on kafka://otel-demo/orders#shipping_address.zip_code and on the PlaceOrder request
+  And the change class is breaking, because int32 and string are not wire-compatible
+  And the downstream list contains postgres://astronomy-db/astronomy_db.accounting.shipping#zip_code, shipping, frontend and load-generator
+  And every row has an owner, a tier, an edge state and a confidence
+  And the contract gate fails the check, citing orders.contract.yaml (BACKWARD_TRANSITIVE)
+  And the production graph is unchanged
 ```
 
-The holdout corpus holds siblings of this scenario from the same family, such as a retype instead of a rename, or the same rename made in the dbt model. The builder never sees them. It only learns how many it passed.
+The holdout corpus holds siblings of this scenario from the same family, such as a retype of a different field or the same retype reaching the dbt model. The builder never sees them. It only learns how many it passed.
 
 ## Risks
 
@@ -811,7 +804,7 @@ On 27 November 2026 these were decided or given recommendations in [doc 08](08-b
 | 5 | Which warehouse is on the slice? | Decides the access-history collector and the projection target | Data platform |
 | 6 | Does the wider estate have stored-procedure or legacy ETL lineage needs? | If yes, a scanner suite becomes a collector worth buying | Data governance |
 | 7 | Graph store: Neptune, or DataHub with history kept in the owned writer and the lake? | DataHub has no lineage history and its OpenLineage endpoint takes run events only | Week-1 sub-decision from ADR-002 |
-| 8 | Build the service-code scanner, or buy that hop? | Two vendors cover it, and one documents field-level lineage through Kafka. A one-week trial on `payments-svc` settles it against the golden graph. Both reach into source code, so security answers first | Developer productivity and security |
+| 8 | Build the service-code scanner, or buy that hop? | Two vendors cover it, and one documents field-level lineage through Kafka. A one-week trial on the demo's `checkout` service settles it against the golden graph (D17). Both reach into source code, so security answers first | Developer productivity and security |
 | 9 | Which tools make up the twin, and under what licences? | At least one common AWS emulator changed its licence terms; check before adopting | Factory engineers |
 | 10 | Read IBM Manta's and Informatica's documentation by hand, if either becomes a candidate | Both sites refuse automated requests, so their claims are still unverified. The other claims that carry weight were re-read at source | Whoever updates ADR-002 |
 

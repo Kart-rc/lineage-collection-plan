@@ -53,3 +53,21 @@ checks:
     where: {service.name: product-catalog, span.kind: SPAN_KIND_SERVER, span.name: oteldemo.ProductCatalogService/GetProduct}
     fail_if: p95 > 1s
     catches: [I3]
+
+  # Added 2026-11-27 before the second run, with thresholds fixed in advance (not fitted to the run).
+  - id: checkout-latency
+    node: svc://otel-demo/checkout
+    what: 95th percentile of PlaceOrder server spans stays under 3 seconds
+    metric: traces.span.metrics.duration          # histogram in milliseconds
+    where: {service.name: checkout, span.kind: SPAN_KIND_SERVER, span.name: oteldemo.CheckoutService/PlaceOrder}
+    fail_if: p95 > 3s
+    catches: [I8]
+
+  - id: accounting-lag
+    node: kafka://otel-demo/orders
+    reader: svc://otel-demo/accounting
+    what: Consumer lag of the accounting group stays under 100 messages
+    metric: kafka.consumer_group.lag_sum
+    where: {group: accounting, topic: orders}
+    fail_if: value > 100
+    catches: [I7]

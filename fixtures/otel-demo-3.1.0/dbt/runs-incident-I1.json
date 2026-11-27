@@ -1,0 +1,15 @@
+{
+  "what": "Scheduled-run fixture for IR-6, laid over incident I1 of the 27 November run (paymentFailure 50% from 14:24:55; first failing check 14:26:56). The job schedule is jobs.yml; the run times follow from it.",
+  "failure_time": "2026-11-27T14:26:56Z",
+  "runs": [
+    {"job": "orders_mart", "started": "2026-11-27T14:15:00Z", "ended": "2026-11-27T14:15:41Z", "outputs": ["analytics_staging.stg_orders", "analytics_staging.stg_order_items", "analytics_staging.stg_shipping", "analytics_marts.fct_order_value"]},
+    {"job": "orders_mart", "started": "2026-11-27T14:30:00Z", "ended": "2026-11-27T14:30:39Z", "outputs": ["analytics_staging.stg_orders", "analytics_staging.stg_order_items", "analytics_staging.stg_shipping", "analytics_marts.fct_order_value"]},
+    {"job": "finance_dashboard_refresh", "started": "2026-11-26T18:00:00Z", "ended": "2026-11-26T18:02:10Z", "outputs": ["bi://finance/finance_orders_dashboard"]}
+  ],
+  "expected_blast_radius": {
+    "affected": ["postgres://astronomy-db/astronomy_db.analytics_marts.fct_order_value", "postgres://astronomy-db/astronomy_db.analytics_staging.stg_orders", "postgres://astronomy-db/astronomy_db.analytics_staging.stg_order_items", "postgres://astronomy-db/astronomy_db.analytics_staging.stg_shipping"],
+    "not_yet_affected": ["bi://finance/finance_orders_dashboard"],
+    "why": "orders_mart ran at 14:30, after the failure, so its outputs now hold the short order count; the dashboard last refreshed the day before and refreshes next at 18:00"
+  },
+  "expected_circuit_breaker": {"paused_jobs": ["orders_mart"], "not_paused": ["finance_dashboard_refresh"], "resume": "only on a person's instruction"}
+}

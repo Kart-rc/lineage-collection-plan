@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lineage.internal/schemas/envelope-v2.schema.json",
+  "title": "Lineage evidence envelope, version 2",
+  "description": "Every event on the lineage.evidence topic. Three kinds share one envelope: EVIDENCE (a collector saw an edge), QUALITY_ASSERTION (a check passed or failed on a node or element) and CHANGE_EVENT (something changed that may explain a failure). Requirements: BL-1, BL-2, BL-4, XC-1, XC-2; decisions D5, D6, D26, D27, D29, D30. Metadata only: no payload values (XC-1).",
+  "type": "object",
+  "required": ["schemaVersion", "eventType", "eventTime", "producer"],
+  "properties": {
+    "schemaVersion": {"const": "2"},
+    "eventType": {"enum": ["EVIDENCE", "QUALITY_ASSERTION", "CHANGE_EVENT"]},
+    "eventTime": {"type": "string", "format": "date-time"},
+    "producer": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._/-]*@[0-9]+\\.[0-9]+\\.[0-9]+([-+][0-9A-Za-z.-]+)?$",
+                 "description": "Collector or extractor name and version, e.g. lineage-extractors/go-assembly@0.3.0. Every edge records it, so a bad release can be excluded and the graph rescored."}
+  },
+  "oneOf": [
+    {"properties": {"eventType": {"const": "EVIDENCE"}}, "required": ["edge", "evidence"]},
+    {"properties": {"eventType": {"const": "QUALITY_ASSERTION"}}, "required": ["assertion"]},
+    {"properties": {"eventType": {"const": "CHANGE_EVENT"}}, "required": ["change"]}
+  ],
+  "dependentSchemas": {
+    "edge": {"properties": {"edge": {"$ref": "#/$defs/edge"}, "evidence": {"$ref": "#/$defs/evidence"}, "unit": {"$ref": "#/$defs/unit"}}},
+    "assertion": {"properties": {"assertion": {"$ref": "#/$defs/assertion"}}},
+    "change": {"properties": {"change": {"$ref": "#/$defs/change"}}}
+  },
+  "if": {"properties": {"evidence": {"properties": {"replaces": {"const": "unit"}}, "required": ["replaces"]}}, "required": ["evidence"]},
+  "then": {"required": ["unit"]},
+  "unevaluatedProperties": false,
+  "$defs": {
+    "namespace": {"type": "string", "pattern": "^[a-z][a-z0-9+.-]*://[A-Za-z0-9._-]+$",
+                  "description": "Scheme and environment or host: svc://otel-demo, api://otel-demo, kafka://otel-demo, postgres://astronomy-db, flag://otel-demo, otel://otel-demo, valkey://valkey-cart, unit://git"},
+    "dataset": {"type": "object", "required": ["namespace", "name"], "additionalProperties": false,
+                "properties": {"namespace": {"$ref": "#/$defs/namespace"}, "name": {"type": "string", "minLength": 1,
+                  "description": "The rest of the URN: checkout, checkout/PlaceOrder/request, orders, astronomy_db.accounting.shipping, emitRawPii, checkout/span"}}},
+    "fieldPath": {"type": "string", "pattern": "^\"?[A-Za-z_][A-Za-z0-9_]*\"?(\\[\\])?(\\.[A-Za-z_][A-Za-z0-9_]*(\\[\\])?)*$",
+                  "description": "Dotted for nested fields, [] for repeated fields (BL-1): address.zip_code, items[].cost.units, user.email is written user.email"},
+    "attributePath": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_.]*$"},
+    "sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{8,64}$"},
+    "unit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["urn", "contentHash", "commit"],
+      "description": "The extraction unit whose static evidence this event set replaces as a whole (IN-1, IN-2).",
+      "properties": {
+        "urn": {"type": "string", "pattern": "^unit://[^\\s]+$"},
+        "contentHash": {"$ref": "#/$defs/sha256"},
+        "inputSchemaHash": {"$ref": "#/$defs/sha256"},
+        "commit": {"type": "string", "pattern": "^[0-9a-f]{7,40}$"},
+        "pr": {"type": ["integer", "null"], "minimum": 1, "description": "Set while a pull request is open: the evidence goes to the PR overlay, never to production (IN-7)"}
+      }
+    },
+    "element": {
+      "type": "object", "additionalProperties": false,
+      "required": ["from", "to", "class", "subtype"],
+      "properties": {
+        "from": {"anyOf": [{"$ref": "#/$defs/fieldPath"}, {"$ref": "#/$defs/attributePath"}, {"type": "null"}]},
+        "to": {"anyOf": [{"$ref": "#/$defs/fieldPath"}, {"$ref": "#/$defs/attributePath"}, {"type": "null"}],
+               "description": "null for an indirect dependency, which is stored once per target dataset (BL-5)"},
+        "class": {"enum": ["DIRECT", "INDIRECT"]},
+        "subtype": {"enum": ["IDENTITY", "TRANSFORMATION", "AGGREGATION", "JOIN", "FILTER", "GROUP_BY", "SORT", "WINDOW", "CONDITIONAL"]},
+        "masking": {"type": "boolean", "default": false, "description": "The transformation hides the value: hash, truncation, partial mask"},
+        "exprHash": {"$ref": "#/$defs/sha256"}
+      },
+      "allOf": [
+        {"if": {"properties": {"class": {"const": "DIRECT"}}}, "then": {"properties": {"subtype": {"enum": ["IDENTITY", "TRANSFORMATION", "AGGREGATION"]}, "to": {"not": {"type": "null"}}}}},
+        {"if": {"properties": {"class": {"const": "INDIRECT"}}}, "then": {"properties": {"subtype": {"enum": ["JOIN", "FILTER", "GROUP_BY", "SORT", "WINDOW", "CONDITIONAL"]}}}}
+      ]
+    },
+    "opaque": {
+      "type": "object", "additionalProperties": false, "required": ["reason"],
+      "properties": {
+        "reason": {"enum": ["UNPARSED_LANGUAGE", "DYNAMIC_SQL", "REFLECTION", "UDF", "DATASTREAM_API", "MULTI_STATEMENT", "EXTERNAL_CALL", "EXTRACTOR_ERROR", "OTHER"]},
+        "detail": {"type": "string", "maxLength": 500}
+      },
+      "description": "BL-4: a unit that cannot be resolved still yields a dataset-level edge, never a silent drop"
+    },
+    "edge": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "from", "to"],
+      "properties": {
+        "type": {"enum": ["DERIVES", "CALLS", "PRODUCES", "CONSUMES", "READS", "WRITES", "READS_WRITES", "CONFIGURES", "OWNS"],
+                 "description": "CONFIGURES is a flag-to-service edge read from code (D29). Field-to-field lineage is DERIVES with elements."},
+        "from": {"$ref": "#/$defs/dataset"},
+        "to": {"$ref": "#/$defs/dataset"},
+        "elements": {"type": "array", "items": {"$ref": "#/$defs/element"}},
+        "columns": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true,
+                    "description": "Columns read or written on a READS or WRITES edge, e.g. from a parsed statement in a database span (D27)"},
+        "opaque": {"type": "array", "items": {"$ref": "#/$defs/opaque"}},
+        "condition": {"type": ["string", "null"], "pattern": "^flag://[A-Za-z0-9._-]+/[A-Za-z0-9_]+ (==|!=) [A-Za-z0-9%._-]+$",
+                      "description": "The edge exists only while this holds (D30). Stored as latent while false; must-not-flow checks walk it anyway."}
+      },
+      "allOf": [
+        {"if": {"properties": {"type": {"const": "DERIVES"}}}, "then": {"anyOf": [{"required": ["elements"]}, {"required": ["opaque"]}]}},
+        {"if": {"properties": {"type": {"const": "CONFIGURES"}}}, "then": {"properties": {"from": {"properties": {"namespace": {"pattern": "^flag://"}}}}}}
+      ]
+    },
+    "location": {
+      "type": "object", "additionalProperties": false, "required": ["path", "text"],
+      "properties": {"path": {"type": "string"}, "line": {"type": "integer", "minimum": 1}, "text": {"type": "string", "minLength": 1}},
+      "description": "Static evidence anchor: file, a line hint and a text fragment that must appear near it (D5)"
+    },
+    "evidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "weight", "runtime", "observedAt", "rawRef"],
+      "properties": {
+        "source": {"enum": ["ci_static", "declared", "otel_span", "db_span", "gateway_log", "openlineage", "access_history", "iam", "owner"]},
+        "weight": {"type": "number", "minimum": 0, "maximum": 1, "description": "Set by the evidence library from parameters.yaml, never by the collector"},
+        "runtime": {"type": "boolean"},
+        "observedAt": {"type": "string", "format": "date-time"},
+        "replaces": {"enum": ["unit", "none"], "default": "none", "description": "unit: this event set is the complete static truth for its unit; runtime evidence is additive"},
+        "rawRef": {"type": "string", "minLength": 1, "description": "Pointer into the raw archive, so every edge traces to its input (XC-2)"},
+        "count": {"type": "integer", "minimum": 1, "description": "Observations rolled up into this event, e.g. spans per minute"},
+        "location": {"$ref": "#/$defs/location"},
+        "model": {"type": "object", "additionalProperties": false, "required": ["name", "promptVersion", "outputHash"],
+                  "properties": {"name": {"type": "string"}, "promptVersion": {"type": "string"}, "outputHash": {"$ref": "#/$defs/sha256"}},
+                  "description": "Required when a model read the code (XC-6)"}
+      },
+      "allOf": [
+        {"if": {"properties": {"source": {"enum": ["otel_span", "db_span", "gateway_log", "openlineage", "access_history"]}}}, "then": {"properties": {"runtime": {"const": true}}}},
+        {"if": {"properties": {"source": {"enum": ["ci_static", "declared", "iam", "owner"]}}}, "then": {"properties": {"runtime": {"const": false}}}}
+      ]
+    },
+    "assertion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["check", "node", "result", "window"],
+      "description": "A check result from the check runner (D26, WP-39). Failing results are where root-cause analysis starts (IR-1).",
+      "properties": {
+        "check": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+        "node": {"type": "string", "pattern": "^[a-z][a-z0-9+.-]*://\\S+$", "description": "URN of the dataset, service or element the check is on"},
+        "reader": {"type": "string", "pattern": "^svc://\\S+$"},
+        "result": {"enum": ["pass", "fail", "no_data"]},
+        "window": {"type": "object", "additionalProperties": false, "required": ["start", "end"],
+                   "properties": {"start": {"type": "string", "format": "date-time"}, "end": {"type": "string", "format": "date-time"}}},
+        "values": {"type": "object", "additionalProperties": {"type": ["number", "null"]}},
+        "rule": {"type": "string"}
+      }
+    },
+    "change": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "subject", "at"],
+      "description": "Something that changed and may explain a failure: the RCA timeline (WP-41). Flag changes join the graph through CONFIGURES edges (D29).",
+      "properties": {
+        "kind": {"enum": ["flag_change", "deploy", "service_stop", "service_start", "merge", "schema_change", "config_change"]},
+        "subject": {"type": "string", "pattern": "^[a-z][a-z0-9+.-]*://\\S+$"},
+        "at": {"type": "string", "format": "date-time"},
+        "from": {"type": ["string", "null"]},
+        "to": {"type": ["string", "null"]},
+        "ref": {"type": "string", "description": "Commit, PR, image tag or change ticket"},
+        "actor": {"type": "string"}
+      }
+    }
+  }
+}

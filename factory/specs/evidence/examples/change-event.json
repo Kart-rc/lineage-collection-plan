@@ -1,0 +1,13 @@
+{
+ "schemaVersion": "2",
+ "eventType": "CHANGE_EVENT",
+ "eventTime": "2026-11-27T14:22:19Z",
+ "producer": "twin/flip@0.1.0",
+ "change": {
+  "kind": "flag_change",
+  "subject": "flag://otel-demo/emitRawPii",
+  "at": "2026-11-27T14:22:19Z",
+  "from": "off",
+  "to": "on"
+ }
+}

@@ -1,0 +1,15 @@
+# The thin dbt model of decision D2: a warehouse hop over the demo's accounting tables, written here.
+# It exists to give four requirements something real to test: BL-5 (join-heavy model, indirect dependencies
+# stored once), IN-3 (SELECT * picks up an added column), IR-6 (scheduled runs for the blast radius) and
+# IR-8 (a job that has opted in to the circuit breaker). See README.md.
+name: otel_orders
+version: "0.1.0"
+config-version: 2
+profile: twin
+model-paths: ["models"]
+target-path: "target"
+clean-targets: ["target"]
+models:
+  otel_orders:
+    staging: {+materialized: view, +schema: staging}
+    marts: {+materialized: table, +schema: marts}

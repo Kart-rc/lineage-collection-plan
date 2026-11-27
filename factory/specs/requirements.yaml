@@ -1,0 +1,202 @@
+source: docs/06-element-lineage-factory-spec.md, Requirements; verification re-targeted to the reference slice on 27 November 2026 (D1, D33)
+requirements:
+- id: BL-1
+  capability: evidence
+  text: The system shall represent every field of every tier 1 asset in the slice as a node with the URN `<dataset URN>#<field path>`, using a
+    dotted path for nested fields and `[]` for array items.
+  verified_by: URN property tests; golden graph node check
+- id: BL-2
+  capability: evidence
+  text: When an extractor reads an extraction unit, it shall emit one evidence record per element mapping, carrying the dependency class and subtype,
+    a hash of the normalized expression, and the extractor name and version.
+  verified_by: Envelope schema validation; fixture tests per extractor
+- id: BL-3
+  capability: extractors
+  text: 'The system shall provide an extractor for each hop of the slice as listed under "Baseline: one extractor per hop".'
+  verified_by: 'Golden graph recall per hop, on the hops of the reference slice listed in doc 06 (Baseline: one extractor per hop)'
+  retargeted_from: Golden graph recall per hop
+- id: BL-4
+  capability: evidence
+  text: If an extractor cannot resolve an element mapping, then it shall emit a dataset-level edge marked opaque with a reason code, and shall
+    not drop the unit.
+  verified_by: Opaque fixtures; gap count on the coverage report
+- id: BL-5
+  capability: core
+  text: The system shall store an indirect dependency once, from the source element to the target dataset, and shall not fan it out to every target
+    column.
+  verified_by: 'Graph size check on the join-heavy fixture: fct_order_value in the thin dbt model (fixtures/otel-demo-3.1.0/dbt)'
+  retargeted_from: Graph size check on the join-heavy fixture
+- id: BL-6
+  capability: extractors
+  text: The baseline shall reach field-edge precision of at least 90% and recall of at least 90% against the golden graph once runtime evidence
+    is on.
+  verified_by: '`lineage-eval score` on the reference slice: golden-graph.json plus the dbt golden edges'
+  retargeted_from: '`lineage-eval score` on the slice'
+- id: BL-7
+  capability: core
+  text: When the graph is rebuilt from the evidence lake, the system shall produce the same graph hash as the live graph at the same as-of time.
+  verified_by: Replay determinism test
+- id: IN-1
+  capability: incremental
+  text: When a commit lands on a default branch, the system shall re-extract only the units whose content hash, input schema hash or extractor
+    version changed.
+  verified_by: Unit-invalidation scenarios; extractor call count
+- id: IN-2
+  capability: core
+  text: When a unit is re-extracted, the system shall replace that unit's prior static evidence as one atomic set, closing any element edge the
+    new extraction no longer supports. If one extraction would close more than a set share of an extractor's edges, then the system shall hold
+    the write and raise an alert.
+  verified_by: 'Removal scenarios: delete a column, delete a model; a broken-extractor scenario'
+- id: IN-3
+  capability: incremental
+  text: When a schema version is registered or a tier 1 table's DDL changes, the system shall publish a schema-change event and re-extract every
+    unit that reads the changed dataset.
+  verified_by: '`SELECT *` scenario: a column added to accounting.shipping reaches stg_shipping'
+  retargeted_from: '`SELECT *` scenario: upstream column added'
+- id: IN-4
+  capability: core
+  text: The system shall write every edge version with valid-from, valid-to and recorded-at times, and shall never overwrite an edge in place.
+  verified_by: Bitemporal property tests
+- id: IN-5
+  capability: core
+  text: The system shall return the graph as of any valid time, and the graph as it was recorded at any transaction time.
+  verified_by: As-of scenarios on change C4 (tables move schema), including late-arriving access history
+  retargeted_from: As-of scenarios, including late-arriving access history
+- id: IN-6
+  capability: incremental
+  text: 'The system shall produce a lineage diff between any two times or commits: elements and edges added, removed and changed, with the evidence
+    that caused each change.'
+  verified_by: Diff scenarios against hand-written expected diffs for changes C3, C4, C5 and C7
+  retargeted_from: Diff scenarios against hand-written expected diffs
+- id: IN-7
+  capability: incremental
+  text: While a pull request is open, the system shall hold its static evidence in an overlay keyed by repository and PR number, invisible to
+    production impact and RCA queries.
+  verified_by: Overlay isolation scenario
+- id: IN-8
+  capability: core
+  text: When runtime evidence for an edge has not been seen for 30 days, the system shall mark the edge dormant and keep it.
+  verified_by: Clock-advance scenario
+- id: IN-9
+  capability: core
+  text: When the same evidence is delivered more than once, the system shall leave the graph unchanged.
+  verified_by: Idempotency property test
+- id: IN-10
+  capability: incremental
+  text: The system shall make an edge visible within 15 minutes of the merge or run that produced it, at the 95th percentile.
+  verified_by: Freshness probe on stage replay
+- id: IA-1
+  capability: impact
+  text: When a pull request opens or updates in an onboarded repository, the system shall post an impact report within 5 minutes at the 95th percentile.
+  verified_by: Timing in the twin; production probe
+- id: IA-2
+  capability: impact
+  text: 'The report shall list each changed element with its change kind: added, removed, renamed, retyped, nullability changed, logic changed,
+    or row set changed.'
+  verified_by: Change-kind fixtures per extractor
+- id: IA-3
+  capability: impact
+  text: The system shall classify each change as breaking, potentially breaking, non-breaking or unknown. It shall classify a change that leaves
+    the normalized expression unchanged as non-breaking, and a change in a unit it cannot parse as unknown, which is reported and treated as potentially
+    breaking.
+  verified_by: Classification fixtures, including formatting-only diffs and an opaque unit
+- id: IA-4
+  capability: impact
+  text: The report shall list downstream elements and assets by hop with owner, tier, edge state and confidence, following direct dependencies
+    for value impact and reporting indirect dependencies separately as row-set impact.
+  verified_by: Change C1 scenario (zip_code retyped); direct and indirect fixtures from the thin dbt model
+  retargeted_from: 'PR #482 scenario; direct and indirect fixtures'
+- id: IA-5
+  capability: impact
+  text: While the gate is in block mode, the system shall fail the check only when a tier 1 contract element with confirmed downstream readers
+    is removed, renamed or retyped without a version bump or sign-off from those readers' owners.
+  verified_by: Gate policy scenarios
+- id: IA-6
+  capability: impact
+  text: If the lineage platform is unavailable, then the check shall pass with a "lineage check unavailable" comment and raise an alert.
+  verified_by: Fail-open scenario
+- id: IA-7
+  capability: impact
+  text: The report shall offer a "this is wrong" action per row, and a disputed edge shall drop to candidate until reviewed.
+  verified_by: Feedback scenario
+- id: IA-8
+  capability: impact
+  text: On the change replay corpus the report shall list at least 8 of every 10 consumers that actually broke.
+  verified_by: '`lineage-eval replay changes`'
+- id: IA-9
+  capability: impact
+  text: The system shall expose the same impact query through an API that coding agents can call before a pull request exists.
+  verified_by: API contract test
+- id: IR-1
+  capability: detect-resolve
+  text: When a DQ or contract check fails on an element, the system shall attach the upstream path, the ranked change events and the blast radius
+    to the alert within 2 minutes.
+  verified_by: Incident scenarios in the twin
+- id: IR-2
+  capability: detect-resolve
+  text: 'The system shall walk upstream over the incident window: every edge valid at any time between the last passing check and the failure,
+    including edges that closed in between. It shall not use the current graph.'
+  verified_by: Scenario where the offending edge closed before the alert (C4 inside an incident window); scenario where an edge changed after
+    the incident
+  retargeted_from: Scenario where the offending edge closed before the alert; scenario where an edge changed after the incident
+- id: IR-3
+  capability: detect-resolve
+  text: 'The system shall identify the first failing element: the furthest upstream element with a failing check whose own inputs pass or have
+    no check.'
+  verified_by: Multi-hop failure fixtures
+- id: IR-4
+  capability: detect-resolve
+  text: The system shall rank change events on the upstream path by a deterministic score, and shall show the terms of the score, the evidence
+    path and any lineage gap on that path for each candidate.
+  verified_by: Ranking fixtures; explanation snapshot; a scenario with an opaque hop
+- id: IR-5
+  capability: detect-resolve
+  text: On the incident replay corpus the true cause shall be ranked first on at least 70% of incidents and in the top three on at least 90%.
+  verified_by: '`lineage-eval replay incidents`'
+- id: IR-6
+  capability: detect-resolve
+  text: The system shall split the blast radius into assets already affected and assets not yet affected, using run events after the failure time.
+  verified_by: 'Scheduled-run fixtures: the dbt job''s runs after the failure time'
+  retargeted_from: Scheduled-run fixtures
+- id: IR-7
+  capability: detect-resolve
+  text: The system shall emit a remediation plan in topological order with an action per node type and the owning team.
+  verified_by: Plan snapshots for incident I1 and for change C1 deployed to the twin
+  retargeted_from: 'Plan snapshot for the PR #482 hotfix scenario'
+- id: IR-8
+  capability: detect-resolve
+  text: Where a job has opted in to the circuit breaker, the system shall pause it when an upstream tier 1 element is failing, and shall resume
+    it only on a person's instruction.
+  verified_by: Circuit breaker scenario on the opted-in dbt job
+  retargeted_from: Circuit breaker scenario
+- id: IR-9
+  capability: detect-resolve
+  text: The system shall record, per incident, when bad data landed, when the alert fired, when the cause was identified and when remediation
+    completed.
+  verified_by: MTTD and MTTR report against baseline replays run without lineage (D16)
+  retargeted_from: MTTD and MTTR report against the Phase 0 baseline
+- id: XC-1
+  capability: evidence
+  text: 'The system shall collect and store metadata only: names, schemas, expressions, counts and times. It shall not store payload values.'
+  verified_by: Schema allow-list; scan of the evidence lake fixture
+- id: XC-2
+  capability: evidence
+  text: Every edge shall be traceable to its evidence records, and every evidence record to the raw input and the tool version that produced it.
+  verified_by: Trace test from edge to `rawRef`
+- id: XC-3
+  capability: evidence
+  text: The system shall never block or slow a producer. All emission shall be asynchronous and droppable.
+  verified_by: Fault-injection scenario
+- id: XC-4
+  capability: extractors
+  text: The system shall accept and emit OpenLineage events, including the column lineage facet, without loss of dependency class and subtype.
+  verified_by: Round-trip test
+- id: XC-5
+  capability: query-api
+  text: The system shall show elements tagged as personal data only to roles allowed to see them.
+  verified_by: Access-control scenario
+- id: XC-6
+  capability: extractors
+  text: Where a model is used to read code, the system shall send only source code and schemas through the approved endpoint, and shall record
+    the model, prompt version and output hash with the evidence.
+  verified_by: Egress allow-list test; evidence field check

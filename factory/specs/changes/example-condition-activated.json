@@ -1,0 +1,42 @@
+{
+ "schemaVersion": "1",
+ "eventType": "EDGE_CHANGE",
+ "recordedAt": "2026-11-27T14:22:20Z",
+ "edgeKey": "api://otel-demo/checkout/PlaceOrder/request#credit_card.credit_card_number | DERIVES | otel://otel-demo/checkout/span#demo.payment.card_number",
+ "edge": {
+  "from": "api://otel-demo/checkout/PlaceOrder/request#credit_card.credit_card_number",
+  "to": "otel://otel-demo/checkout/span#demo.payment.card_number",
+  "type": "DERIVES",
+  "class": "DIRECT",
+  "subtype": "IDENTITY"
+ },
+ "change": "condition_activated",
+ "previous": {
+  "state": "probable",
+  "confidence": 0.6,
+  "condition": "flag://otel-demo/emitRawPii == on",
+  "conditionState": "latent",
+  "validFrom": "2026-11-27T12:00:00Z",
+  "validTo": "2026-11-27T14:22:19Z",
+  "sources": [
+   "ci_static"
+  ]
+ },
+ "current": {
+  "state": "probable",
+  "confidence": 0.6,
+  "condition": "flag://otel-demo/emitRawPii == on",
+  "conditionState": "active",
+  "validFrom": "2026-11-27T14:22:19Z",
+  "validTo": null,
+  "sources": [
+   "ci_static"
+  ]
+ },
+ "causes": [
+  {
+   "kind": "change_event",
+   "ref": "flag://otel-demo/emitRawPii off->on 2026-11-27T14:22:19Z"
+  }
+ ]
+}

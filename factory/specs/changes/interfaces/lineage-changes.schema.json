@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lineage.internal/schemas/lineage-changes.schema.json",
+  "title": "Lineage change event",
+  "description": "One event on the lineage.changes topic per material change to an edge version in the graph of record. Catalog projections, notifications and RCA consume it. Requirements: IN-2, IN-4, IN-6, IN-8, IA-7; decision D30. Edge versions are never overwritten: a change closes one version and opens another.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "eventType", "recordedAt", "edgeKey", "edge", "change", "current", "causes"],
+  "properties": {
+    "schemaVersion": {"const": "1"},
+    "eventType": {"const": "EDGE_CHANGE"},
+    "recordedAt": {"type": "string", "format": "date-time", "description": "Transaction time"},
+    "edgeKey": {"type": "string", "pattern": "^\\S+ \\| [A-Z_]+ \\| \\S+$", "description": "<from URN> | <type> | <to URN>, element URNs carry #<field path>"},
+    "edge": {
+      "type": "object", "additionalProperties": false, "required": ["from", "to", "type"],
+      "properties": {
+        "from": {"type": "string", "pattern": "^[a-z][a-z0-9+.-]*://\\S+$"},
+        "to": {"type": "string", "pattern": "^[a-z][a-z0-9+.-]*://\\S+$"},
+        "type": {"enum": ["DERIVES", "CALLS", "PRODUCES", "CONSUMES", "READS", "WRITES", "READS_WRITES", "CONFIGURES", "OWNS"]},
+        "class": {"enum": ["DIRECT", "INDIRECT"]},
+        "subtype": {"enum": ["IDENTITY", "TRANSFORMATION", "AGGREGATION", "JOIN", "FILTER", "GROUP_BY", "SORT", "WINDOW", "CONDITIONAL"]},
+        "masking": {"type": "boolean"}
+      }
+    },
+    "change": {"enum": ["opened", "closed", "state_changed", "confidence_changed", "condition_activated", "condition_deactivated", "disputed", "held"],
+               "description": "held: a re-extraction that would close more than the allowed share of an extractor's edges was held for review (IN-2)"},
+    "previous": {"$ref": "#/$defs/version"},
+    "current": {"$ref": "#/$defs/version"},
+    "causes": {
+      "type": "array", "minItems": 1,
+      "items": {"type": "object", "additionalProperties": false, "required": ["kind", "ref"],
+                "properties": {"kind": {"enum": ["evidence", "change_event", "clock", "owner_action"]},
+                               "ref": {"type": "string", "minLength": 1, "description": "rawRef of the evidence, id of the change event, the rule that fired, or the owner's action id"}}}
+    }
+  },
+  "$defs": {
+    "version": {
+      "type": "object", "additionalProperties": false,
+      "required": ["state", "confidence", "validFrom", "validTo"],
+      "properties": {
+        "state": {"enum": ["candidate", "probable", "confirmed", "verified", "dormant", "retired", "disputed"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "condition": {"type": ["string", "null"]},
+        "conditionState": {"enum": ["active", "latent", null], "description": "D30: latent while the condition is false"},
+        "validFrom": {"type": "string", "format": "date-time"},
+        "validTo": {"type": ["string", "null"], "format": "date-time"},
+        "sources": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    }
+  }
+}

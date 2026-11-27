@@ -6,6 +6,18 @@ Nov 27, 2026 · Takes each component of the breakdown in [`site/lineage-componen
 
 The review on 27 November found 11 of 26 components ready, 7 still describing the old design and 8 with a missing piece. After the decisions in doc 08 and the fixtures added with it, every component has an input on the real flow, a work package and a test. Two are deferred on purpose, not missing: the search index and the catalog UI.
 
+**What "ready" means here.** A second review the same day found that "ready" meant scoped, not buildable. Each component had a work package and a named test, but no pass/fail threshold a builder could run against, and several tests still named the old slice. That gap is now closed in the spec pack ([`factory/`](../factory/README.md), decisions D33 to D37):
+
+- every work package has measurable done-when lines ([`factory/work-packages/`](../factory/work-packages/README.md));
+- every requirement is traced to visible scenarios;
+- the interfaces are fixed as schemas;
+- `code/spec_pack.py --check` keeps them consistent.
+
+So "Ready" below means: an input on the real flow, a work package, and acceptance criteria a harness can check. It does not mean built. Two packages remain partly blocked on inputs from later stages:
+
+- WP-28, the BI extractor, at field level until slice 2 names a BI tool;
+- WP-22 and WP-25, the stream and feature extractors, until WP-01 writes the complement's golden edges.
+
 | Status | Count | Components |
 | --- | --- | --- |
 | Ready | 25 | Everything below not marked deferred, including one new component, the check runner |
@@ -16,7 +28,7 @@ What changed to get there:
 - **Re-specified to the decisions:** gateway logs now cover traffic entering the estate only; a service edge builder reads traces; access history reads Postgres statistics first; the graph is Neptune, with Neo4j standing in locally.
 - **Added work packages:** WP-16 reconciler, WP-17 owner and tier overlay, WP-19 service edge builder, WP-39 check runner.
 - **Re-scoped work packages:** WP-13 to Neptune over Bolt, WP-22 to PyFlink code, WP-24 to the ORM writer, WP-26 to Postgres first.
-- **Added fixtures:** owners and tiers, two contracts, checks for the four incidents, and resolver aliases taken from a real capture run.
+- **Added fixtures:** owners and tiers, two contracts, checks for the incidents, resolver aliases taken from a real capture run, and the thin dbt model with its golden edges, schedule and circuit-breaker opt-in.
 - **Ran the twin:** half an hour of the demo with two flags flipped, scored by two prototypes. The run confirmed the design, found one golden edge missing, and produced four more decisions (D29 to D32 in doc 08).
 
 ## The flow the components serve

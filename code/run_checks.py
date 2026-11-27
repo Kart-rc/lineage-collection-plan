@@ -5,6 +5,11 @@ the narrowing step in WP-41): which failing check, which node it sits on, which 
 of those had failing calls, and which flag changes touch those services.
 
     python3 code/run_checks.py <capture folder> fixtures/otel-demo-3.1.0 [--events <change-events.jsonl>] [--verbose] [--json <out.json>]
+    python3 code/run_checks.py <capture folder> fixtures/otel-demo-3.1.0 --events <change-events.jsonl> --replay [--json <out.json>]
+
+--replay scores every incident in the run (prototype of WP-42 and lineage-eval replay incidents): which checks fired and
+how fast, where narrowing lands, and where the true cause ranks under the score in factory/parameters.yaml (D35).
+Incidents come from "run_marker" events ("I5 starts" ... "I5 ends") or, without markers, from incident-scenarios.json.
 
 Reads metrics.jsonl (OTLP/JSON, one export request per line) written by the collector's file exporter.
 """
@@ -265,11 +270,132 @@ def main(folder, fixtures, events_path=None, verbose=False):
     return summary
 
 
+# ---------------------------------------------------------------- incident replay (WP-42 prototype)
+TRUTH = {"I9": "paymentFailure"}     # incidents with a decoy: the change that is the true cause
+
+
+def readers_of(e, golden):
+    if e.get("kind") == "flag_change":
+        return {x["to"] for x in golden.get("flag_edges", []) if x["from"] == e["urn"]}
+    return {e["urn"]} if e.get("urn") else set()
+
+
+def direction(e):
+    if e.get("kind") == "flag_change":
+        return 1.0 if str(e.get("to")) != "off" else 0.3
+    return 0.3 if e.get("kind") == "service_start" else 1.0
+
+
+def replay(folder, fixtures, events_path, out=None):
+    import math
+    checks = yaml.safe_load(open(os.path.join(fixtures, "checks.yaml")))["checks"]
+    cfg = yaml.safe_load(open(os.path.join(fixtures, "checks.yaml")))
+    golden = json.load(open(os.path.join(fixtures, "golden-graph.json")))
+    scenarios = json.load(open(os.path.join(fixtures, "incident-scenarios.json")))["incidents"]
+    window = int(cfg["window"].rstrip("m")) * 60
+    baseline = int(cfg["baseline"].rstrip("m")) * 60
+    names = {c["metric"] for c in checks if c.get("metric")} | {"traces_service_graph_request_failed_total"}
+    series = load_series(folder, names)
+    times = [t for pts in series.values() for t, _ in pts]
+    t0, t1 = min(times), max(times)
+    clock = lambda t: datetime.fromtimestamp(t, timezone.utc).strftime("%H:%M:%S")
+    events = [json.loads(l) for l in open(events_path)]
+    for e in events:
+        e["t"] = datetime.fromisoformat(e["at"]).timestamp()
+    changes = [e for e in events if e["kind"] != "run_marker"]
+    # incidents
+    incidents = []
+    markers = [e for e in events if e["kind"] == "run_marker" and e["note"].endswith(" starts") and e["note"][0] == "I"]
+    if markers:
+        for m in markers:
+            iid = m["note"].split()[0]
+            end = next((e["t"] for e in events if e["kind"] == "run_marker" and e["note"] == f"{iid} ends"), t1)
+            block = [e for e in changes if m["t"] <= e["t"] <= m["t"] + 90 and not (e.get("to") == "off" or e["kind"] == "service_start")]
+            if block:
+                incidents.append({"id": iid, "inject": block[0]["t"], "end": end, "block": block})
+    else:
+        flag_to_id = {s["flag"]: s["id"] for s in scenarios}
+        for e in changes:
+            if e.get("kind") == "flag_change" and e.get("flag") in flag_to_id and str(e.get("to")) != "off":
+                incidents.append({"id": flag_to_id[e["flag"]], "inject": e["t"], "end": e["t"] + 600, "block": [e]})
+    # check states, every minute
+    grid = []
+    t = t0 + window + baseline
+    while t <= t1:
+        grid.append((t, {c["id"]: evaluate(c, series, t, window, baseline)[1] for c in checks if c.get("metric")}))
+        t += 60
+    W = yaml.safe_load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "factory", "parameters.yaml")))["detect_resolve"]
+    back = W["incident_window"]["before_first_failure_minutes"] * 60
+    report = []
+    for inc in incidents:
+        truth = TRUTH.get(inc["id"]) or inc["block"][0].get("flag") or inc["block"][0].get("service")
+        before = [st for tt, st in grid if tt <= inc["inject"]]
+        prev = before[-1] if before else {}
+        fired, first = {}, None
+        for tt, st in grid:
+            if tt <= inc["inject"] or tt > inc["end"] + 300:
+                continue
+            for cid, f in st.items():
+                if f and not prev.get(cid) and cid not in fired:
+                    fired[cid] = tt
+        row = {"id": inc["id"], "injected": clock(inc["inject"]), "true_cause": truth,
+               "checks_fired": {k: round((v - inc["inject"]) / 60, 1) for k, v in sorted(fired.items(), key=lambda kv: kv[1])}}
+        if not fired:
+            row.update(detected=False, rank=None, candidates=[])
+            report.append(row); continue
+        cid, ft = min(fired.items(), key=lambda kv: kv[1])
+        node = next(c["node"] for c in checks if c["id"] == cid)
+        dist = dependencies(golden, node)
+        fails_ = failing_calls(series, ft, window)
+        svc = lambda x: f"svc://otel-demo/{x}"
+        origins = {svc(b) for (a, b) in fails_ if svc(a) in dist and svc(b) in dist}
+        deepest = {o for o in origins if not any(svc(a) == o and svc(b) in dist for a, b in fails_)}
+        upstream = set(dist) - {node}       # calls failing into the check's own node are symptoms, not causes
+        total_fail = sum(n for (a, b), n in fails_.items() if svc(b) in upstream) or 0
+        cands = []
+        for e in changes:
+            if not (ft - back <= e["t"] <= ft):
+                continue
+            rd = readers_of(e, golden)
+            L = 1.0 if rd & deepest else (0.6 if rd & set(dist) else 0.0)
+            T = math.exp(-((ft - e["t"]) / 60) / 15)
+            D = direction(e)
+            Fc = (sum(n for (a, b), n in fails_.items() if svc(b) in rd & upstream) / total_fail) if total_fail else 0.0
+            score = 0.50 * L + 0.25 * T + 0.15 * D + 0.10 * Fc
+            label = e.get("flag") or e.get("service")
+            cands.append({"change": f"{label} {e.get('from', '')}->{e.get('to', '')}".replace("None->None", e["kind"]),
+                          "label": label, "at": clock(e["t"]), "t": e["t"], "score": round(score, 3),
+                          "terms": {"lineage": L, "time": round(T, 3), "direction": D, "failing_calls": round(Fc, 3)}})
+        cands.sort(key=lambda c: (-c["score"], -c["t"]))
+        # the true cause is the injecting change, not a later revert of the same flag
+        rank = next((i + 1 for i, c in enumerate(cands) if c["label"] == truth and c["t"] >= inc["inject"] - 1 and c["terms"]["direction"] == 1.0), None)
+        row.update(detected=True, first_check=cid, minutes_to_detect=round((ft - inc["inject"]) / 60, 1), node=node,
+                   deepest_failing_callee=sorted(deepest), rank=rank,
+                   candidates=[{k: v for k, v in c.items() if k not in ("t", "label")} for c in cands[:3]])
+        report.append(row)
+    print(f"{'incident':9} {'injected':9} {'true cause':30} {'first check':24} {'min':>5}  rank  top candidate")
+    for r in report:
+        top = r["candidates"][0]["change"] if r.get("candidates") else "-"
+        print(f"{r['id']:9} {r['injected']:9} {str(r['true_cause']):30} {r.get('first_check', 'none'):24} {str(r.get('minutes_to_detect', '-')):>5}  {str(r['rank']):>4}  {top}")
+    det = [r for r in report if r["detected"]]
+    first = sum(1 for r in det if r["rank"] == 1); top3 = sum(1 for r in det if r["rank"] and r["rank"] <= 3)
+    summary = {"incidents": len(report), "detected": len(det), "first": first, "top3": top3,
+               "first_share": round(first / len(report), 2) if report else None, "top3_share": round(top3 / len(report), 2) if report else None}
+    print(f"\ndetected {len(det)} of {len(report)}; true cause first {first} of {len(report)}, in the top three {top3} of {len(report)} (IR-5 bar: 70% and 90%)")
+    if out:
+        json.dump({"summary": summary, "incidents": report}, open(out, "w"), indent=1)
+        print(f"wrote {out}")
+    return report
+
+
 if __name__ == "__main__":
     verbose = "--verbose" in sys.argv
-    args = [a for a in sys.argv[1:] if a != "--verbose"]
+    args = [a for a in sys.argv[1:] if a not in ("--verbose", "--replay")]
     if len(args) >= 2:
         opts = dict(zip(args[2::2], args[3::2]))
+        if "--replay" in sys.argv:
+            replay(args[0], args[1], opts.get("--events"), opts.get("--json"))
+            sys.exit(0)
         out = main(args[0], args[1], opts.get("--events"), verbose)
         if "--json" in opts:
             json.dump(out, open(opts["--json"], "w"), indent=1)

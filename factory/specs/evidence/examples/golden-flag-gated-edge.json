@@ -1,0 +1,45 @@
+{
+ "schemaVersion": "2",
+ "eventType": "EVIDENCE",
+ "eventTime": "2026-11-27T12:00:00Z",
+ "producer": "lineage-examples/ci_static@0.1.0",
+ "edge": {
+  "type": "DERIVES",
+  "from": {
+   "namespace": "api://otel-demo",
+   "name": "checkout/PlaceOrder/request"
+  },
+  "to": {
+   "namespace": "otel://otel-demo",
+   "name": "checkout/span"
+  },
+  "elements": [
+   {
+    "from": "email",
+    "to": "user.email",
+    "class": "DIRECT",
+    "subtype": "IDENTITY",
+    "exprHash": "sha256:a84a5de237ba16eba090259f15e2b272797ef3adbef9ef11176f8ccacf9b26a2"
+   }
+  ],
+  "condition": "flag://otel-demo/emitRawPii == on"
+ },
+ "evidence": {
+  "source": "ci_static",
+  "weight": 0.6,
+  "runtime": false,
+  "observedAt": "2026-11-27T12:00:00Z",
+  "rawRef": "archive://ci_static/dt=2026-11-27/95c7b59df937",
+  "replaces": "unit",
+  "location": {
+   "path": "src/checkout/main.go",
+   "line": 315,
+   "text": "attribute.String(\"user.email\", req.GetEmail())"
+  }
+ },
+ "unit": {
+  "urn": "unit://git/opentelemetry-demo/src/checkout/main.go",
+  "contentHash": "sha256:8de0081dc68c6940564f1dd1ae76267a66416b0bc5b2f289bb46f4c2fb625cf5",
+  "commit": "dedc017"
+ }
+}
