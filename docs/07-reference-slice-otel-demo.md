@@ -146,7 +146,16 @@ python3 code/observed_edges.py <capture folder> fixtures/otel-demo-3.1.0/golden-
 
 ## The hops it does not cover
 
-The demo has no stream processor, warehouse, dbt project, feature store or model. A survey of open-source projects that cover those hops is running; this section and decision D2 in doc 08 are filled from its findings.
+The demo has no stream processor, warehouse, dbt project, feature store or model. A survey cloned and read 24 open-source repositories to find a complement ([notes](../research_notes/Reference%20slice/oss_reference_flow_survey.md)). None joins a stream processor, dbt and a feature store end to end in a form that runs locally under an open licence. Decision D2 in [doc 08](08-build-decisions.md) assembles the downstream half from the strongest parts instead:
+
+| Hop | Tested against | Why this one | Watch out for |
+| --- | --- | --- | --- |
+| Stream processor, feature store, training, serving | [`satyazm/Fraud-Detection-using-MLOps`](https://github.com/satyazm/Fraud-Detection-using-MLOps) at commit `d1692f9`, MIT | A PyFlink job computes features and writes them to Feast; a FastAPI service reads them and calls a model trained in MLflow. Every feature declares its source columns in `src/fraud_detection/features/registry.py`, so the golden set comes with the code | One author, published as a single commit in November 2026: fork it. Features are per transaction, so a windowed aggregate is not exercised. PyFlink runs outside Compose |
+| SQL models | `dbt-labs/jaffle-shop`, 13 models | The canonical dbt project: an independent test of the SQL extractor on code nobody here wrote | No licence file: use it as a read-only corpus, do not copy it into this repository |
+| Warehouse hop into the slice | One thin dbt model of your own over `accounting.orderitem` and `accounting.shipping` | Connects the demo's Postgres tables to an aggregate the way `fct_card_auth` did in the illustrative slice | It is code written here, so score the SQL extractor on jaffle-shop, not only on this |
+| Join between the two systems | An adapter from the demo's `OrderResult` to the complement's transaction schema | Makes the slice continuous from web request to model | It is itself a field-level hop, so it enters the golden graph like any other. Build it only after each half passes its own gate |
+
+Runner-up for the stream hop, if the feature store can wait: `lahiruweerasingha/realtime-fraud-detection` (MIT), PyFlink with a local Spark SQL feature model.
 
 ## Sources
 
