@@ -214,6 +214,8 @@ Before collecting anything, write down what the right answer is for the slice an
 
 ## Phase 1: gateway logs to service edges (weeks 2 to 5)
 
+> **Changed 27 November 2026.** Where there is no service mesh, internal calls never pass a gateway, so service-to-service edges come from traces and gateway logs cover only traffic entering the estate. See decision D7 in [doc 08](08-build-decisions.md) and the evidence in [doc 07](07-reference-slice-otel-demo.md).
+
 Turn access logs you already have into a service dependency map. No application code changes; the work is log format, identity and aggregation.
 
 &#91;embedded content: phase 1 · gateway and mesh logs to service edges\]

@@ -1,0 +1,6 @@
+# Compose override for the lineage reference run. Use with the demo's compose.yaml and compose.full.yaml.
+# Set CAPTURE_DIR to a writable folder; traces, logs and metrics land there as JSON lines.
+services:
+  otel-collector:
+    volumes:
+      - ${CAPTURE_DIR:?set CAPTURE_DIR}:/capture

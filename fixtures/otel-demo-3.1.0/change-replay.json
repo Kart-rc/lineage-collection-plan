@@ -1,0 +1,100 @@
+{
+ "source": {
+  "repo": "https://github.com/open-telemetry/opentelemetry-demo",
+  "tag": "3.1.0",
+  "commit": "dedc017"
+ },
+ "changes": [
+  {
+   "id": "C1",
+   "commit": "133d089",
+   "date": "2022-11-21",
+   "title": "[protobuf] - encode zipcode as a string (#587)",
+   "change": "Address.zip_code retyped from int32 to string in pb/demo.proto",
+   "class": "BREAKING",
+   "why": "int32 and string are not wire-compatible in protobuf; every reader of the field must regenerate",
+   "elements": [
+    "api://otel-demo/checkout/PlaceOrder/request#address.zip_code",
+    "kafka://otel-demo/orders#shipping_address.zip_code"
+   ],
+   "readers_at_3_1_0": [
+    "accounting.shipping#zip_code",
+    "shipping (quote and ship-order)",
+    "frontend",
+    "load-generator"
+   ]
+  },
+  {
+   "id": "C2",
+   "commit": "8a28923",
+   "date": "2023-02-11",
+   "title": "rename proto package from hipstershop to oteldemo (#740)",
+   "change": "Protobuf package renamed; every generated client and type name changes",
+   "class": "BREAKING (build), wire-compatible",
+   "why": "field numbers and types are unchanged, so bytes on the topic still parse; code that names the type does not compile",
+   "elements": [
+    "kafka://otel-demo/orders"
+   ],
+   "readers_at_3_1_0": [
+    "every service"
+   ]
+  },
+  {
+   "id": "C3",
+   "commit": "42da57b",
+   "date": "2025-06-25",
+   "title": "store order to postgresql from accounting service (#2175)",
+   "change": "accounting starts writing orders to three new Postgres tables",
+   "class": "NON-BREAKING (new consumer and new datasets)",
+   "why": "nothing existing changes; lineage must discover 17 new field edges and three tables",
+   "elements": [
+    "postgres://astronomy-db/astronomy_db.public.order",
+    "postgres://astronomy-db/astronomy_db.public.orderitem",
+    "postgres://astronomy-db/astronomy_db.public.shipping"
+   ],
+   "readers_at_3_1_0": []
+  },
+  {
+   "id": "C4",
+   "commit": "5f83ad1",
+   "date": "2025-11-07",
+   "title": "Add a Product Review service with GenAI-powered summaries (#2663)",
+   "change": "the three accounting tables move from the public schema to an accounting schema",
+   "class": "BREAKING for readers of the old names",
+   "why": "the dataset identity changes; old edges must close and new ones open, or history breaks",
+   "elements": [
+    "postgres://astronomy-db/astronomy_db.public.order",
+    "postgres://astronomy-db/astronomy_db.accounting.\"order\""
+   ],
+   "readers_at_3_1_0": [
+    "accounting"
+   ]
+  },
+  {
+   "id": "C5",
+   "commit": "66a5b73",
+   "date": "2026-06-29",
+   "title": "[cleanup] Remove product reviews from frontend (#3568)",
+   "change": "the product review service and its proto messages are removed",
+   "class": "RETIREMENT",
+   "why": "a node and its edges must move to retired, not vanish",
+   "elements": [
+    "svc://otel-demo/product-reviews"
+   ],
+   "readers_at_3_1_0": []
+  },
+  {
+   "id": "C6",
+   "commit": "c7b195f",
+   "date": "2026-10-12",
+   "title": "Rewrite the recommendation service in Spring Boot 4 (#3966)",
+   "change": "recommendation rewritten from Python to Java; it still calls product-catalog ListProducts",
+   "class": "NO LINEAGE CHANGE",
+   "why": "the edge must survive while its static evidence moves to a new file, language and extractor; a rescan that drops it is a defect",
+   "elements": [
+    "svc://otel-demo/recommendation -> svc://otel-demo/product-catalog"
+   ],
+   "readers_at_3_1_0": []
+  }
+ ]
+}

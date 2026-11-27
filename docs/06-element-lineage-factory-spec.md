@@ -515,6 +515,8 @@ Three feedback paths close the loop. A failed verification returns to the builde
 
 ### The oracle
 
+The first version of all four exists for the reference slice in [doc 07](07-reference-slice-otel-demo.md): the golden graph, change replays and incident scenarios are in `fixtures/otel-demo-3.1.0/`, and the twin is the demo itself.
+
 Four things make "correct" machine-checkable for this system.
 
 - **The golden graph.** About 15 service and dataset edges and 40 element edges for the slice, written with the owners in Phase 0 and stored as fixtures. The harness reports precision and recall per edge type and per hop.
@@ -793,6 +795,8 @@ The holdout corpus holds siblings of this scenario from the same family, such as
 | Vendor capabilities overtake the build | ADR-002's revisit triggers; catalogs remain projections, so adopting a vendor component is a collector swap |
 
 ## Open questions and decisions needed
+
+On 27 November 2026 these were decided or given recommendations in [doc 08](08-build-decisions.md), against the reference slice in [doc 07](07-reference-slice-otel-demo.md).
 
 | # | Decision or question | Why it matters | Who |
 | --- | --- | --- | --- |

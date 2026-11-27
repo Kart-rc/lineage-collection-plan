@@ -1,0 +1,791 @@
+{
+ "source": {
+  "repo": "https://github.com/open-telemetry/opentelemetry-demo",
+  "tag": "3.1.0",
+  "commit": "dedc017"
+ },
+ "naming": {
+  "service": "svc://otel-demo/<service>",
+  "message": "api://otel-demo/<service>/<call>/<request|response>#<field path>",
+  "topic": "kafka://otel-demo/orders#<field path>",
+  "table": "postgres://astronomy-db/astronomy_db.<schema>.<table>#<column>",
+  "field paths": "dotted for nested fields, [] for repeated fields"
+ },
+ "service_edges": [
+  {
+   "from": "svc://otel-demo/load-generator",
+   "to": "svc://otel-demo/frontend-proxy",
+   "type": "CALLS",
+   "upstream_asserted": false,
+   "evidence": {
+    "path": ".env",
+    "line": 106,
+    "text": "LOCUST_HOST=http://${FRONTEND_PROXY_ADDR}",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/.env#L106"
+   }
+  },
+  {
+   "from": "svc://otel-demo/frontend-proxy",
+   "to": "svc://otel-demo/frontend",
+   "type": "CALLS",
+   "upstream_asserted": false,
+   "evidence": {
+    "path": "src/frontend-proxy/envoy.tmpl.yaml",
+    "line": 96,
+    "text": "cluster: frontend",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/frontend-proxy/envoy.tmpl.yaml#L96"
+   }
+  },
+  {
+   "from": "svc://otel-demo/frontend",
+   "to": "svc://otel-demo/ad",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "test/telemetry/services.py",
+    "line": 78,
+    "text": "(\"frontend\", \"ad\")",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/test/telemetry/services.py#L78"
+   }
+  },
+  {
+   "from": "svc://otel-demo/frontend",
+   "to": "svc://otel-demo/recommendation",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "test/telemetry/services.py",
+    "line": 79,
+    "text": "(\"frontend\", \"recommendation\")",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/test/telemetry/services.py#L79"
+   }
+  },
+  {
+   "from": "svc://otel-demo/frontend",
+   "to": "svc://otel-demo/product-catalog",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "test/telemetry/services.py",
+    "line": 80,
+    "text": "(\"frontend\", \"product-catalog\")",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/test/telemetry/services.py#L80"
+   }
+  },
+  {
+   "from": "svc://otel-demo/frontend",
+   "to": "svc://otel-demo/cart",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "test/telemetry/services.py",
+    "line": 81,
+    "text": "(\"frontend\", \"cart\")",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/test/telemetry/services.py#L81"
+   }
+  },
+  {
+   "from": "svc://otel-demo/frontend",
+   "to": "svc://otel-demo/checkout",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "test/telemetry/services.py",
+    "line": 82,
+    "text": "(\"frontend\", \"checkout\")",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/test/telemetry/services.py#L82"
+   }
+  },
+  {
+   "from": "svc://otel-demo/frontend",
+   "to": "svc://otel-demo/shipping",
+   "type": "CALLS",
+   "upstream_asserted": false,
+   "evidence": {
+    "path": "src/frontend/gateways/http/Shipping.gateway.ts",
+    "line": 31,
+    "text": "/get-quote",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/frontend/gateways/http/Shipping.gateway.ts#L31"
+   }
+  },
+  {
+   "from": "svc://otel-demo/checkout",
+   "to": "svc://otel-demo/cart",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 528,
+    "text": "cartSvcClient.GetCart",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L528"
+   }
+  },
+  {
+   "from": "svc://otel-demo/checkout",
+   "to": "svc://otel-demo/product-catalog",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 546,
+    "text": "productCatalogSvcClient.GetProduct",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L546"
+   }
+  },
+  {
+   "from": "svc://otel-demo/checkout",
+   "to": "svc://otel-demo/currency",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 563,
+    "text": "currencySvcClient.Convert",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L563"
+   }
+  },
+  {
+   "from": "svc://otel-demo/checkout",
+   "to": "svc://otel-demo/shipping",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 494,
+    "text": "/get-quote",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L494"
+   }
+  },
+  {
+   "from": "svc://otel-demo/checkout",
+   "to": "svc://otel-demo/payment",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 361,
+    "text": "cs.chargeCard(ctx, total, req.CreditCard)",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L361"
+   }
+  },
+  {
+   "from": "svc://otel-demo/checkout",
+   "to": "svc://otel-demo/email",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 603,
+    "text": "/send_order_confirmation",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L603"
+   }
+  },
+  {
+   "from": "svc://otel-demo/recommendation",
+   "to": "svc://otel-demo/product-catalog",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "src/recommendation/recommendation_server.py",
+    "line": 84,
+    "text": "ListProducts",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/recommendation/recommendation_server.py#L84"
+   }
+  },
+  {
+   "from": "svc://otel-demo/shipping",
+   "to": "svc://otel-demo/quote",
+   "type": "CALLS",
+   "upstream_asserted": true,
+   "evidence": {
+    "path": "test/telemetry/services.py",
+    "line": 95,
+    "text": "(\"shipping\", \"quote\")",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/test/telemetry/services.py#L95"
+   }
+  },
+  {
+   "from": "svc://otel-demo/cart",
+   "to": "valkey://valkey-cart/cart",
+   "type": "READS_WRITES",
+   "upstream_asserted": false,
+   "evidence": {
+    "path": "src/cart/src/cartstore/ValkeyCartStore.cs",
+    "line": 16,
+    "text": "class ValkeyCartStore",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/cart/src/cartstore/ValkeyCartStore.cs#L16"
+   }
+  },
+  {
+   "from": "svc://otel-demo/product-catalog",
+   "to": "postgres://astronomy-db/astronomy_db.catalog.products",
+   "type": "READS",
+   "upstream_asserted": false,
+   "evidence": {
+    "path": "src/product-catalog/main.go",
+    "line": 234,
+    "text": "FROM catalog.products",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/product-catalog/main.go#L234"
+   }
+  },
+  {
+   "from": "svc://otel-demo/checkout",
+   "to": "kafka://otel-demo/orders",
+   "type": "PRODUCES",
+   "upstream_asserted": false,
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 671,
+    "text": "Topic: kafka.Topic",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L671"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders",
+   "to": "svc://otel-demo/accounting",
+   "type": "CONSUMES",
+   "upstream_asserted": false,
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 46,
+    "text": "_consumer.Subscribe(TopicName)",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L46"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders",
+   "to": "svc://otel-demo/fraud-detection",
+   "type": "CONSUMES",
+   "upstream_asserted": false,
+   "evidence": {
+    "path": "src/fraud-detection/src/main/kotlin/frauddetection/main.kt",
+    "line": 55,
+    "text": "subscribe(listOf(topic))",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/fraud-detection/src/main/kotlin/frauddetection/main.kt#L55"
+   }
+  },
+  {
+   "from": "svc://otel-demo/accounting",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.*",
+   "type": "WRITES",
+   "upstream_asserted": false,
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 130,
+    "text": "dbContext.SaveChanges()",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L130"
+   }
+  }
+ ],
+ "field_edges": [
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#address.street_address",
+   "to": "kafka://otel-demo/orders#shipping_address.street_address",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 387,
+    "text": "ShippingAddress:    req.Address",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L387"
+   }
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#address.city",
+   "to": "kafka://otel-demo/orders#shipping_address.city",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 387,
+    "text": "ShippingAddress:    req.Address",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L387"
+   }
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#address.state",
+   "to": "kafka://otel-demo/orders#shipping_address.state",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 387,
+    "text": "ShippingAddress:    req.Address",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L387"
+   }
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#address.country",
+   "to": "kafka://otel-demo/orders#shipping_address.country",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 387,
+    "text": "ShippingAddress:    req.Address",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L387"
+   }
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#address.zip_code",
+   "to": "kafka://otel-demo/orders#shipping_address.zip_code",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 387,
+    "text": "ShippingAddress:    req.Address",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L387"
+   }
+  },
+  {
+   "from": "api://otel-demo/shipping/POST /ship-order/response#tracking_id",
+   "to": "kafka://otel-demo/orders#shipping_tracking_id",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 385,
+    "text": "ShippingTrackingId: shippingTrackingID",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L385"
+   }
+  },
+  {
+   "from": "api://otel-demo/shipping/POST /get-quote/response#cost_usd.units",
+   "to": "kafka://otel-demo/orders#shipping_cost.units",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "TRANSFORMATION",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 386,
+    "text": "ShippingCost:       prep.shippingCostLocalized",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L386"
+   }
+  },
+  {
+   "from": "api://otel-demo/product-catalog/GetProduct/response#price_usd.units",
+   "to": "kafka://otel-demo/orders#items[].cost.units",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "TRANSFORMATION",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 556,
+    "text": "Cost: price",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L556"
+   }
+  },
+  {
+   "from": "api://otel-demo/shipping/POST /get-quote/response#cost_usd.nanos",
+   "to": "kafka://otel-demo/orders#shipping_cost.nanos",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "TRANSFORMATION",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 386,
+    "text": "ShippingCost:       prep.shippingCostLocalized",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L386"
+   }
+  },
+  {
+   "from": "api://otel-demo/product-catalog/GetProduct/response#price_usd.nanos",
+   "to": "kafka://otel-demo/orders#items[].cost.nanos",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "TRANSFORMATION",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 556,
+    "text": "Cost: price",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L556"
+   }
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#user_currency",
+   "to": "kafka://otel-demo/orders#shipping_cost.currency_code",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "TRANSFORMATION",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 386,
+    "text": "ShippingCost:       prep.shippingCostLocalized",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L386"
+   }
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#user_currency",
+   "to": "kafka://otel-demo/orders#items[].cost.currency_code",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "TRANSFORMATION",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 556,
+    "text": "Cost: price",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L556"
+   }
+  },
+  {
+   "from": "api://otel-demo/cart/GetCart/response#items[].product_id",
+   "to": "kafka://otel-demo/orders#items[].item.product_id",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 555,
+    "text": "Item: item",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L555"
+   }
+  },
+  {
+   "from": "api://otel-demo/cart/GetCart/response#items[].quantity",
+   "to": "kafka://otel-demo/orders#items[].item.quantity",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 555,
+    "text": "Item: item",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L555"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#order_id",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.\"order\"#order_id",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 98,
+    "text": "Id = order.OrderId",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L98"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#items[].cost.currency_code",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.orderitem#item_cost_currency_code",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 105,
+    "text": "ItemCostCurrencyCode = item.Cost.CurrencyCode",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L105"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#items[].cost.units",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.orderitem#item_cost_units",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 106,
+    "text": "ItemCostUnits = item.Cost.Units",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L106"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#items[].cost.nanos",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.orderitem#item_cost_nanos",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 107,
+    "text": "ItemCostNanos = item.Cost.Nanos",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L107"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#items[].item.product_id",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.orderitem#product_id",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 108,
+    "text": "ProductId = item.Item.ProductId",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L108"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#items[].item.quantity",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.orderitem#quantity",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 109,
+    "text": "Quantity = item.Item.Quantity",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L109"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#order_id",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.orderitem#order_id",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 110,
+    "text": "OrderId = order.OrderId",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L110"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#shipping_tracking_id",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.shipping#shipping_tracking_id",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 118,
+    "text": "ShippingTrackingId = order.ShippingTrackingId",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L118"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#shipping_cost.currency_code",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.shipping#shipping_cost_currency_code",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 119,
+    "text": "ShippingCostCurrencyCode = order.ShippingCost.CurrencyCode",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L119"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#shipping_cost.units",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.shipping#shipping_cost_units",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 120,
+    "text": "ShippingCostUnits = order.ShippingCost.Units",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L120"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#shipping_cost.nanos",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.shipping#shipping_cost_nanos",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 121,
+    "text": "ShippingCostNanos = order.ShippingCost.Nanos",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L121"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#shipping_address.street_address",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.shipping#street_address",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 122,
+    "text": "StreetAddress = order.ShippingAddress.StreetAddress",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L122"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#shipping_address.city",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.shipping#city",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 123,
+    "text": "City = order.ShippingAddress.City",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L123"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#shipping_address.state",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.shipping#state",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 124,
+    "text": "State = order.ShippingAddress.State",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L124"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#shipping_address.country",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.shipping#country",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 125,
+    "text": "Country = order.ShippingAddress.Country",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L125"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#shipping_address.zip_code",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.shipping#zip_code",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 126,
+    "text": "ZipCode = order.ShippingAddress.ZipCode",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L126"
+   }
+  },
+  {
+   "from": "kafka://otel-demo/orders#order_id",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.shipping#order_id",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/accounting/Consumer.cs",
+    "line": 127,
+    "text": "OrderId = order.OrderId",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/accounting/Consumer.cs#L127"
+   }
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#credit_card.credit_card_number",
+   "to": "api://otel-demo/payment/Charge/request#credit_card.credit_card_number",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 583,
+    "text": "CreditCard: paymentInfo",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L583"
+   }
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#credit_card.credit_card_cvv",
+   "to": "api://otel-demo/payment/Charge/request#credit_card.credit_card_cvv",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 583,
+    "text": "CreditCard: paymentInfo",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L583"
+   }
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#credit_card.credit_card_expiration_year",
+   "to": "api://otel-demo/payment/Charge/request#credit_card.credit_card_expiration_year",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 583,
+    "text": "CreditCard: paymentInfo",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L583"
+   }
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#credit_card.credit_card_expiration_month",
+   "to": "api://otel-demo/payment/Charge/request#credit_card.credit_card_expiration_month",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "IDENTITY",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 583,
+    "text": "CreditCard: paymentInfo",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L583"
+   }
+  },
+  {
+   "from": "api://otel-demo/payment/Charge/request#credit_card.credit_card_number",
+   "to": "logs://otel-demo/payment#lastFourDigits",
+   "type": "DERIVES",
+   "class": "DIRECT",
+   "subtype": "TRANSFORMATION",
+   "evidence": {
+    "path": "src/payment/charge.js",
+    "line": 60,
+    "text": "number.substr(-4)",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/payment/charge.js#L60"
+   }
+  }
+ ],
+ "field_reads": [
+  {
+   "element": "kafka://otel-demo/orders#order_id",
+   "reader": "svc://otel-demo/fraud-detection",
+   "evidence": {
+    "path": "src/fraud-detection/src/main/kotlin/frauddetection/main.kt",
+    "line": 70,
+    "text": "OrderResult.parseFrom(record.value())",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/fraud-detection/src/main/kotlin/frauddetection/main.kt#L70"
+   }
+  }
+ ],
+ "must_not_flow": [
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#credit_card.*",
+   "to": "kafka://otel-demo/orders",
+   "why": "Card data never reaches the orders topic"
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#credit_card.*",
+   "to": "postgres://astronomy-db/astronomy_db.accounting.*",
+   "why": "Card data never reaches the accounting tables"
+  },
+  {
+   "from": "api://otel-demo/checkout/PlaceOrder/request#email",
+   "to": "kafka://otel-demo/orders",
+   "why": "The customer email is sent to the email service, not published"
+  }
+ ],
+ "generated_without_source": [
+  {
+   "element": "kafka://otel-demo/orders#order_id",
+   "how": "uuid.NewUUID() in checkout",
+   "evidence": {
+    "path": "src/checkout/main.go",
+    "line": 339,
+    "text": "uuid.NewUUID()",
+    "url": "https://github.com/open-telemetry/opentelemetry-demo/blob/3.1.0/src/checkout/main.go#L339"
+   }
+  }
+ ]
+}

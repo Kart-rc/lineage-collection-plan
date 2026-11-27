@@ -1,0 +1,26 @@
+# Added for the lineage reference run: keep traces, logs and metrics on disk,
+# and derive service-to-service call edges from traces with the servicegraph connector.
+# No Docker socket or host filesystem: docker_stats and host_metrics are left out.
+exporters:
+  file/traces:
+    path: /capture/traces.jsonl
+  file/logs:
+    path: /capture/logs.jsonl
+  file/metrics:
+    path: /capture/metrics.jsonl
+connectors:
+  servicegraph:
+    latency_histogram_buckets: [10ms, 100ms, 1s, 10s]
+    store:
+      ttl: 30s
+      max_items: 5000
+    metrics_flush_interval: 15s
+service:
+  pipelines:
+    traces:
+      exporters: [debug, span_metrics, servicegraph, file/traces]
+    metrics:
+      receivers: [http_check/frontend-proxy, nginx, otlp, redis, postgresql, span_metrics, kafkametrics, servicegraph]
+      exporters: [debug, file/metrics]
+    logs:
+      exporters: [debug, file/logs]
