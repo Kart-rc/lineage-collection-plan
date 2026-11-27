@@ -85,6 +85,7 @@ work_packages:
   must_hold:
     - Lineage traffic never uses the demo's own Kafka (D23)
     - Works in a sandbox without IPv6 or ulimit (sandbox.override.yaml)
+    - A flag with a targeting rule is flipped through the rule's branch, as flagd-ui does, not through its default variant (the second run's I6 attempt changed productCatalogFailure's default and injected nothing)
   done_when:
     - "Cold start to all containers healthy in 15 minutes or less, 3 of 3 attempts"
     - "Smoke run: observed service edges score precision >= 0.95 against the golden graph after 10 minutes of load"
@@ -555,6 +556,7 @@ work_packages:
   outputs: [planned:collectors/checks/]
   must_hold:
     - Thresholds are read from checks.yaml; never tuned on the incident being scored
+    - An incident that fires no check is recorded as undetected and raises a coverage finding; a new check is validated on a fresh run, not on the run that revealed the gap (D38)
   done_when:
     - "0 false alarms over the baseline periods of both runs"
     - "For at least 90% of visible incidents, a check listed in catches fails within 3 minutes of the injection"
@@ -589,6 +591,7 @@ work_packages:
   outputs: [planned:core/timeline/]
   must_hold:
     - A flag change joins through every service that reads the flag in code, with or without a flagd span
+    - Statements such as LOCK TABLE ... ACCESS EXCLUSIVE seen in database spans enter the timeline as change events (D38)
   done_when:
     - "100% of change events from both runs ingested and joined (20 flag edges, service stop and start)"
     - "A window query returns exactly the events inside the window for 100% of visible incidents"
@@ -606,6 +609,7 @@ work_packages:
   outputs: [planned:services/rca/]
   must_hold:
     - Walks every edge valid at any time in the window, including closed ones; never the current graph
+    - States when the cause may come from callers (traffic), which the dependency walk cannot reach (D38)
     - Same inputs give the same ranking
   done_when:
     - "Visible and holdout incident replay: true cause first on >= 70%, in the top three on >= 90%"

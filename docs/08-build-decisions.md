@@ -8,7 +8,7 @@ The readiness review on 26 November found the build blocked on thirteen open dec
 
 | Status | Count | Meaning |
 | --- | --- | --- |
-| Decided on evidence | 25 |
+| Decided on evidence | 26 |
 | Drafted for G1, approved in principle | 5 | D33 to D37: the spec pack, interfaces, parameters, corpora and the dbt fixture, approved by you on 27 November as drafts | Settled from the reference slice, a capture run or the research. Each is reversible, and the "revisit if" column says when |
 | Decided by you | 7 | D12, D13 and D18 to D22, answered on 27 November |
 | Still open, not blocking | 1 | Which of your data products becomes slice 2 (part of D22). Pick it during wave 1 |
@@ -85,7 +85,7 @@ The first two come from reading the demo's code and its maintainers' own notes. 
 
 ## Closing the component gaps
 
-D23 to D28 came out of the component review on 27 November ([doc 09](09-component-build-sheet.md)); D29 to D32 out of the capture run the same day.
+D23 to D28 came out of the component review on 27 November ([doc 09](09-component-build-sheet.md)); D29 to D32 out of the first capture run the same day.
 
 | Id | Decision | Evidence | Revisit if |
 | --- | --- | --- | --- |
@@ -102,15 +102,16 @@ D23 to D28 came out of the component review on 27 November ([doc 09](09-componen
 
 ## Acceptance criteria for the build
 
-You approved these on 27 November as drafts for gate G1. They answer the review that found the components scoped but not testable by a builder: no done-when per work package, interfaces only as examples, verification still naming the old slice, three parameters undefined, and replay corpora too small for their own thresholds.
+You approved D33 to D37 on 27 November as drafts for gate G1; D38 records what the incident run the same day taught. They answer the review that found the components scoped but not testable by a builder: no done-when per work package, interfaces only as examples, verification still naming the old slice, three parameters undefined, and replay corpora too small for their own thresholds.
 
 | Id | Decision | Evidence | Revisit if |
 | --- | --- | --- | --- |
 | D33 | **The spec pack exists, in `factory/`, and is checked by `code/spec_pack.py`.** It holds the constitution, the parameters, the 41 requirements, the interfaces, done-when for all 39 work packages and the visible scenarios. Doc 06's hop table, element examples, envelope example, sample work package and sample scenario now describe the reference slice, and 12 requirements have their verification re-targeted to it | The checker passes: 41 of 41 requirements served by a work package and traced by a visible scenario, 97 done-when lines all measurable, every fixture present, dependencies acyclic | G1 rejects a part; the checker then fails until the part is rewritten |
 | D34 | **Three interface contracts are fixed:** envelope v2 as JSON Schema (evidence, check results and change events; conditions, flag edges, runtime columns, a `db_span` source), the `lineage.changes` event, and OpenAPI 3.1 for `/impact`, `/upstream`, `/diff` and `/explain` | Every golden edge (64), every check result and change event from the twin, and sample runtime edges validate; 7 of 7 deliberately invalid events are rejected, including a smuggled card number. The OpenAPI document passes a 3.1 validator | A collector needs a field the schema lacks; the change goes through G1, never into one collector |
 | D35 | **The undefined numbers are set** in `factory/parameters.yaml`: a re-extraction is held when it would close more than 20% of an extractor's edges and at least 10 (IN-2); the RCA score is 0.50 lineage + 0.25 time + 0.15 direction + 0.10 failing calls, with every term shown (IR-4); holdout pass rates are 1.00 for core semantics and platform, 0.90 for extractors, 0.85 for impact and 0.80 for detect and resolve; the gate starts in warn | IN-2 and IR-4 named a "set share" and a "deterministic score" without values. The direction term answers the I1 tie, where only 45 seconds separated the true cause from a flag returning to its default | The visible replays calibrate the score weights; they are fixed before the holdout runs, never after |
-| D36 | **The corpora reach at least 20 changes and 20 incidents, a third of each family held out, and the holdout lives outside this repository,** written by people who do not build. Visible today: C1 to C13 and I1 to I10. The four changes named in D15 are public and became visible cases C10 to C13 | Four incidents could not measure "top three on 90%". Builders are agents that read this repository, so anything in it is visible | Slice 2's own history replaces the demo's corpus |
+| D36 | **The corpora reach at least 20 changes and 20 incidents, a third of each family held out, and the holdout lives outside this repository,** written by people who do not build. Visible today: C1 to C13 and I1 to I10. The four changes named in D15 are public and became visible cases C10 to C13 | Four incidents could not measure "top three on 90%". Builders are agents that read this repository, so anything in it is visible. I5 to I10 were run in the twin on 27 November (D38) | Slice 2's own history replaces the demo's corpus |
 | D37 | **The thin dbt model from D2 is written** (`fixtures/otel-demo-3.1.0/dbt/`): three staging models and a mart over the accounting tables, with a dashboard exposure, a schedule and a circuit-breaker opt-in, running under its own `analytics_dbt` login. It is the fixture for BL-5, IN-3, IR-6 and IR-8, which had nothing to test against | 35 golden edges hand-written from the SQL (30 direct, 5 indirect). The project parses with dbt 1.9 | Slice 2 brings a real warehouse model; the thin model stays as the twin's fixture |
+| D38 | **Lessons from the incident corpus are now rules.**<br>(1) The twin flips a flag that has a targeting rule through the rule, as flagd-ui does (WP-03).<br>(2) Silent failure is an incident family. An undetected incident counts against IR-5 and raises a coverage finding. A check that would have caught it is designed and then validated on a fresh run, never on the run that revealed it.<br>(3) The ranking reports when a cause may come from callers, such as traffic, that the dependency walk cannot reach.<br>(4) The holdout includes near-simultaneous changes on different dependencies.<br>(5) Statements such as `LOCK TABLE ... ACCESS EXCLUSIVE` in database spans become change events on the timeline (WP-41) | Second run, nine incidents plus I1 from the first: 8 of 10 detected, all within 2 minutes; the true cause ranked first in all 8. Against IR-5: 80% first (bar 70%), 80% in the top three (bar 90%).<br>Lineage led to the cause (lineage term 1.0) in only I1, I3 and I9; elsewhere time decided, with incidents nine minutes apart. The first attempt at I6 injected nothing because of a targeting rule. I5 (silent) and I10 (traffic) fired no check | The holdout replays show the ranking holding when changes are close together; then (4) has done its job |
 
 ## Changes to earlier documents
 

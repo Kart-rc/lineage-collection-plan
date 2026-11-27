@@ -1,0 +1,45 @@
+{"at": "2026-11-27T16:54:06+00:00", "kind": "run_marker", "note": "baseline starts"}
+{"at": "2026-11-27T17:06:06+00:00", "kind": "run_marker", "note": "I5 starts"}
+{"at": "2026-11-27T17:06:06+00:00", "kind": "flag_change", "flag": "cartFailure", "urn": "flag://otel-demo/cartFailure", "from": "off", "to": "50%"}
+{"at": "2026-11-27T17:10:06+00:00", "kind": "flag_change", "flag": "cartFailure", "urn": "flag://otel-demo/cartFailure", "from": "50%", "to": "off"}
+{"at": "2026-11-27T17:10:06+00:00", "kind": "run_marker", "note": "I5 ends"}
+{"at": "2026-11-27T17:15:06+00:00", "kind": "run_marker", "note": "void attempt at I6: productCatalogFailure has a targeting rule, so changing its default variant injected nothing"}
+{"at": "2026-11-27T17:15:06+00:00", "kind": "flag_change", "flag": "productCatalogFailure", "urn": "flag://otel-demo/productCatalogFailure", "from": "off", "to": "on"}
+{"at": "2026-11-27T17:19:06+00:00", "kind": "flag_change", "flag": "productCatalogFailure", "urn": "flag://otel-demo/productCatalogFailure", "from": "on", "to": "off"}
+{"at": "2026-11-27T17:19:06+00:00", "kind": "run_marker", "note": "void attempt at I6 ended"}
+{"at": "2026-11-27T17:24:06+00:00", "kind": "run_marker", "note": "I7 starts"}
+{"at": "2026-11-27T17:24:07+00:00", "kind": "service_stop", "service": "accounting", "urn": "svc://otel-demo/accounting"}
+{"at": "2026-11-27T17:28:07+00:00", "kind": "service_start", "service": "accounting", "urn": "svc://otel-demo/accounting"}
+{"at": "2026-11-27T17:28:07+00:00", "kind": "run_marker", "note": "I7 ends"}
+{"at": "2026-11-27T17:33:07+00:00", "kind": "run_marker", "note": "I2 starts"}
+{"at": "2026-11-27T17:33:07+00:00", "kind": "flag_change", "flag": "kafkaQueueProblems", "urn": "flag://otel-demo/kafkaQueueProblems", "from": "off", "to": "on"}
+{"at": "2026-11-27T17:37:07+00:00", "kind": "flag_change", "flag": "kafkaQueueProblems", "urn": "flag://otel-demo/kafkaQueueProblems", "from": "on", "to": "off"}
+{"at": "2026-11-27T17:37:07+00:00", "kind": "run_marker", "note": "I2 ends"}
+{"at": "2026-11-27T17:46:07+00:00", "kind": "run_marker", "note": "I3 starts"}
+{"at": "2026-11-27T17:46:07+00:00", "kind": "flag_change", "flag": "productCatalogLockContention", "urn": "flag://otel-demo/productCatalogLockContention", "from": "off", "to": "on"}
+{"at": "2026-11-27T17:50:07+00:00", "kind": "flag_change", "flag": "productCatalogLockContention", "urn": "flag://otel-demo/productCatalogLockContention", "from": "on", "to": "off"}
+{"at": "2026-11-27T17:50:07+00:00", "kind": "run_marker", "note": "I3 ends"}
+{"at": "2026-11-27T17:55:07+00:00", "kind": "run_marker", "note": "I4 starts"}
+{"at": "2026-11-27T17:55:07+00:00", "kind": "flag_change", "flag": "paymentUnreachable", "urn": "flag://otel-demo/paymentUnreachable", "from": "off", "to": "on"}
+{"at": "2026-11-27T17:59:07+00:00", "kind": "flag_change", "flag": "paymentUnreachable", "urn": "flag://otel-demo/paymentUnreachable", "from": "on", "to": "off"}
+{"at": "2026-11-27T17:59:07+00:00", "kind": "run_marker", "note": "I4 ends"}
+{"at": "2026-11-27T18:04:07+00:00", "kind": "run_marker", "note": "I8 starts"}
+{"at": "2026-11-27T18:04:07+00:00", "kind": "flag_change", "flag": "intlShippingSlowdown", "urn": "flag://otel-demo/intlShippingSlowdown", "from": "off", "to": "10sec"}
+{"at": "2026-11-27T18:08:07+00:00", "kind": "flag_change", "flag": "intlShippingSlowdown", "urn": "flag://otel-demo/intlShippingSlowdown", "from": "10sec", "to": "off"}
+{"at": "2026-11-27T18:08:07+00:00", "kind": "run_marker", "note": "I8 ends"}
+{"at": "2026-11-27T18:13:07+00:00", "kind": "run_marker", "note": "I9 starts"}
+{"at": "2026-11-27T18:13:07+00:00", "kind": "flag_change", "flag": "recommendationCacheFailure", "urn": "flag://otel-demo/recommendationCacheFailure", "from": "off", "to": "on"}
+{"at": "2026-11-27T18:14:07+00:00", "kind": "flag_change", "flag": "paymentFailure", "urn": "flag://otel-demo/paymentFailure", "from": "off", "to": "25%"}
+{"at": "2026-11-27T18:18:07+00:00", "kind": "flag_change", "flag": "recommendationCacheFailure", "urn": "flag://otel-demo/recommendationCacheFailure", "from": "on", "to": "off"}
+{"at": "2026-11-27T18:18:07+00:00", "kind": "flag_change", "flag": "paymentFailure", "urn": "flag://otel-demo/paymentFailure", "from": "25%", "to": "off"}
+{"at": "2026-11-27T18:18:07+00:00", "kind": "run_marker", "note": "I9 ends"}
+{"at": "2026-11-27T18:23:07+00:00", "kind": "run_marker", "note": "I10 starts"}
+{"at": "2026-11-27T18:23:07+00:00", "kind": "flag_change", "flag": "loadGeneratorFloodHomepage", "urn": "flag://otel-demo/loadGeneratorFloodHomepage", "from": "off", "to": "on"}
+{"at": "2026-11-27T18:27:07+00:00", "kind": "flag_change", "flag": "loadGeneratorFloodHomepage", "urn": "flag://otel-demo/loadGeneratorFloodHomepage", "from": "on", "to": "off"}
+{"at": "2026-11-27T18:27:07+00:00", "kind": "run_marker", "note": "I10 ends"}
+{"at": "2026-11-27T18:33:07+00:00", "kind": "run_marker", "note": "run complete"}
+{"at": "2026-11-27T18:33:19+00:00", "kind": "run_marker", "note": "I6 starts"}
+{"at": "2026-11-27T18:33:19+00:00", "kind": "flag_change", "flag": "productCatalogFailure", "urn": "flag://otel-demo/productCatalogFailure", "from": "off", "to": "on", "via": "targeting rule for product_id OLJCESPC7Z"}
+{"at": "2026-11-27T18:37:19+00:00", "kind": "flag_change", "flag": "productCatalogFailure", "urn": "flag://otel-demo/productCatalogFailure", "from": "on", "to": "off", "via": "targeting rule for product_id OLJCESPC7Z"}
+{"at": "2026-11-27T18:37:19+00:00", "kind": "run_marker", "note": "I6 ends"}
+{"at": "2026-11-27T18:42:19+00:00", "kind": "run_marker", "note": "rerun complete"}

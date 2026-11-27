@@ -127,6 +127,14 @@ From the demo's flags at 3.1.0, in [`incident-scenarios.json`](../fixtures/otel-
 | I2 | `kafkaQueueProblems` | Consumer lag on the `fraud-detection` group | Checkout publishes 100 extra copies of each order; accounting skips them on its primary key |
 | I3 | `productCatalogLockContention` | Slow `GetProduct` | A lock on `catalog.products`, two hops below the symptom |
 | I4 | `paymentUnreachable` | Checkout errors, topic goes silent | Checkout's payment address, not the payment service itself |
+| I5 | `cartFailure` 50% | None: checkout ignores the failed `EmptyCart` | A silent failure. Carts are not emptied and later orders can carry stale items; no check watches it |
+| I6 | `productCatalogFailure` (through its targeting rule) | Checkout errors for orders containing product `OLJCESPC7Z` | The catalog's failing reads of one product |
+| I7 | accounting stopped for 4 minutes | Accounting insert rate | The consumer, not the topic: orders keep flowing |
+| I8 | `intlShippingSlowdown` 10sec | Checkout latency | Shipping's international quotes; no data lost |
+| I9 | `recommendationCacheFailure`, then `paymentFailure` 25% | Checkout errors | Payment; the recommendation change is a decoy outside checkout's lineage |
+| I10 | `loadGeneratorFloodHomepage` | None of the checks | Traffic from a caller, which a dependency walk cannot reach |
+
+I1 to I4 come from the demo's documentation. I5 to I10 were added on 27 November to grow the visible corpus to ten incidents across nine families (D36).
 
 ## Running it
 
@@ -150,13 +158,21 @@ python3 code/run_checks.py <capture folder> fixtures/otel-demo-3.1.0 --events <c
 
 [`code/observed_edges.py`](../code/observed_edges.py) builds call edges from the trace walk (D7) and Kafka edges from the topic name (D8), then lists golden edges not seen and observed edges not in the golden graph: the first entries for the reconciliation queue. It also scores database access down to columns and checks that every name in the capture resolves. [`code/run_checks.py`](../code/run_checks.py) evaluates the checks window by window and, at the first failure, narrows the change events through the graph. Note that the demo's collector, as shipped, mounts the host's Docker socket and root filesystem; the add-on replaces both with empty placeholders and drops the two receivers that use them.
 
-**Status: ran on 27 November 2026,** from 14:06 to 14:39 UTC, with 23 containers, the load generator's HTTP users, and two flags flipped: `emitRawPii` for two minutes, then `paymentFailure` at 50% for five (incident I1). Results are in [doc 09](09-component-build-sheet.md#evidence-from-the-first-capture-run) and the evidence files in [`fixtures/otel-demo-3.1.0/capture-2026-11-27/`](../fixtures/otel-demo-3.1.0/capture-2026-11-27/). In short:
+**Status: ran twice on 27 November 2026.** The first run went from 14:06 to 14:39 UTC, with 23 containers, the load generator's HTTP users, and two flags flipped: `emitRawPii` for two minutes, then `paymentFailure` at 50% for five (incident I1). Results are in [doc 09](09-component-build-sheet.md#evidence-from-the-first-capture-run) and the evidence files in [`fixtures/otel-demo-3.1.0/capture-2026-11-27/`](../fixtures/otel-demo-3.1.0/capture-2026-11-27/). In short:
 
 - Every service and topic edge observed is golden.
 - All 13 upstream-asserted edges were seen.
 - Runtime confirms all 17 accounting columns the code says are written.
 - The flag-gated card and email edges appeared 13 seconds after the flip, masked as the collector config says.
 - Checkout errors caught I1 two minutes after the flip.
+
+A second run, from 16:54 to 18:43 UTC with 15 simulated shoppers, played incidents I2 to I10. Over both runs:
+
+- 8 of 10 incidents were detected, each within 2 minutes.
+- In every one of those 8, the true cause ranked first.
+- The two misses are I5, a silent failure no check watches, and I10, a traffic flood no check noticed.
+
+Details and the caveats are in doc 09.
 
 ## The hops it does not cover
 

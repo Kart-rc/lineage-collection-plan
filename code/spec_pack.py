@@ -131,9 +131,11 @@ def run_events():
             a["reader"] = checks[w["check"]]["reader"]
         out.append(("check result", {"schemaVersion": "2", "eventType": "QUALITY_ASSERTION", "eventTime": a["window"]["end"],
                                      "producer": "lineage-collectors/checks@0.1.0", "assertion": a}))
-    for path in glob.glob(os.path.join(FIX, "capture-*", "change-events.jsonl")):
+    for path in sorted(glob.glob(os.path.join(FIX, "capture-*", "change-events*.jsonl"))):
         for line in open(path):
             e = json.loads(line)
+            if e["kind"] == "run_marker":
+                continue
             at = e["at"].replace("+00:00", "Z")
             out.append(("change event", {"schemaVersion": "2", "eventType": "CHANGE_EVENT", "eventTime": at, "producer": "twin/flip@0.1.0",
                                          "change": {"kind": e["kind"], "subject": e["urn"], "at": at, "from": e.get("from"), "to": e.get("to")}}))

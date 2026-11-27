@@ -761,7 +761,7 @@ Read a dbt project at a commit and emit envelope v2 evidence for every model, wi
 
 ### A scenario
 
-The visible scenarios are in `factory/specs/*/scenarios/visible/`, 48 of them, each tagged with the requirements it traces. This one is the reference slice's version of the plan's PR #482:
+The visible scenarios are in `factory/specs/*/scenarios/visible/`, 58 of them, each tagged with the requirements it traces. This one is the reference slice's version of the plan's PR #482:
 
 ```gherkin
 @S-IA-01 @IA-2 @IA-3 @IA-4 @IA-5 @IA-8

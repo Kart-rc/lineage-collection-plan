@@ -20,6 +20,7 @@ Ingest flag changes, deploys, stops, starts and merges as CHANGE_EVENTs and join
 ## Must hold
 
 - A flag change joins through every service that reads the flag in code, with or without a flagd span
+- Statements such as LOCK TABLE ... ACCESS EXCLUSIVE seen in database spans enter the timeline as change events (D38)
 
 ## Done when
 
@@ -37,4 +38,4 @@ Ingest flag changes, deploys, stops, starts and merges as CHANGE_EVENTs and join
 ## Requirements
 
 - **IR-2**: The system shall walk upstream over the incident window: every edge valid at any time between the last passing check and the failure, including edges that closed in between. It shall not use the current graph. Scenarios: S-IR-01, S-IR-02.
-- **IR-4**: The system shall rank change events on the upstream path by a deterministic score, and shall show the terms of the score, the evidence path and any lineage gap on that path for each candidate. Scenarios: S-IR-04.
+- **IR-4**: The system shall rank change events on the upstream path by a deterministic score, and shall show the terms of the score, the evidence path and any lineage gap on that path for each candidate. Scenarios: S-IR-10, S-IR-17, S-IR-19, S-IR-04.

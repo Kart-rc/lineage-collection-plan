@@ -1,13 +1,13 @@
 {
  "schemaVersion": "2",
  "eventType": "CHANGE_EVENT",
- "eventTime": "2026-11-27T14:22:19Z",
+ "eventTime": "2026-11-27T17:06:06Z",
  "producer": "twin/flip@0.1.0",
  "change": {
   "kind": "flag_change",
-  "subject": "flag://otel-demo/emitRawPii",
-  "at": "2026-11-27T14:22:19Z",
+  "subject": "flag://otel-demo/cartFailure",
+  "at": "2026-11-27T17:06:06Z",
   "from": "off",
-  "to": "on"
+  "to": "50%"
  }
 }

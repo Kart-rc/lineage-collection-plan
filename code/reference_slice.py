@@ -257,6 +257,37 @@ INCIDENTS = [
      "true_cause": "checkout's payment address, not the payment service", "lineage_walk": "orders topic silent -> checkout errors -> payment edge has no traffic"},
 ]
 
+# Incidents I5 to I10 were run in the twin on 27 November (second run, 15 simulated shoppers). I1 to I4 keep their
+# definitions above; every incident now names its family (factory/parameters.yaml, corpora).
+for _i, _fam in zip(INCIDENTS, ["dependency_failure", "consumer_lag", "storage_contention", "unreachable_address"]):
+    _i["family"] = _fam
+INCIDENTS += [
+    {"id": "I5", "family": "silent_failure", "flag": "cartFailure", "variant": "50%", "injected_at": SVC("cart"),
+     "first_symptom": "none of the checks registered before the run fires",
+     "downstream_effect": "EmptyCart fails half the time and checkout ignores the error (main.go:381), so carts are not emptied and later orders can carry stale items",
+     "true_cause": "cart EmptyCart failing", "lineage_walk": "needs a check on items per order or on cart state; with none, lineage never starts"},
+    {"id": "I6", "family": "dependency_failure", "flag": "productCatalogFailure", "variant": "on (targeting rule, product OLJCESPC7Z)", "injected_at": SVC("product-catalog"),
+     "first_symptom": "checkout PlaceOrder errors for orders that contain the product",
+     "downstream_effect": "fewer orders on the topic and in accounting; product pages for that product fail",
+     "true_cause": "product-catalog GetProduct failing for one product", "lineage_walk": "checkout errors -> checkout's failing calls to product-catalog -> the flag"},
+    {"id": "I7", "family": "consumer_outage", "change": "service_stop", "flag": None, "variant": None, "injected_at": SVC("accounting"),
+     "first_symptom": "accounting insert rate drops; lag grows on the accounting consumer group",
+     "downstream_effect": "orders keep flowing on the topic; accounting tables fall behind and catch up on restart",
+     "true_cause": "accounting stopped", "lineage_walk": "accounting.order insert rate -> accounting (the writer) -> its stop event"},
+    {"id": "I8", "family": "latency_only", "flag": "intlShippingSlowdown", "variant": "10sec", "injected_at": SVC("shipping"),
+     "first_symptom": "checkout PlaceOrder p95 latency above 3 seconds",
+     "downstream_effect": "international orders take 10 seconds longer; no data is lost",
+     "true_cause": "shipping delays international quotes", "lineage_walk": "checkout latency -> checkout's calls to shipping -> the flag"},
+    {"id": "I9", "family": "decoy_outside_lineage", "flag": "paymentFailure", "variant": "25%", "decoy": "recommendationCacheFailure on, one minute earlier",
+     "injected_at": SVC("payment"), "first_symptom": "checkout PlaceOrder errors",
+     "downstream_effect": "fewer orders; the recommendation service degrades at the same time but is not on checkout's path",
+     "true_cause": "payment Charge failing", "lineage_walk": "checkout errors -> payment; recommendationCacheFailure is outside checkout's lineage and must rank below"},
+    {"id": "I10", "family": "volume_surge", "flag": "loadGeneratorFloodHomepage", "variant": "on", "injected_at": SVC("load-generator"),
+     "first_symptom": "whatever the extra home page traffic strains, if anything",
+     "downstream_effect": "a burst of home page requests through frontend-proxy and frontend",
+     "true_cause": "the load generator floods the home page", "lineage_walk": "a cause that comes from callers, not from dependencies: the dependency walk cannot reach it"},
+]
+
 # What the upstream project says about tracing the Kafka hop (quoted from test/telemetry/services.py)
 UPSTREAM_NOTE = (SERVICES_PY, 96, "async Kafka edges (checkout->accounting, checkout->fraud-detection)")
 
@@ -325,8 +356,9 @@ def write(out):
     json.dump(graph, open(os.path.join(out, "golden-graph.json"), "w"), indent=1)
     json.dump({"source": DEMO, "changes": CHANGES}, open(os.path.join(out, "change-replay.json"), "w"), indent=1)
     for i in INCIDENTS:   # the join RCA makes: flag change event -> flag node -> the services that read it
-        i["flag_urn"] = FLAG(i["flag"])
-        i["flag_read_by"] = [SVC(svc) for k, svc, *_ in FLAG_READS if k == i["flag"]]
+        if i.get("flag"):
+            i["flag_urn"] = FLAG(i["flag"])
+            i["flag_read_by"] = [SVC(svc) for k, svc, *_ in FLAG_READS if k == i["flag"]]
     json.dump({"source": DEMO, "incidents": INCIDENTS}, open(os.path.join(out, "incident-scenarios.json"), "w"), indent=1)
     print(f"wrote {len(SERVICE_EDGES)} service edges, {len(F)} field edges, {len(GATED)} gated field edges, {len(FLAG_READS)} flag edges, "
           f"{len(CHANGES)} changes and {len(INCIDENTS)} incidents to {out}")

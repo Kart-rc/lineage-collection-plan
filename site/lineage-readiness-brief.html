@@ -347,7 +347,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
       <div class="fact"><strong>37</strong><span>decisions: 25 from evidence, 7 by you, 5 drafted for your G1 approval</span></div>
       <div class="fact"><strong>39 / 39</strong><span>work packages with measurable done-when; 97 checks in all</span></div>
       <div class="fact"><strong>18 / 18</strong><span>connections seen in the running system are in the golden graph</span></div>
-      <div class="fact"><strong>2.0 min</strong><span>from a real payment failure to the first alert, with the right cause ranked first</span></div>
+      <div class="fact"><strong>8 / 10</strong><span>injected incidents caught within 2 minutes, the true cause ranked first in all 8</span></div>
     </div>
   </section>
 
@@ -427,19 +427,19 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
   <section id="proof" aria-labelledby="h-proof">
     <div class="sec-head">
       <div class="eyebrow">What we proved</div>
-      <h2 id="h-proof">We ran the shop for half an hour and broke it on purpose</h2>
-      <p>On 27 November the demo ran here with 23 containers and simulated shoppers (14:06 to 14:39 UTC). We switched on one flag that changes where card data goes, then made payments fail half the time. The prototypes scored what lineage saw against the golden graph.</p>
+      <h2 id="h-proof">We ran the shop twice and broke it ten different ways</h2>
+      <p>On 27 November the demo ran here twice with 23 containers and simulated shoppers. The first run (14:06 to 14:39 UTC) switched on a flag that changes where card data goes, then made payments fail half the time. The second (16:54 to 18:43 UTC) injected nine more incidents, from a stopped consumer to a decoy and a silent failure. The prototypes scored what lineage saw against the golden graph, with every threshold fixed before the runs.</p>
     </div>
     <div class="results">
-      <div class="res"><div class="top"><span class="mono">O1 · Baseline</span><span class="chip c-proven">Proven</span></div><b>Every connection we saw was expected</b><p>18 of 18 observed connections are in the golden graph, including all 13 the demo's own tests assert. Runtime confirmed all 17 finance columns the code says are written.</p></div>
+      <div class="res"><div class="top"><span class="mono">O1 · Baseline</span><span class="chip c-proven">Proven</span></div><b>Every connection we saw was expected</b><p>In both runs, 18 of 18 observed connections are in the golden graph, including all 13 the demo's own tests assert. Runtime confirmed all 17 finance columns the code says are written.</p></div>
       <div class="res"><div class="top"><span class="mono">O2 · Incremental</span><span class="chip c-proven">One case</span></div><b>A flag changed lineage, and we saw it</b><p>13 seconds after the flag went on, masked card numbers appeared in telemetry. No CVV or raw email ever left. The edges stopped when the flag went off.</p></div>
-      <div class="res"><div class="top"><span class="mono">O3 · Impact</span><span class="chip c-ready">Not run yet</span></div><b>Real changes are ready to replay</b><p>Six changes from the demo's git history, plus the flag flip, are prepared with what lineage must say. The impact engine itself is wave 3.</p></div>
-      <div class="res"><div class="top"><span class="mono">O4 · Detect and resolve</span><span class="chip c-proven">One case</span></div><b>Alert in 2 minutes, right cause first</b><p>Payment failures were caught 2.0 minutes after they started, with no false alarms in 16 minutes of normal running. Narrowing ranked the right flag first. Incidents I2 to I4 are still to run.</p></div>
+      <div class="res"><div class="top"><span class="mono">O3 · Impact</span><span class="chip c-ready">Not run yet</span></div><b>Real changes are ready to replay</b><p>Thirteen changes are prepared with their expected readers and gate result: six from the demo's history, the flag flip, and six written here. The impact engine itself is wave 3.</p></div>
+      <div class="res"><div class="top"><span class="mono">O4 · Detect and resolve</span><span class="chip c-part">8 of 10</span></div><b>Caught fast, right cause first</b><p>8 of 10 incidents were caught within 2 minutes, and the true cause ranked first in all 8. The two misses fired no check at all: a silent cart failure and a traffic flood. That puts IR-5 at 80% against a 90% bar.</p></div>
     </div>
 
     <div class="chart-card">
       <div class="chart-head">
-        <h3>Five checks, minute by minute</h3>
+        <h3>First run: five checks, minute by minute</h3>
         <div class="chart-legend">
           <span><i class="sw ok">✓</i>passing</span>
           <span><i class="sw fail">✕</i>failing</span>
@@ -453,6 +453,26 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
       <details class="tbl eng"><summary>Show the values as a table</summary><div class="tbl-scroll"><table id="tl-table"></table></div></details>
     </div>
 
+    <div class="chart-card">
+      <div class="chart-head"><h3>Ten incidents, replayed</h3><span class="small muted">Thresholds fixed before the runs · score from <code>factory/parameters.yaml</code></span></div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>Incident</th><th>What we broke</th><th>First check to fail</th><th>Minutes</th><th>True cause</th></tr></thead>
+        <tbody>
+          <tr><td class="num">I1</td><td>Payments fail half the time</td><td>Checkout errors</td><td class="num">2.0</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I2</td><td>Orders topic flooded, consumers lag</td><td>Order rate, consumer lag</td><td class="num">0.8</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I3</td><td>Lock on the catalog table</td><td>Checkout errors</td><td class="num">1.8</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I4</td><td>Payment address unreachable</td><td>Checkout errors</td><td class="num">0.8</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I5</td><td>Carts silently not emptied</td><td>None</td><td class="num">–</td><td><span class="chip c-not">Not detected</span></td></tr>
+          <tr><td class="num">I6</td><td>One product cannot be read</td><td>Checkout errors</td><td class="num">1.6</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I7</td><td>Accounting consumer stopped</td><td>Accounting insert rate</td><td class="num">1.8</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I8</td><td>International shipping delayed</td><td>Checkout latency</td><td class="num">1.8</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I9</td><td>A decoy, then payments fail 25%</td><td>Checkout errors</td><td class="num">1.8</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I10</td><td>Home page flooded with traffic</td><td>None</td><td class="num">–</td><td><span class="chip c-not">Not detected</span></td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted">The incidents ran about nine minutes apart. Lineage led straight to the cause in I1, I3 and I9; in the rest it narrowed the field to the right dependencies and time decided. The hidden test set therefore has to include changes made close together. Data: <code>fixtures/otel-demo-3.1.0/capture-2026-11-27/incident-replay.json</code>.</p>
+    </div>
+
     <div class="eng" style="display:grid;gap:10px">
       <h3><span class="eng-tag">Engineers</span>What else the run settled</h3>
       <ul class="clean small">
@@ -461,6 +481,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
         <li><b>Database spans give column-level writes.</b> Accounting's batched EF Core insert splits into three tables and 17 columns with SQLGlot. Its shared login is never used for attribution (D27).</li>
         <li><b>Runtime misses what code finds.</b> Six services read a feature flag but emit no span when they do. Three of them are behind incidents I2 to I4, so which service reads which flag comes from code (D29).</li>
         <li><b>Fixed during the run:</b> one golden edge was missing (<code>frontend → currency</code>), and the SQL parser broke on quoted and batched statements. PyYAML read the key <code>on:</code> as <code>true</code>. Rate checks raised a false alarm at six events per window.</li>
+        <li><b>The second run taught five rules (D38).</b> One flag has a targeting rule, so changing its default injected nothing until it was flipped through the rule. A silent failure fires no check, so it counts as a miss and raises a coverage finding. A cause that comes from callers is out of the dependency walk's reach. The hidden test set needs changes made close together. The lock behind I3 is visible as a <code>LOCK TABLE</code> statement in database spans.</li>
       </ul>
     </div>
   </section>
@@ -557,7 +578,7 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
     leaders: [
       "We want to know, for any field in our data, where it comes from and where it goes. With that we can stop breaking changes before they merge, and find the cause of bad data in minutes instead of hours.",
       "No product does this across service code, streams and warehouses, so we build it with an AI factory. Agents write the code, people approve at four gates, and every build is graded against a known truth.",
-      "As that truth we used a real open-source online shop: a dozen services in ten languages. We ran it, and every connection lineage saw was one we expected. It watched card data being masked correctly, and caught a payment failure in two minutes with the right cause ranked first.",
+      "As that truth we used a real open-source online shop: a dozen services in ten languages. We ran it, and every connection lineage saw was one we expected. It watched card data being masked correctly. We then broke the shop ten different ways: it caught eight within two minutes, each time with the right cause ranked first. The two it missed raised no alarm at all, and that is the next thing to fix.",
       "We can start now. Every work package has acceptance criteria a machine can check. I need three things: approve the spec, sign the golden graph, and have someone outside the build write the hidden test cases. During the first wave we pick which of our own data products goes second."
     ],
     engineers: [
@@ -718,7 +739,7 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
             "Narrowing (D32): the walk from <code>svc://otel-demo/checkout</code> covered 9 dependencies. Failing calls were <code>checkout → payment</code> ×3, so payment is the deepest failing callee.",
             "Ranking: 1. <code>paymentFailure</code> off → 50%, 2.0 min before. 2. <code>emitRawPii</code> on → off, 2.8 min before. Payment reads both flags, so only time separated them; the holdout incidents will test whether that is enough.",
             "Prototype: <code>code/run_checks.py</code>. Data: <code>capture-2026-11-27/checks-run.json</code>."],
-      status: "<b>Proven on the twin</b> for I1. I2 to I4 are defined and not yet run.",
+      status: "<b>Replayed in the twin:</b> I1 to I10, 8 of 10 caught within 2 minutes with the true cause first. The two misses fired no check.",
       edges: { "co>pay": "bad", "co>orders": "bad", "orders>acct": "bad", "acct>tables": "bad", "fe>co": "bad", "flagd>pay": "gate" },
       nodes: { pay: "bad", co: "bad", orders: "warn", tables: "warn", acct: "warn", flagd: "gate" },
       badges: [["pay", "cause", "bad"], ["co", "errors +2.0 min", "bad"], ["tables", "insert rate falls", "warn"], ["orders", "rate falls", "warn"], ["flagd", "paymentFailure 50%", "gate"]] }
@@ -843,7 +864,7 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
     ["What to test against", "The truth (golden graph)", "part", "Built and verified: 89 citations hold. It waits for your sign-off at G3.", "fixtures/otel-demo-3.1.0/golden-graph.json", "start"],
     ["What to test against", "Real changes to replay", "have", "13 visible: C1 to C6 from git history, C7 from the run, C8 to C13 authored, each with expected readers and gate result. The holdout adds at least 7 more.", "change-replay.json", "start"],
     ["What to test against", "Visible scenarios", "have", "Given/When/Then for every requirement, tagged with the requirement IDs they trace.", "factory/specs/*/scenarios/visible/", "start"],
-    ["What to test against", "Real incidents to replay", "part", "I1 ran and was caught. I2 to I4 are defined, with checks ready, but have not yet run.", "incident-scenarios.json, checks.yaml", "later"],
+    ["What to test against", "Real incidents to replay", "part", "10 visible incidents run in the twin across nine families: 8 caught with the true cause first. The holdout adds at least 7 more, including changes made close together.", "incident-scenarios.json, capture-2026-11-27/incident-replay.json", "later"],
     ["What to test against", "Holdout scenarios", "not", "Custody rules written. People who do not build write at least 7 changes and 7 incidents outside this repository; D15's four examples are public, so they became visible cases.", "factory/oracle/holdout/README.md, WP-02", "start"],
     ["What to test against", "Downstream hops", "part", "The thin dbt model is written, with 35 hand-written golden edges. The stream, feature store and model (complement repo) are chosen in D2 and not yet run.", "fixtures/otel-demo-3.1.0/dbt/, wave 2", "later"],
     ["How it runs", "Twin of the system", "have", "Runs in this sandbox with the capture add-on and a two-file override.", "fixtures/otel-demo-3.1.0/run/", "start"],
@@ -884,11 +905,11 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
     ["Our services look like the demo: gRPC and HTTP calls, Kafka, Postgres through an ORM.", "The extractor order is wrong for us, and wave 2 builds the less useful ones first.", "Inventory the slice 2 product before wave 2 starts.", "wave 1"],
     ["Our services emit traces with service names.", "Service edges must come from code and mesh logs only, at lower confidence.", "Run a telemetry inventory in Phase 0 for slice 2.", "slice 2"],
     ["Neptune's openCypher subset can hold versioned edges with a condition and a state.", "The data model or the store changes, and ADR-002 is revisited.", "Run WP-13's property tests against a stage Neptune.", "wave 1"],
-    ["Time order is enough to separate two changes on the same service during root-cause analysis.", "Ranking picks the wrong change when two land close together.", "Run I2 to I4 and the holdout incidents.", "wave 4"],
+    ["Time order is enough to separate two changes on the same service during root-cause analysis.", "Ranking picks the wrong change when two land close together. In the runs, time decided 5 of the 8 detected incidents.", "Holdout incidents with changes made close together on different dependencies.", "wave 4"],
     ["The twin's traffic, about three orders a minute, is enough to tune the checks.", "Thresholds misfire on our volumes.", "Re-baseline every check on slice 2's real traffic.", "slice 2"],
     ["Agents can build extractors to spec at level 2, with a person reading each change.", "Waves take longer and cost more than planned.", "Track the holdout pass rate and cost per merged change, weekly.", "waves 0–1"],
     ["Owners act on the reconciliation queue.", "The graph drifts from reality, and trust falls.", "Measure queue age from slice 2 onboarding.", "slice 2"],
-    ["The checks catch the failures that matter.", "Lineage never starts: some data problems fire no check at all.", "Grow the incident corpus with silent failures, and add data-quality checks such as items per order.", "wave 4"]
+    ["The checks catch the failures that matter.", "Lineage never starts. In the runs, a silent cart failure and a traffic flood fired no check.", "Add data-quality checks such as items per order, validated on a fresh run, and keep silent failures in the corpus.", "wave 4"]
   ];
   document.getElementById("assume").innerHTML = `<div class="as-row"><span>We assume</span><span>If that is wrong</span><span>How we find out</span><span>When</span></div>` +
     ASSUME.map(([a, w, h, t]) => `<div class="as-row"><b>${a}</b><span data-l="If wrong:">${w}</span><span data-l="Test:">${h}</span><span class="when" data-l="When:">${t}</span></div>`).join("");

@@ -44,4 +44,4 @@ The oracle's executable part - score, replay changes, replay incidents, run hold
 - **BL-6**: The baseline shall reach field-edge precision of at least 90% and recall of at least 90% against the golden graph once runtime evidence is on. Scenarios: S-BL-01, S-BL-06, S-BL-08.
 - **BL-7**: When the graph is rebuilt from the evidence lake, the system shall produce the same graph hash as the live graph at the same as-of time. Scenarios: S-BL-07.
 - **IA-8**: On the change replay corpus the report shall list at least 8 of every 10 consumers that actually broke. Scenarios: S-IA-01, S-IA-06.
-- **IR-5**: On the incident replay corpus the true cause shall be ranked first on at least 70% of incidents and in the top three on at least 90%.
+- **IR-5**: On the incident replay corpus the true cause shall be ranked first on at least 70% of incidents and in the top three on at least 90%. Scenarios: S-IR-10, S-IR-11, S-IR-12, S-IR-13, S-IR-14, S-IR-15, S-IR-16, S-IR-17.

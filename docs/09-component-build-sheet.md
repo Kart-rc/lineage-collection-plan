@@ -124,6 +124,41 @@ By the end, 104 orders had passed through the topic into `accounting."order"`. T
 | Check runner | Ten minutes of baseline and six of recovery with no false alarm. In I1, checkout errors failed 2.0 minutes after the flip and passed again 47 seconds after the flag went off. The order-rate and accounting insert-rate checks failed after 3.0 minutes and recovered after 2.8. Lag and latency stayed green, as they should for I1 |
 | Root-cause narrowing (D32) | From the first failing check (checkout errors), the walk covered 9 dependencies and found failing calls stopping at payment. `paymentFailure` ranked first. `emitRawPii` ranked second: payment reads it too, and only time separated the two |
 
+### Second run: the incident corpus
+
+From 16:54 to 18:43 UTC the twin ran again, with 15 simulated shoppers and two more checks fixed in advance (checkout latency, accounting consumer lag). After a 12-minute baseline, a script injected nine incidents, each on for 4 minutes. Scores come from `code/run_checks.py --replay` with the D35 score; data in [`capture-2026-11-27/incident-replay.json`](../fixtures/otel-demo-3.1.0/capture-2026-11-27/incident-replay.json).
+
+| Incident | Family | First check to fail | Minutes after injection | True cause ranked |
+| --- | --- | --- | --- | --- |
+| I1 (first run) | dependency failure | checkout errors | 2.0 | 1st |
+| I2 | consumer lag | order rate, fraud-detection lag and accounting lag together | 0.8 | 1st |
+| I3 | storage contention | checkout errors, then catalog latency | 1.8 | 1st |
+| I4 | unreachable address | checkout errors | 0.8 | 1st |
+| I5 | silent failure | none | – | not detected |
+| I6 | dependency failure | checkout errors | 1.6 | 1st |
+| I7 | consumer outage | accounting insert rate | 1.8 | 1st |
+| I8 | latency only | checkout latency | 1.8 | 1st |
+| I9 | decoy outside the lineage | checkout errors | 1.8 | 1st; the decoy scored a lineage term of 0 |
+| I10 | volume surge | none | – | not detected |
+
+Over the ten incidents:
+
+- 8 were detected, every one within 2 minutes.
+- In all 8, the true cause ranked first.
+
+Against IR-5 that is 80% first (the bar is 70%) and 80% in the top three (the bar is 90%), because the two undetected incidents count as misses.
+
+**What the corpus taught (D38):**
+
+- **Ranking leaned on time.** Only I1, I3 and I9 had failing calls that led to the cause. Elsewhere lineage narrowed the field to "a dependency", and time decided. The incidents were nine minutes apart, which flatters this. The holdout needs near-simultaneous changes on different dependencies.
+- **A silent failure fires nothing.** `cartFailure` breaks `EmptyCart`, and checkout ignores the error, so orders keep flowing while carts keep old items. Lineage cannot start without a failing check. Items per order moved, but within baseline noise, so a check for it must be designed and then validated on a fresh run.
+- **A cause from callers is out of reach.** The traffic flood fired no check. Had one failed, the dependency walk would still not have reached the load generator.
+- **The injection tool needs the targeting rule.** The first attempt at I6 changed `productCatalogFailure`'s default variant, which its targeting rule overrides, so nothing happened. WP-03 now flips targeted flags through the rule, as flagd-ui does.
+- **One pre-registered threshold was too high.** Accounting consumer lag stayed under 100 during a 4-minute outage, about 36 unread messages at this load. It is kept unchanged; the insert-rate check caught the outage instead.
+- **The cause of I3 is in access history.** Product-catalog's database spans contain the `LOCK TABLE catalog.products IN ACCESS EXCLUSIVE MODE` statement. That is a candidate source of change events for the timeline (WP-41).
+- **The second capture scored the same as the first.** Service and topic edges: precision 1.00 and recall 0.90, all 13 upstream-asserted edges. All 55 names resolved.
+- **The thin dbt model built in the twin.** 4 of 4 models; `fct_order_value` holds 1,098 rows, one per order. Its reads are attributed to `analytics_dbt`, apart from accounting's `astronomy_user`.
+
 Found and fixed during the run:
 
 - **A missing golden edge.** The golden graph lacked `frontend → currency`, though doc 07 named it. It is now added, with a citation, and waits for G3 sign-off.

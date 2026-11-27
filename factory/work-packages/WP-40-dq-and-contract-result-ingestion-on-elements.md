@@ -34,5 +34,5 @@ Attach check and contract results to the node or element they are about.
 
 ## Requirements
 
-- **IR-1**: When a DQ or contract check fails on an element, the system shall attach the upstream path, the ranked change events and the blast radius to the alert within 2 minutes.
-- **IR-3**: The system shall identify the first failing element: the furthest upstream element with a failing check whose own inputs pass or have no check. Scenarios: S-IR-03.
+- **IR-1**: When a DQ or contract check fails on an element, the system shall attach the upstream path, the ranked change events and the blast radius to the alert within 2 minutes. Scenarios: S-IR-10, S-IR-11, S-IR-12, S-IR-13, S-IR-14, S-IR-15, S-IR-16, S-IR-18.
+- **IR-3**: The system shall identify the first failing element: the furthest upstream element with a failing check whose own inputs pass or have no check. Scenarios: S-IR-10, S-IR-12, S-IR-15, S-IR-03.

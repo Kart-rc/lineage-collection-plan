@@ -1,0 +1,459 @@
+{
+ "what": "Incident replay over both twin runs of 27 November 2026, scored with code/run_checks.py --replay and the D35 score",
+ "summary": {
+  "incidents": 10,
+  "detected": 8,
+  "true_cause_first": 8,
+  "true_cause_top3": 8,
+  "first_share": 0.8,
+  "top3_share": 0.8,
+  "first_share_of_detected": 1.0,
+  "ir5_bar": {
+   "first": 0.7,
+   "top3": 0.9
+  },
+  "lineage_term_1_0": [
+   "I1",
+   "I3",
+   "I9"
+  ],
+  "caveat": "incidents were about nine minutes apart; where no failing calls led to a callee, time decided. The holdout must include near-simultaneous changes on different dependencies.",
+  "void": "the first attempt at I6 changed productCatalogFailure's default variant, which its targeting rule overrides, and injected nothing; it was rerun through the rule at 18:33"
+ },
+ "incidents": [
+  {
+   "id": "I1",
+   "injected": "14:24:55",
+   "true_cause": "paymentFailure",
+   "checks_fired": {
+    "checkout-errors": 2.0,
+    "orders-rate": 3.0,
+    "accounting-order-rate": 3.0
+   },
+   "detected": true,
+   "first_check": "checkout-errors",
+   "minutes_to_detect": 2.0,
+   "node": "svc://otel-demo/checkout",
+   "deepest_failing_callee": [
+    "svc://otel-demo/payment"
+   ],
+   "rank": 1,
+   "candidates": [
+    {
+     "change": "paymentFailure off->50%",
+     "at": "14:24:55",
+     "score": 0.968,
+     "terms": {
+      "lineage": 1.0,
+      "time": 0.873,
+      "direction": 1.0,
+      "failing_calls": 1.0
+     }
+    },
+    {
+     "change": "emitRawPii off->on",
+     "at": "14:22:19",
+     "score": 0.934,
+     "terms": {
+      "lineage": 1.0,
+      "time": 0.734,
+      "direction": 1.0,
+      "failing_calls": 1.0
+     }
+    },
+    {
+     "change": "emitRawPii on->off",
+     "at": "14:24:10",
+     "score": 0.853,
+     "terms": {
+      "lineage": 1.0,
+      "time": 0.831,
+      "direction": 0.3,
+      "failing_calls": 1.0
+     }
+    }
+   ],
+   "run": 1
+  },
+  {
+   "id": "I2",
+   "injected": "17:33:07",
+   "true_cause": "kafkaQueueProblems",
+   "checks_fired": {
+    "orders-rate": 0.8,
+    "fraud-detection-lag": 0.8,
+    "accounting-lag": 0.8,
+    "accounting-order-rate": 5.8
+   },
+   "detected": true,
+   "first_check": "orders-rate",
+   "minutes_to_detect": 0.8,
+   "node": "kafka://otel-demo/orders",
+   "deepest_failing_callee": [],
+   "rank": 1,
+   "candidates": [
+    {
+     "change": "kafkaQueueProblems off->on",
+     "at": "17:33:07",
+     "score": 0.687,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.946,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    },
+    {
+     "change": "productCatalogFailure off->on",
+     "at": "17:15:06",
+     "score": 0.521,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.285,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    },
+    {
+     "change": "cartFailure off->50%",
+     "at": "17:06:06",
+     "score": 0.489,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.156,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    }
+   ],
+   "run": 2
+  },
+  {
+   "id": "I3",
+   "injected": "17:46:07",
+   "true_cause": "productCatalogLockContention",
+   "checks_fired": {
+    "checkout-errors": 1.8,
+    "product-catalog-latency": 2.8,
+    "checkout-latency": 2.8
+   },
+   "detected": true,
+   "first_check": "checkout-errors",
+   "minutes_to_detect": 1.8,
+   "node": "svc://otel-demo/checkout",
+   "deepest_failing_callee": [
+    "svc://otel-demo/product-catalog"
+   ],
+   "rank": 1,
+   "candidates": [
+    {
+     "change": "productCatalogLockContention off->on",
+     "at": "17:46:07",
+     "score": 0.971,
+     "terms": {
+      "lineage": 1.0,
+      "time": 0.885,
+      "direction": 1.0,
+      "failing_calls": 1.0
+     }
+    },
+    {
+     "change": "productCatalogFailure off->on",
+     "at": "17:15:06",
+     "score": 0.778,
+     "terms": {
+      "lineage": 1.0,
+      "time": 0.112,
+      "direction": 1.0,
+      "failing_calls": 1.0
+     }
+    },
+    {
+     "change": "productCatalogFailure on->off",
+     "at": "17:19:06",
+     "score": 0.682,
+     "terms": {
+      "lineage": 1.0,
+      "time": 0.146,
+      "direction": 0.3,
+      "failing_calls": 1.0
+     }
+    }
+   ],
+   "run": 2
+  },
+  {
+   "id": "I4",
+   "injected": "17:55:07",
+   "true_cause": "paymentUnreachable",
+   "checks_fired": {
+    "checkout-errors": 0.8,
+    "orders-rate": 2.8
+   },
+   "detected": true,
+   "first_check": "checkout-errors",
+   "minutes_to_detect": 0.8,
+   "node": "svc://otel-demo/checkout",
+   "deepest_failing_callee": [],
+   "rank": 1,
+   "candidates": [
+    {
+     "change": "paymentUnreachable off->on",
+     "at": "17:55:07",
+     "score": 0.687,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.946,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    },
+    {
+     "change": "productCatalogLockContention off->on",
+     "at": "17:46:07",
+     "score": 0.58,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.519,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    },
+    {
+     "change": "productCatalogLockContention on->off",
+     "at": "17:50:07",
+     "score": 0.515,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.678,
+      "direction": 0.3,
+      "failing_calls": 0.0
+     }
+    }
+   ],
+   "run": 2
+  },
+  {
+   "id": "I5",
+   "injected": "17:06:06",
+   "true_cause": "cartFailure",
+   "checks_fired": {},
+   "detected": false,
+   "rank": null,
+   "candidates": [],
+   "run": 2
+  },
+  {
+   "id": "I6",
+   "injected": "18:33:19",
+   "true_cause": "productCatalogFailure",
+   "checks_fired": {
+    "checkout-errors": 1.6
+   },
+   "detected": true,
+   "first_check": "checkout-errors",
+   "minutes_to_detect": 1.6,
+   "node": "svc://otel-demo/checkout",
+   "deepest_failing_callee": [],
+   "rank": 1,
+   "candidates": [
+    {
+     "change": "productCatalogFailure off->on",
+     "at": "18:33:19",
+     "score": 0.674,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.897,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    },
+    {
+     "change": "paymentFailure off->25%",
+     "at": "18:14:07",
+     "score": 0.512,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.249,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    },
+    {
+     "change": "intlShippingSlowdown off->10sec",
+     "at": "18:04:07",
+     "score": 0.482,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.128,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    }
+   ],
+   "run": 2
+  },
+  {
+   "id": "I7",
+   "injected": "17:24:07",
+   "true_cause": "accounting",
+   "checks_fired": {
+    "accounting-order-rate": 1.8
+   },
+   "detected": true,
+   "first_check": "accounting-order-rate",
+   "minutes_to_detect": 1.8,
+   "node": "postgres://astronomy-db/astronomy_db.accounting.\"order\"",
+   "deepest_failing_callee": [],
+   "rank": 1,
+   "candidates": [
+    {
+     "change": "accounting stop",
+     "at": "17:24:07",
+     "score": 0.671,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.885,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    },
+    {
+     "change": "productCatalogFailure off->on",
+     "at": "17:15:06",
+     "score": 0.571,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.485,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    },
+    {
+     "change": "cartFailure off->50%",
+     "at": "17:06:06",
+     "score": 0.517,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.266,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    }
+   ],
+   "run": 2
+  },
+  {
+   "id": "I8",
+   "injected": "18:04:07",
+   "true_cause": "intlShippingSlowdown",
+   "checks_fired": {
+    "checkout-latency": 1.8
+   },
+   "detected": true,
+   "first_check": "checkout-latency",
+   "minutes_to_detect": 1.8,
+   "node": "svc://otel-demo/checkout",
+   "deepest_failing_callee": [],
+   "rank": 1,
+   "candidates": [
+    {
+     "change": "intlShippingSlowdown off->10sec",
+     "at": "18:04:07",
+     "score": 0.671,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.885,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    },
+    {
+     "change": "paymentUnreachable off->on",
+     "at": "17:55:07",
+     "score": 0.571,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.486,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    },
+    {
+     "change": "productCatalogLockContention off->on",
+     "at": "17:46:07",
+     "score": 0.517,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.267,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    }
+   ],
+   "run": 2
+  },
+  {
+   "id": "I9",
+   "injected": "18:13:07",
+   "true_cause": "paymentFailure",
+   "checks_fired": {
+    "checkout-errors": 1.8
+   },
+   "detected": true,
+   "first_check": "checkout-errors",
+   "minutes_to_detect": 1.8,
+   "node": "svc://otel-demo/checkout",
+   "deepest_failing_callee": [
+    "svc://otel-demo/payment"
+   ],
+   "rank": 1,
+   "candidates": [
+    {
+     "change": "paymentFailure off->25%",
+     "at": "18:14:07",
+     "score": 0.987,
+     "terms": {
+      "lineage": 1.0,
+      "time": 0.946,
+      "direction": 1.0,
+      "failing_calls": 1.0
+     }
+    },
+    {
+     "change": "intlShippingSlowdown off->10sec",
+     "at": "18:04:07",
+     "score": 0.571,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.486,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    },
+    {
+     "change": "paymentUnreachable off->on",
+     "at": "17:55:07",
+     "score": 0.517,
+     "terms": {
+      "lineage": 0.6,
+      "time": 0.267,
+      "direction": 1.0,
+      "failing_calls": 0.0
+     }
+    }
+   ],
+   "run": 2
+  },
+  {
+   "id": "I10",
+   "injected": "18:23:07",
+   "true_cause": "loadGeneratorFloodHomepage",
+   "checks_fired": {},
+   "detected": false,
+   "rank": null,
+   "candidates": [],
+   "run": 2
+  }
+ ]
+}

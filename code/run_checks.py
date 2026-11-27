@@ -314,7 +314,10 @@ def replay(folder, fixtures, events_path, out=None):
             if block:
                 incidents.append({"id": iid, "inject": block[0]["t"], "end": end, "block": block})
     else:
-        flag_to_id = {s["flag"]: s["id"] for s in scenarios}
+        flag_to_id = {}
+        for sc in scenarios:                      # the first incident defined for a flag owns it (I1 before I9)
+            if sc.get("flag"):
+                flag_to_id.setdefault(sc["flag"], sc["id"])
         for e in changes:
             if e.get("kind") == "flag_change" and e.get("flag") in flag_to_id and str(e.get("to")) != "off":
                 incidents.append({"id": flag_to_id[e["flag"]], "inject": e["t"], "end": e["t"] + 600, "block": [e]})
@@ -363,7 +366,8 @@ def replay(folder, fixtures, events_path, out=None):
             Fc = (sum(n for (a, b), n in fails_.items() if svc(b) in rd & upstream) / total_fail) if total_fail else 0.0
             score = 0.50 * L + 0.25 * T + 0.15 * D + 0.10 * Fc
             label = e.get("flag") or e.get("service")
-            cands.append({"change": f"{label} {e.get('from', '')}->{e.get('to', '')}".replace("None->None", e["kind"]),
+            what = f"{label} {e.get('from')}->{e.get('to')}" if e.get("kind") == "flag_change" else f"{label} {e['kind'].replace('service_', '')}"
+            cands.append({"change": what,
                           "label": label, "at": clock(e["t"]), "t": e["t"], "score": round(score, 3),
                           "terms": {"lineage": L, "time": round(T, 3), "direction": D, "failing_calls": round(Fc, 3)}})
         cands.sort(key=lambda c: (-c["score"], -c["t"]))

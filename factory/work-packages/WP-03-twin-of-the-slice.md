@@ -23,6 +23,7 @@ One command starts the demo with the capture add-on and the separate lineage pla
 
 - Lineage traffic never uses the demo's own Kafka (D23)
 - Works in a sandbox without IPv6 or ulimit (sandbox.override.yaml)
+- A flag with a targeting rule is flipped through the rule's branch, as flagd-ui does, not through its default variant (the second run's I6 attempt changed productCatalogFailure's default and injected nothing)
 
 ## Done when
 

@@ -4,7 +4,9 @@
 # Every metric name below was seen in a capture run of the demo at release 3.1.0 on 2026-11-27
 # (collector 0.159.0 with the kafkametrics and postgresql receivers, the span_metrics connector and the
 # servicegraph connector from fixtures/otel-demo-3.1.0/run/otelcol-capture.yml).
-# Thresholds are starting values, to be tuned on the baseline runs (decision D16).
+# Thresholds are starting values, to be tuned on the baseline runs (decision D16). The `catches` lists were
+# updated after the second run to record which checks actually fired for each incident; no threshold was changed.
+# I5 (silent failure) and I10 (traffic flood) fired no check.
 
 window: 2m            # each check compares the last window with the trailing baseline
 baseline: 10m         # rate checks widen their window until the baseline expects min_events in it (default 20):
@@ -36,7 +38,7 @@ checks:
     where: {postgresql.table.name: accounting.order, operation: ins}
     fail_if: rate_ratio < 0.5
     min_events: 20
-    catches: [I1, I4]
+    catches: [I1, I2, I7]
 
   - id: checkout-errors
     node: svc://otel-demo/checkout
@@ -44,7 +46,7 @@ checks:
     metric: traces.span.metrics.calls             # split by status.code; error share = STATUS_CODE_ERROR / all
     where: {service.name: checkout, span.kind: SPAN_KIND_SERVER, span.name: oteldemo.CheckoutService/PlaceOrder}
     fail_if: error_share > 0.05
-    catches: [I1, I4]
+    catches: [I1, I3, I4, I6, I9]
 
   - id: product-catalog-latency
     node: svc://otel-demo/product-catalog
@@ -61,7 +63,7 @@ checks:
     metric: traces.span.metrics.duration          # histogram in milliseconds
     where: {service.name: checkout, span.kind: SPAN_KIND_SERVER, span.name: oteldemo.CheckoutService/PlaceOrder}
     fail_if: p95 > 3s
-    catches: [I8]
+    catches: [I3, I8]
 
   - id: accounting-lag
     node: kafka://otel-demo/orders
@@ -70,4 +72,4 @@ checks:
     metric: kafka.consumer_group.lag_sum
     where: {group: accounting, topic: orders}
     fail_if: value > 100
-    catches: [I7]
+    catches: [I2]            # a 4-minute accounting outage at 15 shoppers leaves about 36 messages: below this threshold

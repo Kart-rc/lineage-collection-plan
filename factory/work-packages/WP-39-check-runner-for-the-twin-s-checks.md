@@ -21,6 +21,7 @@ Evaluate checks.yaml every minute and publish QUALITY_ASSERTION events (D26).
 ## Must hold
 
 - Thresholds are read from checks.yaml; never tuned on the incident being scored
+- An incident that fires no check is recorded as undetected and raises a coverage finding; a new check is validated on a fresh run, not on the run that revealed the gap (D38)
 
 ## Done when
 
@@ -38,4 +39,4 @@ Evaluate checks.yaml every minute and publish QUALITY_ASSERTION events (D26).
 
 ## Requirements
 
-- **IR-1**: When a DQ or contract check fails on an element, the system shall attach the upstream path, the ranked change events and the blast radius to the alert within 2 minutes.
+- **IR-1**: When a DQ or contract check fails on an element, the system shall attach the upstream path, the ranked change events and the blast radius to the alert within 2 minutes. Scenarios: S-IR-10, S-IR-11, S-IR-12, S-IR-13, S-IR-14, S-IR-15, S-IR-16, S-IR-18.

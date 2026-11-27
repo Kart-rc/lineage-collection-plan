@@ -81,5 +81,5 @@ corpora:                       # WP-02; sizes so that IA-8 and IR-5 percentages 
   incidents: {minimum: 20, holdout_share: 0.33, split_by: family}
   change_families: [retype, rename, remove, add, schema_move, package_rename, rewrite_without_lineage_change,
                     retirement, new_consumer, flag_gated_flow, formatting_only, opaque_unit]
-  incident_families: [dependency_failure, unreachable_address, consumer_lag, consumer_outage, storage_contention,
+  incident_families: [dependency_failure, unreachable_address, consumer_lag, consumer_outage, storage_contention, silent_failure,
                       latency_only, decoy_outside_lineage, volume_surge, two_changes_one_service]

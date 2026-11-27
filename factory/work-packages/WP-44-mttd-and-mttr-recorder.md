@@ -35,4 +35,4 @@ Record when bad data landed, when the alert fired, when the cause was identified
 
 ## Requirements
 
-- **IR-9**: The system shall record, per incident, when bad data landed, when the alert fired, when the cause was identified and when remediation completed. Scenarios: S-IR-08.
+- **IR-9**: The system shall record, per incident, when bad data landed, when the alert fired, when the cause was identified and when remediation completed. Scenarios: S-IR-18, S-IR-19, S-IR-08.
