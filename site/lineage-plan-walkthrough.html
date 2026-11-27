@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lineage Plan Walkthrough</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: the phase timeline is the control. Picking a phase redraws one map of the slice and the panel beside it; the sections below reuse the same edges to show how evidence becomes confidence. Tokens match the sibling pages. */
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --sunk: #eceef2; --line: #d8dce3;
+  --ink: #16202c; --muted: #5a6575; --accent: #0b6e62; --accent-soft: #d9efeb;
+  --warn: #a35a00; --warn-soft: #fbead2; --ghost: #c3c9d3;
+  --p0: #5b6b8c; --p1: #0b6e62; --p2: #7a5aa6; --p3: #1d5fa8; --p4: #8a6d1f; --p5: #b0463a;
+  --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --sunk: #1e252e; --line: #2c3540;
+  --ink: #e6ebf1; --muted: #9aa6b4; --accent: #4fc2b1; --accent-soft: #163a36;
+  --warn: #f0a94b; --warn-soft: #3a2a12; --ghost: #3b4552;
+  --p0: #9fb0d0; --p1: #4fc2b1; --p2: #b99ae0; --p3: #6fa8ec; --p4: #d8b85a; --p5: #ee8a7c; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --sunk: #1e252e; --line: #2c3540;
+  --ink: #e6ebf1; --muted: #9aa6b4; --accent: #4fc2b1; --accent-soft: #163a36;
+  --warn: #f0a94b; --warn-soft: #3a2a12; --ghost: #3b4552;
+  --p0: #9fb0d0; --p1: #4fc2b1; --p2: #b99ae0; --p3: #6fa8ec; --p4: #d8b85a; --p5: #ee8a7c; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 var(--f-body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 64px; display: grid; gap: 44px; }
+.wrap > * { min-width: 0; }
+h1, h2, h3, h4 { font-family: var(--f-display); margin: 0; line-height: 1.2; text-wrap: balance; }
+h1 { font-size: clamp(27px, 4.6vw, 38px); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: clamp(21px, 3vw, 25px); font-weight: 600; }
+h3 { font-size: 17px; font-weight: 600; }
+h4 { font-size: 14px; font-weight: 600; }
+p { margin: 0; max-width: 72ch; }
+code, .mono { font-family: var(--f-mono); font-size: 0.92em; }
+code { background: var(--sunk); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.eyebrow { font: 500 12px/1.3 var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.muted { color: var(--muted); } .small { font-size: 13px; }
+.note { font-size: 13px; color: var(--muted); max-width: 84ch; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button { font: inherit; color: inherit; }
+
+.top { display: grid; gap: 14px; }
+.lede { font-size: 17px; line-height: 1.55; max-width: 68ch; }
+.path { font: 500 12.5px/1.9 var(--f-mono); color: var(--muted); overflow-wrap: anywhere; }
+.path b { color: var(--ink); font-weight: 500; }
+.sec { display: grid; gap: 14px; }
+.sec > * { min-width: 0; }
+.key { border-left: 4px solid var(--accent); padding: 4px 0 4px 16px; font-size: 16.5px; line-height: 1.55; max-width: 74ch; }
+
+/* phase timeline (a Gantt that is also the control) */
+.rail { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 14px; display: grid; gap: 6px; }
+.railhead { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; }
+.railhead .lbl { font: 500 11.5px var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.weeks, .row { display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); }
+.weeks span { font: 500 10.5px var(--f-mono); color: var(--muted); }
+.row { all: unset; display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); align-items: center; cursor: pointer; border-radius: 6px; padding-block: 2px; }
+.row:hover { background: var(--sunk); }
+.row:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.row .bar { height: 20px; border-radius: 5px; background: var(--pc); opacity: 0.38; display: grid; place-items: center; font: 600 11.5px var(--f-mono); color: var(--surface); }
+.row .nm { font-size: 13px; color: var(--muted); padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .nm.l { text-align: right; }
+.row[aria-pressed="true"] .bar { opacity: 1; box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--pc); }
+.row[aria-pressed="true"] .nm { color: var(--ink); font-weight: 600; }
+.row.done .bar { opacity: 0.75; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; font: 500 13px var(--f-body); cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chips .lbl { font-size: 13px; color: var(--muted); }
+
+/* map + panel */
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 20px; align-items: start; }
+@media (max-width: 1020px) { .stage { grid-template-columns: 1fr; } }
+.stage > * { min-width: 0; }
+.mapcol { display: grid; gap: 12px; }
+.canvas { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; overflow-x: auto; }
+.canvas svg { display: block; width: 100%; height: auto; min-width: 680px; color: var(--ink); font-family: var(--f-body); }
+svg .nbox { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; transition: opacity .25s; }
+svg .nty { font: 500 10px var(--f-mono); fill: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+svg .nnm { font: 600 13.5px var(--f-display); fill: currentColor; }
+svg .nown { font-size: 10.5px; fill: var(--muted); }
+svg .node.ghost .nown { fill: var(--ghost); }
+svg .node { cursor: pointer; transition: opacity .25s; }
+svg .node.ghost .nbox { stroke: var(--ghost); stroke-dasharray: 3 4; }
+svg .node.ghost .nnm, svg .node.ghost .nty { fill: var(--ghost); }
+svg .node.sel .nbox { stroke: var(--accent); stroke-width: 3; }
+svg .node.hit .nbox { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+svg .node.dim, svg .edge.dim { opacity: 0.28; }
+svg .node:focus-visible .nbox, svg .edge:focus-visible .eln { stroke: var(--accent); stroke-width: 4; }
+svg .node:focus, svg .edge:focus { outline: none; }
+svg .edge { cursor: pointer; transition: opacity .25s; }
+svg .eln { stroke: var(--ec); fill: none; stroke-width: 2.5; stroke-linecap: round; }
+svg .ehd { fill: var(--ec); }
+svg .ehit { stroke: transparent; stroke-width: 16; fill: none; }
+svg .ety { font: 500 9.5px var(--f-mono); fill: var(--muted); letter-spacing: 0.04em; }
+svg .edge.none .eln { stroke: var(--ghost); stroke-width: 1.5; stroke-dasharray: 2 6; }
+svg .edge.none .ehd { fill: var(--ghost); } svg .edge.none .ety { fill: var(--ghost); }
+svg .edge.candidate .eln { stroke-width: 2; stroke-dasharray: 2 5; }
+svg .edge.probable .eln { stroke-dasharray: 8 5; }
+svg .edge.confirmed .eln, svg .edge.verified .eln { stroke-width: 3.2; }
+svg .echk { fill: var(--surface); stroke: var(--ec); stroke-width: 1.5; }
+svg .echk-t { stroke: var(--ec); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+svg .edge.sel .eln { stroke-width: 4.5; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.legend svg { width: 34px; height: 10px; flex: none; }
+.legend i { width: 11px; height: 11px; border-radius: 3px; background: var(--pc); flex: none; }
+
+.detail { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; }
+.detail h3 { font-size: 16px; overflow-wrap: anywhere; }
+.evrows { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.evrow { display: grid; grid-template-columns: minmax(0, 1.5fr) 52px minmax(0, 1fr); gap: 4px 12px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 13px; align-items: baseline; }
+.evrow.off { color: var(--muted); opacity: 0.6; }
+.evrow .w { font: 500 13px var(--f-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.formula { font: 500 13.5px/1.5 var(--f-mono); overflow-wrap: anywhere; }
+.pill { display: inline-block; font: 500 11.5px var(--f-mono); letter-spacing: 0.03em; padding: 2px 8px; border-radius: 999px; border: 1.5px solid currentColor; white-space: nowrap; }
+.pill.candidate { color: var(--muted); border-style: dotted; }
+.pill.probable { color: var(--warn); border-style: dashed; }
+.pill.confirmed { color: var(--accent); }
+.pill.verified { color: var(--surface); background: var(--accent); border-color: var(--accent); }
+.pill.dormant { color: var(--muted); background: var(--sunk); border-color: var(--line); }
+.pill.retired { color: var(--muted); text-decoration: line-through; border-color: var(--line); }
+.pill.none { color: var(--muted); border-color: var(--line); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font: 500 12px var(--f-body); padding: 3px 9px; border-radius: 6px; background: var(--sunk); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--pc); border-radius: 10px; padding: 16px; display: grid; gap: 13px; }
+.panel .wk { font: 500 11.5px var(--f-mono); color: var(--pc); text-transform: uppercase; letter-spacing: 0.06em; }
+.panel h3 { font-size: 20px; }
+.panel dl { margin: 0; display: grid; gap: 10px; }
+.panel dt { font: 500 11px var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.panel dd { margin: 2px 0 0; font-size: 13.5px; line-height: 1.5; }
+pre { margin: 0; background: var(--sunk); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font: 12px/1.55 var(--f-mono); color: var(--ink); }
+.acc { display: grid; gap: 6px; }
+.acc .r { display: grid; grid-template-columns: 62px minmax(0, 1fr) 76px; gap: 8px; align-items: center; font-size: 12.5px; }
+.acc .trk { height: 8px; background: var(--sunk); border-radius: 4px; position: relative; overflow: hidden; }
+.acc .trk i { position: absolute; inset: 0 auto 0 0; background: var(--pc); border-radius: 4px; }
+.acc .trk i + i { background: transparent; border-right: 2px solid var(--ink); border-radius: 0; }
+.acc .v { font: 500 12px var(--f-mono); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* field strip and PR strip */
+.strip { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; }
+.fields { display: flex; flex-wrap: wrap; gap: 8px 4px; align-items: center; }
+.fchip { border: 1.5px solid var(--line); border-radius: 8px; padding: 5px 9px; display: grid; gap: 1px; background: var(--bg); }
+.fchip small { font: 500 10px var(--f-mono); color: var(--muted); }
+.fchip b { font: 500 12.5px var(--f-mono); }
+.fhop { display: grid; justify-items: center; gap: 2px; padding: 0 2px; min-width: 76px; }
+.fhop svg { width: 62px; height: 10px; }
+.fhop small { font: 500 10px var(--f-mono); color: var(--muted); white-space: nowrap; }
+.when { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; position: relative; margin-top: 4px; }
+.when .st { border-top: 3px solid var(--line); padding-top: 8px; font-size: 12.5px; color: var(--muted); display: grid; gap: 4px; justify-items: start; min-height: 46px; }
+.when .st.on { border-top-color: var(--pc); color: var(--ink); font-weight: 600; }
+.when .st.alt { border-top-color: var(--pc); border-top-style: dashed; color: var(--ink); }
+.when .dot { width: 14px; height: 14px; border-radius: 7px; background: var(--pc); margin-top: -17px; }
+.when .st.alt .dot { background: var(--surface); border: 2.5px solid var(--pc); }
+.when .st:not(.on):not(.alt) .dot { visibility: hidden; }
+
+/* calculator */
+.calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px 28px; align-items: start; }
+@media (max-width: 860px) { .calc { grid-template-columns: 1fr; } }
+.calc > * { min-width: 0; display: grid; gap: 12px; align-content: start; }
+.calc > * > *, .life > * > *, .panel > *, .panel dl > div, .detail > *, .strip > *, .mapcol > * { min-width: 0; }
+.srcs { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.src { all: unset; display: grid; grid-template-columns: 22px minmax(0, 1fr) 44px; gap: 2px 10px; padding: 8px 4px; border-bottom: 1px solid var(--line); cursor: pointer; align-items: start; }
+.src:hover { background: var(--sunk); }
+.src:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.src .box { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--muted); margin-top: 2px; display: grid; place-items: center; }
+.src[aria-pressed="true"] .box { background: var(--accent); border-color: var(--accent); }
+.src[aria-pressed="true"] .box::after { content: ""; width: 9px; height: 5px; border-left: 2px solid var(--surface); border-bottom: 2px solid var(--surface); transform: rotate(-45deg) translateY(-1px); }
+.src b { font: 600 13.5px var(--f-body); }
+.src small { grid-column: 2; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.src .w { font: 500 13px var(--f-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.src .rt { font: 500 10px var(--f-mono); color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-left: 6px; }
+.meter { position: relative; height: 26px; border-radius: 6px; background: var(--sunk); overflow: hidden; }
+.meter .fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); opacity: 0.85; transition: width .25s; }
+.meter .th { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed var(--ink); opacity: 0.55; }
+.mlabels { position: relative; height: 16px; font: 500 10.5px var(--f-mono); color: var(--muted); }
+.mlabels span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.big { font: 700 34px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.result { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--line); line-height: 1.45; }
+thead th { font: 500 11.5px var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; background: var(--sunk); white-space: nowrap; }
+tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+tbody th { font-weight: 600; }
+@media (max-width: 700px) { .scroll > table { min-width: 560px; } }
+
+/* lifecycle */
+.life { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 20px 28px; align-items: start; }
+@media (max-width: 860px) { .life { grid-template-columns: 1fr; } }
+.life > * { min-width: 0; display: grid; gap: 12px; align-content: start; }
+.states { display: flex; flex-wrap: wrap; gap: 8px; }
+.states .pill { font-size: 12.5px; padding: 4px 11px; opacity: 0.4; }
+.states .pill.now { opacity: 1; box-shadow: 0 0 0 3px var(--accent-soft); }
+footer { padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <p class="eyebrow">Lineage collection plan · card-authorization slice</p>
+  <h1>How the lineage map gets built</h1>
+  <p class="lede">The plan builds one dependency map from evidence you already have, top down. Start with who calls whom, add owners, then read code and watch what runs, and prove it on one slice before widening. Pick a phase below and watch the same map fill in.</p>
+  <p class="path"><b>payments-svc</b> → auth.events.v1 → txn-enrichment → auth.enrich.v1 → raw.card_auth → fct_card_auth → mcc_decline_7d → fraud-score-v12 → <b>fraud-svc</b></p>
+</header>
+
+<section class="sec" aria-label="The map by phase">
+  <div class="rail">
+    <div class="railhead">
+      <span class="lbl">Pick a phase · weeks 1 to 18, then widen</span>
+      <button class="btn" id="play" type="button" aria-pressed="false">Play the phases</button>
+    </div>
+    <div class="weeks" aria-hidden="true"><span style="grid-column:1">1</span><span style="grid-column:5">5</span><span style="grid-column:10">10</span><span style="grid-column:15">15</span><span style="grid-column:18">18</span><span style="grid-column:19 / 21">19+</span></div>
+    <div id="rail"></div>
+  </div>
+
+  <div class="stage">
+    <div class="mapcol">
+      <div class="chips">
+        <span class="lbl">Colour edges by</span>
+        <button class="btn" type="button" data-mode="phase" aria-pressed="true">Phase that found them</button>
+        <button class="btn" type="button" data-mode="gateway" aria-pressed="false">Gateway logs</button>
+        <button class="btn" type="button" data-mode="registry" aria-pressed="false">Catalog</button>
+        <button class="btn" type="button" data-mode="ci" aria-pressed="false">CI scanners</button>
+        <button class="btn" type="button" data-mode="runtime" aria-pressed="false">Runtime events</button>
+        <button class="btn" type="button" data-mode="access" aria-pressed="false">Access history</button>
+      </div>
+      <div class="canvas"><svg id="map" viewBox="0 0 872 350" role="group" aria-label="The eleven nodes of the card-authorization slice and the edges between them. Edges are drawn by how sure the graph is of each one at the selected phase."></svg></div>
+      <p class="legend" id="legend"></p>
+      <p class="note" id="modenote"></p>
+      <div class="detail" id="detail" aria-live="polite"></div>
+    </div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+
+  <div class="strip">
+    <h3>One field through the slice</h3>
+    <p class="small muted" id="fieldnote"></p>
+    <div class="fields" id="fields"></div>
+  </div>
+
+  <div class="strip" id="prstrip">
+    <h3>The same change at this phase: PR #482 renames <code>merchant_category_code</code> to <code>mcc</code></h3>
+    <p class="small" id="prtext"></p>
+    <div class="when" id="when"></div>
+    <p class="note">The schema registry's BACKWARD check passes this change at every phase, because removing a field and adding one with a default are both allowed. Only the map knows who still reads the old name.</p>
+  </div>
+</section>
+
+<section class="sec" aria-label="Evidence and confidence">
+  <h2>One edge, several witnesses</h2>
+  <p class="key">No collector writes the graph. Each one reports what it saw, the resolver turns every name into one URN, and the evidence for an edge adds up. An edge seen by three independent sources scores higher than one seen by a single source.</p>
+  <div class="calc">
+    <div>
+      <div class="chips"><span class="lbl">Start from</span>
+        <button class="btn" type="button" data-preset="dbt">raw.card_auth → fct_card_auth</button>
+        <button class="btn" type="button" data-preset="produce">payments-svc → auth.events.v1</button>
+        <button class="btn" type="button" data-preset="flink">a field through Flink</button>
+      </div>
+      <div class="srcs" id="srcs"></div>
+    </div>
+    <div>
+      <h3 id="calc-title"></h3>
+      <div class="result"><span class="big" id="calc-num"></span><span class="pill" id="calc-state"></span></div>
+      <div>
+        <div class="meter"><div class="fill" id="calc-fill"></div><div class="th" style="left:60%"></div><div class="th" style="left:90%"></div></div>
+        <div class="mlabels"><span style="left:30%">candidate</span><span style="left:75%">probable</span><span style="left:95%">confirmed</span></div>
+      </div>
+      <p class="formula" id="calc-formula"></p>
+      <p class="small" id="calc-why"></p>
+      <div id="calc-names"></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" aria-label="Edge lifecycle">
+  <h2>How an edge earns trust, and loses it</h2>
+  <p>Edges are never just present or absent. They move between states as evidence arrives and expires, and the two queries that matter read different states: impact analysis walks probable and above, root-cause analysis walks confirmed and above first.</p>
+  <div class="life">
+    <div>
+      <h4>Try it on <code>payments-svc → auth.events.v1</code></h4>
+      <div class="srcs" id="lifebtns"></div>
+      <button class="btn" id="lifereset" type="button" style="justify-self:start">Reset</button>
+    </div>
+    <div>
+      <div class="states" id="states"></div>
+      <p class="formula" id="lifeformula"></p>
+      <p class="small" id="lifewhy"></p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>When sources disagree</th><th>Example from the slice</th><th>What to do</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Code only, no traffic for 30 days</th><td>payments-svc code still produces to auth.events.v0</td><td>Owner confirms; mark dormant or delete the code</td></tr>
+            <tr><th scope="row">Traffic only, in no repo or catalog</th><td>A notebook service account reads <code>fct_card_auth#card_bin</code></td><td>Register the consumer and its owner, or revoke access</td></tr>
+            <tr><th scope="row">Declared, never observed</th><td>The catalog says mobile-bff consumes fraud-scoring-api</td><td>Fix the catalog entry</td></tr>
+            <tr><th scope="row">Code and runtime disagree</th><td>The parser says <code>mcc</code> comes from <code>merchant_category_code</code>; runtime says <code>mcc_raw</code></td><td>Fix the scanner rule and add the case to its tests</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Each disagreement goes to the owning team as a queue item. A disagreement is a finding, not noise: every one is either a future incident or a stale piece of documentation.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><b>Where this comes from.</b> Everything here is drawn from <code>docs/01-implementation-plan.md</code> and <code>docs/03-collection-and-build-guide.md</code> in the repository. Weights, thresholds and accuracy figures are the plan's starting values and proposed targets. Service names, volumes, PR numbers and times are an illustrative slice, not measurements.</p>
+  <p>The component view is in <code>site/lineage-components.html</code>, the first 30 days in <code>site/lineage-starter-kit.html</code>, and field-level lineage in <code>site/element-lineage-blueprint.html</code>.</p>
+</footer>
+</div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+
+  /* ---------- the plan as data ---------- */
+  var SRC = {
+    gateway_log: { n: 'Gateway access log', w: 0.90, rt: 1, c: 'gateway', proves: 'A call happened between two services', fails: 'Unresolved caller, health checks' },
+    mesh_log: { n: 'Mesh access log', w: 0.90, rt: 1, c: 'gateway', proves: 'A call happened between two services', fails: 'Unresolved caller, health checks' },
+    access_history: { n: 'Warehouse access history', w: 0.95, rt: 1, c: 'access', proves: 'A query read or wrote these columns', fails: 'Temporary tables, renamed objects' },
+    openlineage: { n: 'OpenLineage run event', w: 0.95, rt: 1, c: 'runtime', proves: 'A job run read or wrote this dataset', fails: 'Wrong namespace configuration' },
+    otel_span: { n: 'OpenTelemetry span', w: 0.90, rt: 1, c: 'runtime', proves: 'A service produced to, consumed from or queried a resource', fails: 'Sampling misses rare paths' },
+    rt_dataset: { n: 'Runtime, dataset level only', w: 0.50, rt: 1, c: 'runtime', proves: 'Only the parent datasets of a field edge were observed', fails: 'The field may not actually be used' },
+    ci_static: { n: 'Static code analysis in CI', w: 0.60, rt: 0, c: 'ci', proves: 'The code can produce this flow', fails: 'Dead code, feature flags, unreleased branches' },
+    declared: { n: 'Declared in catalog or contract', w: 0.50, rt: 0, c: 'registry', proves: 'The owner says the flow exists', fails: 'Stale documentation' },
+    iam: { n: 'IAM or Kafka ACL permission', w: 0.20, rt: 0, c: 'registry', proves: 'The flow is possible', fails: 'Over-broad permissions' }
+  };
+  var COLLECTOR = {
+    gateway: { n: 'Gateway and mesh logs', ph: 1, sees: 'Which service calls are live, how often and from which caller, with no code change.', blind: 'Anything that is not an HTTP or gRPC call: topics, tables and fields.' },
+    registry: { n: 'Catalog and registries', ph: 2, sees: 'Owners, tiers, declared intent, permissions, and the names the resolver needs.', blind: 'Whether a declaration is still true. A permission only says a flow is possible.' },
+    ci: { n: 'CI scanners', ph: 3, sees: 'The edge before it ships, down to the field, tied to a pull request.', blind: 'Dead code, feature flags, notebooks, and consumers no repository mentions.' },
+    runtime: { n: 'Runtime events (OpenLineage, OpenTelemetry)', ph: 4, sees: 'What actually ran, with column lineage from Spark and dbt.', blind: 'Jobs nobody has instrumented, rare paths, and Flink field mappings.' },
+    access: { n: 'Warehouse access history', ph: 4, sees: 'Warehouse truth, including notebooks, ad hoc queries and BI dashboards.', blind: 'Anything outside the warehouse. It lags by up to three hours.' }
+  };
+  var N = {
+    bff: { x: 10, y: 24, t: 'client service', n: 'mobile-bff', o: 'Mobile platform', from: 1, why: 'Calls through the API gateway, so Phase 1 sees it.' },
+    pay: { x: 190, y: 24, t: 'microservice', n: 'payments-svc', o: 'Payments', from: 1, why: 'Produces auth.events.v1 and calls fraud-svc on every authorization.' },
+    ev: { x: 370, y: 24, t: 'Kafka topic', n: 'auth.events.v1', o: 'Payments', tier: 1, from: 2, why: 'The contract boundary where most breaking changes start.' },
+    txn: { x: 550, y: 24, t: 'Flink job', n: 'txn-enrichment', o: 'Streaming platform', from: 2, job: 1, why: 'Reads and renames fields. No column lineage at runtime, so static analysis must cover it.' },
+    en: { x: 730, y: 24, t: 'Kafka topic', n: 'auth.enrich.v1', o: 'Streaming platform', tier: 1, from: 2, why: 'An intermediate hop that is easy to forget.' },
+    raw: { x: 730, y: 170, t: 'Iceberg table', n: 'raw.card_auth', o: 'Data platform', tier: 2, from: 2, why: 'Landed by a sink: a write path that bypasses SQL.' },
+    fct: { x: 550, y: 170, t: 'dbt model', n: 'fct_card_auth', o: 'Analytics engineering', os: 'Analytics eng', tier: 1, from: 2, why: 'Column lineage from SQL. Feeds BI and features.' },
+    feat: { x: 370, y: 170, t: 'feature view', n: 'mcc_decline_7d', o: 'Fraud ML', tier: 1, from: 2, why: 'Aggregates by merchant category code, so a field rename breaks it silently.' },
+    mdl: { x: 190, y: 170, t: 'model version', n: 'fraud-score-v12', o: 'Fraud ML', tier: 1, from: 2, why: 'Links training data to the serving endpoint.' },
+    fsvc: { x: 10, y: 170, t: 'model serving', n: 'fraud-svc', o: 'Fraud ML', tier: 1, from: 1, why: 'Closes the loop back to payments-svc.' },
+    dash: { x: 550, y: 282, t: 'BI dashboard', n: 'Approval rate', o: 'Payments analytics', tier: 2, from: 2, why: 'A consumer seen only in query logs.' }
+  };
+  var NW = 132, NH = 58;
+  /* evidence rows: [source, weight, phase that adds it, what it was] */
+  var E = [
+    { id: 'e1', a: 'bff', b: 'pay', ty: 'CALLS', ev: [['gateway_log', 0.90, 1, 'API gateway log, aggregated hourly']] },
+    { id: 'e11', a: 'pay', b: 'fsvc', ty: 'CALLS', ev: [['mesh_log', 0.90, 1, 'About 413,000 calls an hour to POST /v1/score'], ['declared', 0.50, 2, 'consumesApis in catalog-info.yaml']] },
+    { id: 'e2', a: 'pay', b: 'ev', ty: 'PRODUCES', verify: 5, ev: [['iam', 0.20, 2, 'Kafka ACL: payments-svc may write the topic'], ['ci_static', 0.60, 3, 'Producer config and Avro classes in the repo'], ['otel_span', 0.90, 4, 'PRODUCER span: send auth.events.v1']] },
+    { id: 'e3', a: 'ev', b: 'txn', ty: 'CONSUMES', verify: 5, ev: [['iam', 0.20, 2, 'Kafka ACL: the job may read the topic'], ['ci_static', 0.60, 3, 'Flink SQL through the planner in CI'], ['openlineage', 0.95, 4, 'Flink job listener, dataset level']] },
+    { id: 'e4', a: 'txn', b: 'en', ty: 'PRODUCES', ev: [['iam', 0.20, 2, 'Kafka ACL: the job may write the topic'], ['ci_static', 0.60, 3, 'Flink SQL through the planner in CI'], ['openlineage', 0.95, 4, 'Flink job listener, dataset level']] },
+    { id: 'e5', a: 'en', b: 'raw', ty: 'WRITES', ev: [['iam', 0.20, 2, 'The sink role may read the topic and write the table'], ['ci_static', 0.60, 3, 'Sink connector configuration in its repo'], ['openlineage', 0.95, 4, 'Sink connector run events']] },
+    { id: 'e6', a: 'raw', b: 'fct', ty: 'DERIVES', verify: 5, ev: [['ci_static', 0.60, 3, 'dbt manifest and compiled SQL'], ['openlineage', 0.95, 4, 'Nightly dbt run, with column facet'], ['access_history', 0.95, 4, '24 queries in the last pull']] },
+    { id: 'e7', a: 'fct', b: 'feat', ty: 'DERIVES', verify: 5, ev: [['ci_static', 0.60, 3, 'Feature view definition in the feature repo'], ['openlineage', 0.95, 4, 'Feature materialization run']] },
+    { id: 'e8', a: 'feat', b: 'mdl', ty: 'FEEDS', ev: [['ci_static', 0.60, 3, 'Training configuration lists the feature'], ['openlineage', 0.95, 4, 'Training run event']] },
+    { id: 'e9', a: 'mdl', b: 'fsvc', ty: 'SERVES', ev: [['declared', 0.50, 2, 'Model registry deployment record'], ['ci_static', 0.60, 3, 'Serving config names the model version'], ['mesh_log', 0.90, 4, 'Inference calls in the mesh log']] },
+    { id: 'e10', a: 'fct', b: 'dash', ty: 'READS', ev: [['access_history', 0.95, 4, 'Queries from the BI service account']] }
+  ];
+  var FIELDS = [
+    { a: 'auth.events.v1', af: 'merchant_category_code', how: 'rename', verify: 5, ev: [['ci_static', 0.60, 3], ['rt_dataset', 0.50, 4]] },
+    { a: 'auth.enrich.v1', af: 'mcc', how: 'identity', ev: [['ci_static', 0.60, 3], ['rt_dataset', 0.50, 4]] },
+    { a: 'raw.card_auth', af: 'mcc', how: 'identity', verify: 5, ev: [['ci_static', 0.60, 3], ['openlineage', 0.95, 4], ['access_history', 0.95, 4]] },
+    { a: 'fct_card_auth', af: 'mcc', how: 'group by', verify: 5, ev: [['ci_static', 0.60, 3], ['rt_dataset', 0.50, 4]] },
+    { a: 'mcc_decline_7d', af: 'grouping key' }
+  ];
+  var PH = [
+    { n: 'Baseline and golden graph', s: 'Baseline', w: [1, 2], reads: 'The owners. A one-hour session per team, walking their code and config.',
+      ex: ['Three rows of the golden graph', 'payments-svc\n  -> fraud-svc#POST /v1/score          CALLS\nauth.events.v1#merchant_category_code\n  -> auth.enrich.v1#mcc                DERIVES rename\nfct_card_auth#mcc\n  -> mcc_decline_7d                    DERIVES group by'],
+      ans: 'What is the right answer for this slice, and how long do breaks take to find and fix today?', blind: 'Everything. Nothing is collected yet: the dotted lines are the owners\' ground truth, about 55 edges.',
+      gate: 'Every slice owner has signed off their part of the golden graph, and the baseline numbers are recorded.', ask: 'One hour per team.', acc: null,
+      pr: 'Nothing warns anyone. The registry check passes, the change merges, and the fraud team finds it the next day as a model metric anomaly.', when: 3 },
+    { n: 'Gateway logs to service edges', s: 'Gateway', w: [2, 5], reads: 'API gateway and service mesh access logs you already have. No application changes.',
+      ex: ['One mesh log line becomes an edge', 'POST /v1/score   200   38 ms\ndownstream_peer_identity:\n  spiffe://prod.example/ns/payments/sa/payments-svc\nupstream_cluster:\n  fraud-svc.fraud.svc.cluster.local\n\nafter an hour of aggregation\n  payments-svc -> fraud-svc#POST /v1/score   CALLS\n  calls 412880   error_rate 0.0011   p99 91 ms\n  mesh_log 0.90 -> confidence 0.90, confirmed'],
+      ans: 'Who calls fraud-svc? payments-svc, about 413,000 calls an hour, and one hop further mobile-bff. In seconds, not a thread of messages.', blind: 'Kafka traffic, data stores, fields, and anything asynchronous. The topic in the middle of the slice is invisible.',
+      gate: 'At least 90% of golden service edges found, with under 5% of call volume from unresolved callers.', ask: 'Nothing.', acc: { Service: [95, 90] },
+      pr: 'The map shows payments-svc calls fraud-svc, but the event topic is not on it. Same outcome as before. Once the incident starts, the service-level blast radius is known in seconds.', when: 3 },
+    { n: 'Components, ownership and catalog', s: 'Catalog', w: [4, 7], reads: 'The service catalog, deploy manifests and IAM, the schema registry, the feature and model registries, and the BI tool\'s API.',
+      ex: ['A catalog entry becomes an overlay', 'kind: Component\nmetadata:\n  name: payments-svc\n  annotations:\n    lineage/identities:\n      spiffe://prod.example/ns/payments/sa/payments-svc\nspec:\n  owner: team-payments\n  system: card-authorization\n  consumesApis: [fraud-scoring-api]\n\nconsumesApis -> declared evidence, 0.50\n  payments-svc -> fraud-svc   0.90 rises to 0.95'],
+      ans: 'Who owns this node, what tier is it, and who is on call? Which topics, tables, features and models exist?', blind: 'Whether a declaration is still true. The dotted edges are permissions: they say a flow is possible, not that it happens.',
+      gate: 'At least 95% of slice nodes owned, and every slice data asset present with its schema.', ask: 'A catalog file.', acc: { Service: [97, 95], Dataset: [50, 60] },
+      pr: 'The topic now exists with an owner, and a permission edge says txn-enrichment may read it. Nobody is warned before merge. When the break surfaces, the alert goes to named owners, not a channel.', when: 3 },
+    { n: 'Static code edges and PR impact', s: 'Static code', w: [6, 11], reads: 'Code, schemas, SQL and feature definitions, scanned in CI on every pull request and nightly on the default branch.',
+      ex: ['The pull request comment', null],
+      ans: 'What will this change break, and whose is it, before it merges?', blind: 'Dead code, feature flags, notebooks, and any consumer no repository mentions. The dashboard is still missing.',
+      gate: 'Field-level recall at least 80% against the golden graph, and change replay finds at least 8 of 10 consumers that broke.', ask: 'One CI step.', acc: { Service: [97, 95], Dataset: [80, 85], Field: [75, 80] },
+      pr: null, when: 0 },
+    { n: 'Runtime edges and reconciliation', s: 'Runtime', w: [9, 14], reads: 'OpenLineage run events, OpenTelemetry spans and warehouse access history. Metadata only, never payloads.',
+      ex: ['Runtime confirms one edge and finds another', 'OTel span from payments-svc\n  name: send auth.events.v1     kind: PRODUCER\n  messaging.destination.name: auth.events.v1\n  -> PRODUCES   0.68 rises to 0.97, confirmed\n\nreconciliation queue, runtime only\n  a notebook service account reads\n  fct_card_auth#card_bin\n  -> undeclared consumer: register it or revoke access'],
+      ans: 'Did it actually run? And who reads this that no repository mentions?', blind: 'Rare paths, and only after the fact. Flink confirms the topics, not the field mapping, so that field edge stays probable.',
+      gate: 'Edge precision at least 95%, new runtime edges visible within 15 minutes, and the reconciliation queue under 10 open items.', ask: 'Work the reconciliation queue.', acc: { Service: [98, 98], Dataset: [95, 95], Field: [90, 90] },
+      pr: null, when: 0 },
+    { n: 'Contracts, data quality and RCA', s: 'Contracts and RCA', w: [13, 18], reads: 'Contracts on the two boundaries, a DQ check at every hop, and change events on the same timeline.',
+      ex: ['If the change ships anyway as a hotfix', 'ALERT raw.card_auth.mcc null_rate 41%\n      (threshold 1%) at 02:42\nupstream walk\n  raw.card_auth#mcc  <- auth.enrich.v1#mcc\n                        null 43%  FAIL\n  auth.enrich.v1#mcc <- auth.events.v1\n                        #merchant_category_code\n                        absent in v8\nlikely cause: PR #482, schema v8 at 02:05\nnot yet affected: fct_card_auth (03:00),\n                  mcc_decline_7d (04:00)\ncircuit breaker: pause both, fix upstream first'],
+      ans: 'What is the cause, who is affected, and in what order do we fix it?', blind: 'It depends on the trusted consumer list the earlier phases built. A blocking gate on an untrusted graph loses engineers fast.',
+      gate: 'MTTD and MTTR at most half the baseline, and at least 80% of breaking changes caught before merge.', ask: 'Review the contract for your boundary.', acc: { Service: [98, 98], Dataset: [97, 95], Field: [95, 90] },
+      pr: 'The check blocks the merge: a tier 1 contract field with confirmed readers was renamed without a version bump or sign-off. If it ships anyway as a hotfix, the first-hop check fires 37 minutes later with the cause and the fix order attached.', when: 0, when2: 1 },
+    { n: 'Widen to the next slices', s: 'Widen', w: [19, 20], reads: 'The same collectors, pointed at the next tier 1 data products, ranked by incident count.',
+      ex: null, ans: 'How much of tier 1 is covered, and what does each new slice cost?', blind: 'Gateway edges and the catalog overlay already cover the estate. Only new gateways and new technologies need work.',
+      gate: 'Coverage targets per tier. Each new slice should take about half the time of the first.', ask: 'A lighter golden graph of about 30 edges per slice.', acc: { Service: [98, 98], Dataset: [97, 95], Field: [95, 90] },
+      pr: 'The same protection applies to every slice that has been through the playbook.', when: 0, when2: 1 }
+  ];
+  var WHEN = ['Before merge', 'Minutes after it ships', 'Hours later', 'The next day'];
+
+  /* ---------- confidence and state ---------- */
+  function noisyOr(ws) { return 1 - ws.reduce(function (p, w) { return p * (1 - w); }, 1); }
+  function at(item, ph) {
+    var ev = (item.ev || []).filter(function (e) { return e[2] <= ph; });
+    if (!ev.length) return { s: 'none', c: 0, ev: [] };
+    var c = noisyOr(ev.map(function (e) { return e[1]; }));
+    var rt = ev.some(function (e) { return SRC[e[0]].rt; });
+    var s = c >= 0.9 && rt ? 'confirmed' : c >= 0.6 ? 'probable' : 'candidate';
+    if (item.verify && ph >= item.verify) s = 'verified';
+    return { s: s, c: c, ev: ev };
+  }
+  function f2(x) { return (Math.round(x * 100) / 100).toFixed(2); }
+  function formula(ws) { return ws.length ? '1 − (' + ws.map(function (w) { return f2(1 - w); }).join(' × ') + ') = ' + (ws.length ? (Math.round(noisyOr(ws) * 1000) / 1000) : 0) : 'no evidence yet'; }
+
+  var phase = 3, mode = 'phase', sel = { kind: 'node', id: 'ev' }, timer = null;
+  function gph() { return Math.min(phase, 5); }
+
+  /* ---------- phase timeline ---------- */
+  function renderRail() {
+    $('#rail').innerHTML = PH.map(function (p, i) {
+      var s = p.w[0], e = p.w[1], late = s > 9;
+      var bar = '<span class="bar" style="grid-column:' + s + ' / ' + (e + 1) + '">' + i + '</span>';
+      var nm = late ? '<span class="nm l" style="grid-column:1 / ' + s + '; grid-row:1">' + esc(p.n) + '</span>' : '<span class="nm" style="grid-column:' + (e + 1) + ' / 21">' + esc(p.n) + '</span>';
+      return '<button class="row' + (i < phase ? ' done' : '') + '" type="button" data-ph="' + i + '" aria-pressed="' + (i === phase) + '" style="--pc: var(--p' + Math.min(i, 5) + ')" aria-label="Phase ' + i + ': ' + esc(p.n) + ', weeks ' + (i === 6 ? '19 onward' : s + ' to ' + e) + '">' + (late ? nm + bar.replace('class="bar"', 'class="bar" data-r="1"') : bar + nm) + '</button>';
+    }).join('');
+    $$('#rail .bar').forEach(function (b) { b.style.gridRow = '1'; });
+  }
+  $('#rail').addEventListener('click', function (e) { var b = e.target.closest('.row'); if (!b) return; stop(); phase = +b.getAttribute('data-ph'); renderAll(); });
+  function stop() { if (timer) { clearInterval(timer); timer = null; } $('#play').setAttribute('aria-pressed', 'false'); $('#play').textContent = 'Play the phases'; }
+  $('#play').addEventListener('click', function () {
+    if (timer) { stop(); return; }
+    phase = 0; renderAll();
+    this.setAttribute('aria-pressed', 'true'); this.textContent = 'Pause';
+    timer = setInterval(function () { if (phase >= 5) { stop(); return; } phase += 1; renderAll(); }, 2400);
+  });
+
+  /* ---------- the map ---------- */
+  function anchor(a, b) {
+    var ax = a.x + NW / 2, ay = a.y + NH / 2, bx = b.x + NW / 2, by = b.y + NH / 2;
+    if (a.y === b.y) { var r = b.x > a.x; return [r ? a.x + NW : a.x, ay, r ? b.x : b.x + NW, by]; }
+    if (a.x === b.x) { var d = b.y > a.y; return [ax, d ? a.y + NH : a.y, bx, d ? b.y : b.y + NH]; }
+    return [a.x + 40, a.y + NH, b.x + NW - 40, b.y];                       /* the one diagonal: payments-svc to fraud-svc */
+  }
+  function buildMap() {
+    var s = '';
+    E.forEach(function (e) {
+      var p = anchor(N[e.a], N[e.b]), x1 = p[0], y1 = p[1], x2 = p[2], y2 = p[3];
+      var len = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+      var ex = x2 - ux * 3, ey = y2 - uy * 3, bx = ex - ux * 9, by = ey - uy * 9;
+      var hd = [ex, ey, bx - uy * 5, by + ux * 5, bx + uy * 5, by - ux * 5].map(function (v) { return Math.round(v * 10) / 10; });
+      var mx = (x1 + x2) / 2, my = (y1 + y2) / 2, horiz = Math.abs(uy) < 0.1;
+      var lx = horiz ? mx : mx + 10, ly = horiz ? my - 8 : my + 3, anc = horiz ? 'middle' : 'start';
+      if (e.id === 'e11') { lx = mx - 12; ly = my; anc = 'end'; }
+      s += '<g class="edge" data-e="' + e.id + '" tabindex="0" role="button">' +
+        '<line class="eln" x1="' + x1 + '" y1="' + y1 + '" x2="' + (x2 - ux * 9) + '" y2="' + (y2 - uy * 9) + '"/>' +
+        '<polygon class="ehd" points="' + hd[0] + ',' + hd[1] + ' ' + hd[2] + ',' + hd[3] + ' ' + hd[4] + ',' + hd[5] + '"/>' +
+        '<text class="ety" x="' + lx + '" y="' + ly + '" text-anchor="' + anc + '">' + e.ty + '</text>' +
+        '<g class="chk" transform="translate(' + (horiz ? mx : mx - 0) + ',' + (horiz ? my + 13 : my + 16) + ')"><circle class="echk" r="7" cx="0" cy="0"/><path class="echk-t" d="M-3.2 0.2 L-0.8 2.6 L3.4 -2.4"/></g>' +
+        '<line class="ehit" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/></g>';
+    });
+    Object.keys(N).forEach(function (k) {
+      var n = N[k];
+      s += '<g class="node" data-n="' + k + '" tabindex="0" role="button"><rect class="nbox" x="' + n.x + '" y="' + n.y + '" width="' + NW + '" height="' + NH + '" rx="8"/>' +
+        '<text class="nty" x="' + (n.x + NW / 2) + '" y="' + (n.y + 16) + '" text-anchor="middle">' + esc(n.t) + '</text>' +
+        '<text class="nnm" x="' + (n.x + NW / 2) + '" y="' + (n.y + 33) + '" text-anchor="middle">' + esc(n.n) + '</text>' +
+        '<text class="nown" x="' + (n.x + NW / 2) + '" y="' + (n.y + 49) + '" text-anchor="middle"></text></g>';
+    });
+    $('#map').innerHTML = s;
+  }
+  function usable(e, ph) { var s = at(e, ph).s; return s === 'probable' || s === 'confirmed' || s === 'verified'; }
+  function downstream(start, ph) {
+    var seen = {}, q = [start], via = {};
+    while (q.length) { var cur = q.shift(); E.forEach(function (e) { if (e.a === cur && usable(e, ph) && !seen[e.b] && e.b !== start) { seen[e.b] = 1; via[e.id] = 1; q.push(e.b); } }); }
+    E.forEach(function (e) { if ((e.a === start || seen[e.a]) && seen[e.b] && usable(e, ph)) via[e.id] = 1; });
+    return { nodes: Object.keys(seen), edges: via };
+  }
+  function renderMap() {
+    var ph = gph(), reach = sel.kind === 'node' ? downstream(sel.id, ph) : null;
+    $$('#map .edge').forEach(function (g) {
+      var e = E.filter(function (x) { return x.id === g.getAttribute('data-e'); })[0], st = at(e, ph);
+      var cls = 'edge ' + st.s, colour;
+      if (mode === 'phase') colour = st.s === 'none' ? 'ghost' : 'p' + st.ev[0][2];
+      else {
+        var seen = e.ev.some(function (v) { return SRC[v[0]].c === mode; });
+        cls = 'edge ' + (seen ? 'confirmed' : 'none'); colour = seen ? 'p' + COLLECTOR[mode].ph : 'ghost';
+      }
+      if (mode === 'phase' && reach && !reach.edges[e.id]) cls += ' dim';
+      if (sel.kind === 'edge' && sel.id === e.id) cls += ' sel';
+      g.setAttribute('class', cls); g.style.setProperty('--ec', 'var(--' + colour + ')');
+      $('.chk', g).style.display = mode === 'phase' && st.s === 'verified' ? '' : 'none';
+      g.setAttribute('aria-label', N[e.a].n + ' to ' + N[e.b].n + ', ' + e.ty + ', ' + (st.s === 'none' ? 'not found yet' : st.s + ' at ' + f2(st.c)));
+    });
+    $$('#map .node').forEach(function (g) {
+      var k = g.getAttribute('data-n'), n = N[k], known = ph >= n.from, cls = 'node' + (known ? '' : ' ghost');
+      if (mode === 'phase' && reach) { if (k === sel.id) cls += ' sel'; else if (reach.nodes.indexOf(k) >= 0) cls += ' hit'; else cls += ' dim'; }
+      g.setAttribute('class', cls);
+      $('.nown', g).textContent = ph >= 2 ? (n.os || n.o) + (n.tier ? ' · T' + n.tier : '') : (known ? 'owner unknown' : '');
+      g.setAttribute('aria-label', n.n + ', ' + n.t + (ph >= 2 ? ', owned by ' + n.o : ''));
+    });
+    var sw = function (dash, w) { return '<svg viewBox="0 0 34 10" aria-hidden="true"><line x1="2" y1="5" x2="32" y2="5" stroke="currentColor" stroke-width="' + w + '" stroke-dasharray="' + dash + '" stroke-linecap="round"/></svg>'; };
+    if (mode === 'phase') {
+      $('#legend').innerHTML = '<span>' + sw('2 6', 1.5) + 'in the golden graph, not found yet</span><span>' + sw('2 5', 2) + 'candidate, below 0.6</span><span>' + sw('8 5', 2.5) + 'probable</span><span>' + sw('0', 3.2) + 'confirmed, 0.9 with runtime evidence</span>' +
+        [1, 2, 3, 4].map(function (i) { return '<span style="--pc: var(--p' + i + ')"><i></i>first found in phase ' + i + '</span>'; }).join('');
+      $('#modenote').textContent = 'Select a node to see what is downstream of it at this phase, walking probable edges and better. Select an edge to see its evidence.';
+    } else {
+      var c = COLLECTOR[mode];
+      $('#legend').innerHTML = '<span style="--pc: var(--p' + c.ph + ')"><i></i>edges this collector can see, once phase ' + c.ph + ' is running</span>';
+      $('#modenote').innerHTML = '<b>' + esc(c.n) + '.</b> ' + esc(c.sees) + ' <b>Blind to:</b> ' + esc(c.blind);
+    }
+  }
+  $('#map').addEventListener('click', function (e) {
+    var n = e.target.closest('.node'), g = e.target.closest('.edge');
+    if (n) sel = { kind: 'node', id: n.getAttribute('data-n') }; else if (g) sel = { kind: 'edge', id: g.getAttribute('data-e') }; else return;
+    if (mode !== 'phase') setMode('phase'); stop(); renderAll();
+  });
+  $('#map').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.target.dispatchEvent(new MouseEvent('click', { bubbles: true })); } });
+  function setMode(m) { mode = m; $$('[data-mode]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-mode') === m); }); }
+  $$('[data-mode]').forEach(function (b) { b.addEventListener('click', function () { setMode(b.getAttribute('data-mode')); renderMap(); renderDetail(); }); });
+
+  function assetsDown(start, ph) {
+    var r = downstream(start, ph).nodes.filter(function (k) { return !N[k].job; });
+    var teams = {}; r.forEach(function (k) { teams[N[k].o] = 1; });
+    return { n: r.length, teams: Object.keys(teams).length, t1: r.filter(function (k) { return N[k].tier === 1; }).length, list: r };
+  }
+  function renderDetail() {
+    var ph = gph(), h = '';
+    if (sel.kind === 'edge') {
+      var e = E.filter(function (x) { return x.id === sel.id; })[0], st = at(e, ph);
+      h = '<div><span class="eyebrow">Edge · ' + e.ty + '</span><h3>' + esc(N[e.a].n) + ' → ' + esc(N[e.b].n) + '</h3></div>' +
+        '<div class="evrows">' + e.ev.map(function (v) {
+          var on = v[2] <= ph; return '<div class="evrow' + (on ? '' : ' off') + '"><span><b>' + esc(SRC[v[0]].n) + '</b><br><span class="muted">' + esc(v[3]) + '</span></span><span class="w">' + f2(v[1]) + '</span><span class="muted">' + (on ? 'added in phase ' + v[2] : 'arrives in phase ' + v[2]) + '</span></div>';
+        }).join('') + '</div>' +
+        '<p class="formula">' + (st.s === 'none' ? 'No evidence at this phase. The edge exists only in the golden graph.' : 'confidence ' + formula(st.ev.map(function (v) { return v[1]; })) + ' &nbsp; <span class="pill ' + st.s + '">' + st.s + '</span>') + '</p>' +
+        (st.s === 'verified' ? '<p class="small muted">An owner has confirmed this edge. It sits on a contract boundary, so tier 1 verification is part of the Phase 5 gate.</p>' : '');
+    } else {
+      var n = N[sel.id], known = ph >= n.from, d = assetsDown(sel.id, ph);
+      h = '<div><span class="eyebrow">' + esc(n.t) + (ph >= 2 ? ' · ' + esc(n.o) + (n.tier ? ' · tier ' + n.tier : '') : '') + '</span><h3>Downstream of ' + esc(n.n) + ' at phase ' + ph + '</h3></div>' +
+        '<p class="small">' + esc(n.why) + '</p>' +
+        (known ? (d.n ? '<p><b>' + d.n + ' asset' + (d.n > 1 ? 's' : '') + (ph >= 2 ? ', ' + d.teams + ' team' + (d.teams > 1 ? 's' : '') + ', ' + d.t1 + ' tier 1' : ', owners not known yet') + '.</b></p><div class="tags">' + d.list.map(function (k) { return '<span class="tag">' + esc(N[k].n) + '</span>'; }).join('') + '</div>'
+          : '<p><b>Nothing the graph can walk yet.</b> ' + (ph < 3 ? 'Until phase 3, the only edges that reach probable are service calls from the gateway logs.' : 'No probable edge leaves this node.') + '</p>')
+          : '<p><b>Not on the collected map yet.</b> This node arrives in phase ' + n.from + '.</p>');
+    }
+    $('#detail').innerHTML = h;
+  }
+
+  /* ---------- phase panel ---------- */
+  function renderPanel() {
+    var p = PH[phase], ph = gph(), ex = p.ex, d = assetsDown('ev', ph);
+    var exText = ex && ex[1];
+    if (phase === 3) exText = 'Lineage impact for PR #482 (payments-svc)\nauth.events.v1 v7 -> v8\n  - removed merchant_category_code (string)\n  + added   mcc (string, default "")\nRegistry compatibility (BACKWARD): PASS\nDownstream readers: ' + d.n + ' assets, ' + d.teams + ' teams,\n                    ' + d.t1 + ' tier 1\nMode: warn. Blocking for tier 1 from Phase 5.';
+    var acc = p.acc ? '<div class="acc">' + Object.keys(p.acc).map(function (k) { var v = p.acc[k]; return '<div class="r"><span>' + k + '</span><span class="trk" role="img" aria-label="precision ' + v[0] + ' percent, recall ' + v[1] + ' percent"><i style="width:' + v[0] + '%"></i><i style="width:' + v[1] + '%"></i></span><span class="v">' + v[0] + ' / ' + v[1] + '</span></div>'; }).join('') + '<p class="note">Target precision (bar) and recall (tick) against the golden graph, in percent. Proposed, not measured.</p></div>' : '<p class="small muted">No accuracy yet. This phase builds the yardstick the others are scored against.</p>';
+    $('#panel').style.setProperty('--pc', 'var(--p' + ph + ')');
+    $('#panel').innerHTML = '<div><span class="wk">Phase ' + phase + ' · ' + (phase === 6 ? 'week 19 onward' : 'weeks ' + p.w[0] + ' to ' + p.w[1]) + '</span><h3>' + esc(p.n) + '</h3></div>' +
+      '<dl><div><dt>What it reads</dt><dd>' + esc(p.reads) + '</dd></div>' +
+      (ex ? '<div><dt>' + esc(ex[0]) + '</dt><dd><pre>' + esc(exText) + '</pre></dd></div>' : '') +
+      '<div><dt>You can now answer</dt><dd>' + esc(p.ans) + '</dd></div>' +
+      '<div><dt>Still blind to</dt><dd>' + esc(p.blind) + '</dd></div>' +
+      '<div><dt>Asked of each team</dt><dd>' + esc(p.ask) + '</dd></div>' +
+      '<div><dt>Exit gate</dt><dd>' + esc(p.gate) + '</dd></div>' +
+      '<div><dt>Accuracy target after this phase</dt><dd>' + acc + '</dd></div></dl>';
+  }
+
+  /* ---------- field strip and PR strip ---------- */
+  function renderFields() {
+    var ph = gph(), h = '', any = false;
+    FIELDS.forEach(function (f, i) {
+      h += '<span class="fchip"><small>' + esc(f.a) + '</small><b>' + esc(f.af) + '</b></span>';
+      if (i < FIELDS.length - 1) {
+        var st = at(f, ph); if (st.s !== 'none') any = true;
+        var dash = { none: '2 6', candidate: '2 5', probable: '7 4', confirmed: '0', verified: '0' }[st.s], w = st.s === 'none' ? 1.5 : st.s === 'confirmed' || st.s === 'verified' ? 3 : 2.5;
+        h += '<span class="fhop" style="color: var(--' + (st.s === 'none' ? 'ghost' : 'p' + st.ev[0][2]) + ')"><small>' + esc(f.how) + '</small><svg viewBox="0 0 62 10" role="img" aria-label="' + st.s + '"><line x1="2" y1="5" x2="52" y2="5" stroke="currentColor" stroke-width="' + w + '" stroke-dasharray="' + dash + '" stroke-linecap="round"/><polygon points="60,5 51,1 51,9" fill="currentColor"/></svg><small>' + (st.s === 'none' ? 'unknown' : st.s + ' ' + f2(st.c)) + '</small></span>';
+      }
+    });
+    $('#fields').innerHTML = h;
+    $('#fieldnote').textContent = !any ? 'Phases 0 to 2 know services and datasets. No field-level edge exists yet, which is why a renamed field can break things unseen.'
+      : ph === 3 ? 'Code gives every field hop at 0.60. That is enough for a warning in the pull request, and not yet enough to block on.'
+      : ph === 4 ? 'The dbt hop is confirmed by runtime column lineage. The Flink, sink and feature hops stay probable at 0.80, because runtime only saw their datasets, not the fields.'
+      : 'Owners verify the field edges on the two contract boundaries. The sink hop into the tier 2 table stays probable, and the report says so.';
+  }
+  function renderPr() {
+    var p = PH[phase], ph = gph(), d = assetsDown('ev', ph), text = p.pr;
+    if (phase === 3) text = 'The PR bot comments before merge: ' + d.n + ' assets and ' + d.teams + ' teams read the old name. It is in warn mode, on probable edges, so the author can still merge. The dashboard is not on the list, because no repository says it reads the table.';
+    if (phase === 4) text = 'The same comment, now on confirmed edges and with the dashboard that access history found: ' + d.n + ' assets, ' + d.teams + ' teams, ' + d.t1 + ' tier 1. Still a warning.';
+    $('#prtext').textContent = text;
+    $('#prstrip').style.setProperty('--pc', 'var(--p' + ph + ')');
+    $('#when').innerHTML = WHEN.map(function (w, i) {
+      var cls = i === p.when ? ' on' : (p.when2 === i ? ' alt' : '');
+      return '<div class="st' + cls + '"><span class="dot"></span>' + esc(w) + (i === p.when ? '<span class="small muted" style="font-weight:400">' + (i === 0 ? (phase >= 5 ? 'blocked in the pull request' : 'warned in the pull request') : 'found by the fraud team') + '</span>' : '') + (p.when2 === i ? '<span class="small muted">if it ships as a hotfix</span>' : '') + '</div>';
+    }).join('');
+  }
+
+  /* ---------- evidence calculator ---------- */
+  var ORDER = ['access_history', 'openlineage', 'gateway_log', 'otel_span', 'ci_static', 'declared', 'rt_dataset', 'iam'];
+  var PRESET = {
+    dbt: { t: 'raw.card_auth → fct_card_auth', on: ['ci_static', 'openlineage', 'access_history'], why: 'Three collectors see this edge in three vocabularies. Had only the CI scanner seen it, it would stand at 0.60, probable, which is right for code that has merged but not yet run.',
+      names: [['source(\'raw\', \'card_auth\')', 'CI scanner (dbt)'], ['snowflake://prod / prod_db.raw.card_auth', 'OpenLineage (dbt)'], ['PROD_DB.RAW.CARD_AUTH', 'Access history']], urn: 'warehouse://prod/raw.card_auth' },
+    produce: { t: 'payments-svc → auth.events.v1', on: ['iam', 'ci_static', 'otel_span'], why: 'A permission alone is a candidate. Code lifts it to probable. One span from production confirms it.', names: null },
+    flink: { t: 'auth.events.v1#merchant_category_code → auth.enrich.v1#mcc', on: ['ci_static', 'rt_dataset'], why: 'The Flink integration confirms that the job reads and writes the two topics, not the field mapping. So this field edge stays probable until an owner verifies it or a runtime source sees the field itself.', names: null }
+  };
+  var calcOn = {}, calcPreset = 'dbt';
+  function setPreset(k) { calcPreset = k; calcOn = {}; PRESET[k].on.forEach(function (s) { calcOn[s] = 1; }); renderCalc(); }
+  function renderCalc() {
+    $('#srcs').innerHTML = ORDER.map(function (k) {
+      var s = SRC[k]; return '<button class="src" type="button" data-s="' + k + '" aria-pressed="' + !!calcOn[k] + '"><span class="box"></span><span><b>' + esc(k === 'gateway_log' ? 'Gateway or mesh access log' : s.n) + '</b>' + (s.rt ? '<span class="rt">runtime</span>' : '') + '</span><span class="w">' + f2(s.w) + '</span><small>Proves: ' + esc(s.proves.charAt(0).toLowerCase() + s.proves.slice(1)) + '. Typical false signal: ' + esc(s.fails.charAt(0).toLowerCase() + s.fails.slice(1)) + '.</small></button>';
+    }).join('');
+    var on = ORDER.filter(function (k) { return calcOn[k]; }), ws = on.map(function (k) { return SRC[k].w; });
+    var c = ws.length ? noisyOr(ws) : 0, rt = on.some(function (k) { return SRC[k].rt; });
+    var s = !ws.length ? 'none' : c >= 0.9 && rt ? 'confirmed' : c >= 0.6 ? 'probable' : 'candidate';
+    var p = PRESET[calcPreset];
+    $$('[data-preset]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-preset') === calcPreset); });
+    $('#calc-title').textContent = p.t;
+    $('#calc-num').textContent = ws.length ? (Math.round(c * 1000) / 1000).toFixed(c > 0.995 ? 3 : 2) : '0';
+    $('#calc-state').className = 'pill ' + s; $('#calc-state').textContent = s === 'none' ? 'no evidence' : s;
+    $('#calc-fill').style.width = (c * 100) + '%';
+    $('#calc-formula').textContent = 'confidence ' + formula(ws);
+    var rule = !ws.length ? 'Switch on a source to see what it contributes.' : s === 'candidate' ? 'Below 0.6. Kept, but left out of impact reports.' : s === 'probable' && c >= 0.9 ? 'Above 0.9, but no runtime source has seen it, so it cannot be confirmed. Code and declarations describe intent, not traffic.' : s === 'probable' ? 'Between 0.6 and 0.9. Good enough to warn on, not to block on.' : 'At or above 0.9 with at least one runtime source. Root-cause analysis walks these first.';
+    $('#calc-why').innerHTML = '<b>' + esc(rule) + '</b> ' + esc(p.why);
+    $('#calc-names').innerHTML = p.names ? '<div class="scroll"><table><thead><tr><th>The name the collector saw</th><th>Collector</th></tr></thead><tbody>' + p.names.map(function (r) { return '<tr><td class="mono">' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>'; }).join('') + '<tr><th scope="row" class="mono">' + esc(p.urn) + '</th><td>One URN, from the resolver</td></tr></tbody></table></div>' : '';
+  }
+  $('#srcs').addEventListener('click', function (e) { var b = e.target.closest('.src'); if (!b) return; var k = b.getAttribute('data-s'); if (calcOn[k]) delete calcOn[k]; else calcOn[k] = 1; renderCalc(); var again = $('#srcs [data-s="' + k + '"]'); if (again) again.focus(); });
+  $$('[data-preset]').forEach(function (b) { b.addEventListener('click', function () { setPreset(b.getAttribute('data-preset')); }); });
+
+  /* ---------- lifecycle ---------- */
+  var LIFE = [
+    ['iam', 'An ACL grants the service write access', 'IAM or Kafka ACL, 0.20'],
+    ['code', 'Code that produces to the topic is on the default branch', 'Static code analysis, 0.60'],
+    ['run', 'A producer span is seen in production', 'OpenTelemetry span, 0.90'],
+    ['owner', 'The owner confirms the edge', 'Owner verification'],
+    ['quiet', '30 days pass with no traffic', 'Runtime evidence expires'],
+    ['gone', 'The producing code is removed', 'Static evidence ends']
+  ];
+  var life = {};
+  function renderLife() {
+    if (life.gone) delete life.code;
+    $('#lifebtns').innerHTML = LIFE.map(function (r) {
+      return '<button class="src" type="button" data-l="' + r[0] + '" aria-pressed="' + !!life[r[0]] + '"><span class="box"></span><span><b>' + esc(r[1]) + '</b></span><span class="w"></span><small>' + esc(r[2]) + '</small></button>';
+    }).join('');
+    var ws = []; if (life.iam) ws.push(0.2); if (life.code) ws.push(0.6); var rt = life.run && !life.quiet; if (rt) ws.push(0.9);
+    var c = ws.length ? noisyOr(ws) : 0, s, why;
+    if (life.gone && !rt) { s = 'retired'; why = 'The code is gone and there is no traffic. The edge is closed with an end date, never deleted, so last month\'s graph can still be read.'; }
+    else if (life.quiet && life.run && life.code) { s = 'dormant'; why = 'Code still says the flow exists, but nothing has run for 30 days. The edge is kept and flagged, and drops out of impact reports. This is how a dead path or a feature flag shows up.'; }
+    else if (!ws.length) { s = 'none'; why = 'No evidence. Switch on what the collectors have seen.'; }
+    else if (life.owner) { s = 'verified'; why = 'A person who owns the asset has confirmed it. Tier 1 contract edges must reach this state before the gate blocks on them.'; }
+    else if (c >= 0.9 && rt) { s = 'confirmed'; why = 'At or above 0.9 with runtime evidence. Root-cause analysis walks these first.'; }
+    else if (c >= 0.6) { s = 'probable'; why = 'Between 0.6 and 0.9. Impact reports include it, as a warning.'; }
+    else { s = 'candidate'; why = 'Below 0.6. A permission says the flow is possible. It is kept, and left out of reports.'; }
+    $('#states').innerHTML = ['candidate', 'probable', 'confirmed', 'verified', 'dormant', 'retired'].map(function (x) { return '<span class="pill ' + x + (x === s ? ' now' : '') + '">' + x + '</span>'; }).join('');
+    $('#lifeformula').textContent = s === 'retired' ? 'valid_to is set. The edge version stays in history.' : 'confidence ' + formula(ws);
+    $('#lifewhy').textContent = why;
+  }
+  $('#lifebtns').addEventListener('click', function (e) { var b = e.target.closest('.src'); if (!b) return; var k = b.getAttribute('data-l'); if (life[k]) delete life[k]; else life[k] = 1; if (k === 'code' && life.code) delete life.gone; renderLife(); var again = $('#lifebtns [data-l="' + k + '"]'); if (again) again.focus(); });
+  $('#lifereset').addEventListener('click', function () { life = {}; renderLife(); });
+
+  function renderAll() { renderRail(); renderMap(); renderDetail(); renderPanel(); renderFields(); renderPr(); }
+  buildMap(); renderAll(); setPreset('dbt'); life = { iam: 1, code: 1 }; renderLife();
+})();
+</script>
