@@ -63,7 +63,10 @@ to the normal envelope and plugin rules.
    acknowledged. Preserve its receipt, operation identity and alert across
    restarts. Releasing a hold requires an attributable owner action bound to that
    pending receipt. Re-evaluate the unchanged threshold before release; unknown,
-   nonheld or conflicting releases fail. Acceptance, the unique owner-action
+   never-held or conflicting releases fail. If later evidence removes the original
+   mass-close reason, the same previously held receipt can still be accepted with
+   its attributable release; it must not become permanently undrainable.
+   Acceptance, the unique owner-action
    audit and changes outbox commit atomically. Historical reads before approval
    retain the prior graph; the approval time is the new transaction time, while
    the snapshot's original valid time remains intact. Retrying the same approved
