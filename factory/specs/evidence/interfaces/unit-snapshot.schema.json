@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lineage.internal/schemas/unit-snapshot.schema.json",
+  "title": "Complete static unit snapshot manifest",
+  "description": "Completion manifest on lineage.unit-snapshots, emitted only after immutable metadata is durable. Envelope-v2 events remain unchanged. Candidate amendment implementing the four G1 directions approved by the user; human merge remains required.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "eventType",
+    "route",
+    "unit",
+    "producer",
+    "generation",
+    "requestId",
+    "validAt",
+    "complete",
+    "deleted",
+    "eventCount",
+    "eventsHash",
+    "objectRef"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1"
+    },
+    "eventType": {
+      "const": "UNIT_SNAPSHOT_COMPLETE"
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "stage",
+        "pr"
+      ],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$"
+        },
+        "stage": {
+          "enum": [
+            "merged",
+            "proposed"
+          ]
+        },
+        "pr": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "stage": {
+                "const": "merged"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "pr": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "pr": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "unit": {
+      "$ref": "#/$defs/unit"
+    },
+    "producer": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._/-]*@[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$"
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^\\S+$"
+    },
+    "validAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "complete": {
+      "const": true
+    },
+    "deleted": {
+      "type": "boolean"
+    },
+    "eventCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "eventsHash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "objectRef": {
+      "type": "string",
+      "pattern": "^snapshot://sha256/[0-9a-f]{64}$"
+    }
+  },
+  "$defs": {
+    "unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "urn",
+        "contentHash",
+        "commit"
+      ],
+      "description": "The extraction unit whose static evidence this event set replaces as a whole (IN-1, IN-2).",
+      "properties": {
+        "urn": {
+          "type": "string",
+          "pattern": "^unit://[^\\s]+$"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/sha256"
+        },
+        "inputSchemaHash": {
+          "$ref": "#/$defs/sha256"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,40}$"
+        },
+        "pr": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "description": "Set while a pull request is open: the evidence goes to the PR overlay, never to production (IN-7)"
+        }
+      }
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{8,64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "deleted": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "eventCount": {
+            "const": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "route": {
+            "properties": {
+              "stage": {
+                "const": "proposed"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "unit": {
+            "required": [
+              "pr"
+            ],
+            "properties": {
+              "pr": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "unit": {
+            "properties": {
+              "pr": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

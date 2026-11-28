@@ -25,8 +25,11 @@ What `scan` does, in order:
 4. **Skip what has not changed.** A unit whose key matches the last merged scan is marked `unchanged` and not re-extracted (IN-1).
 5. **Extract** the rest, each in its own time slice. A unit that overruns is marked `over_budget` and emitted as an opaque edge with a reason, never retried inside the scan.
 6. **Emit.**
-   - On `merged`, one event set per unit with `replaces: "unit"` (IN-2).
-   - On `proposed`, the same events carry `unit.pr` and go to that PR's overlay, never to production (IN-7).
+   - Reserve a durable generation before extracting each changed unit, keyed by route, unit and extractor name without its version. A stable request ID makes retries reuse that reservation.
+   - Stage one complete immutable event object, then publish its [completion manifest](../../evidence/interfaces/unit-snapshot.schema.json) on `lineage.unit-snapshots`. Individual envelopes retain `replaces: "unit"`; none is itself a completion boundary (IN-2).
+   - On `merged`, the completion route has `stage: merged` and `pr: null`.
+   - On `proposed`, events carry `unit.pr` and the completion route names that same PR; the consumer uses an isolated overlay, never the merged graph (IN-7).
+   - A successful empty extraction or deleted unit has an explicit complete zero-event manifest. A timeout, failure or incomplete extraction preserves the last accepted unit and publishes no replacing completion.
 7. **Write the unit manifest** ([`unit-manifest.schema.json`](unit-manifest.schema.json)) and a run record, then exit 0.
 
 Failing open (IA-6). If the evidence topic or the graph cannot be reached, `scan` writes the manifest with `outcome: unavailable` and exits 0. `impact` then posts "lineage check unavailable" and an alert is raised. Only the contract gate (WP-34) may fail a build, and only under IA-5.
@@ -36,6 +39,23 @@ Budget (IA-1). A PR scan, including any build step, finishes within 5 minutes at
 ## The plugin contract
 
 Every extractor is a Python package that exposes one object implementing this protocol and registers it under the entry point group `lineage_ci.extractors`.
+
+The same package supplies a companion entry point with the same name in
+`lineage_ci.conformance`. That entry point loads a zero-argument callable returning
+`ConformanceFixture`: `repo`, `unit`, `expected_edges`, `reformatted`, `renamed`,
+`unreadable`, `minimum_precision`, `minimum_recall`, and `deadline_seconds`.
+`repo`, `reformatted` and `renamed` are immutable `RepoView` inputs; `unit` and
+`unreadable` are `UnitRef` values. Thresholds must meet or exceed the applicable
+approved family floor. Missing, invalid or failing fixtures prevent plugin load.
+The fixture and plugin load under the same isolation/deadline controls as the
+conformance checks. The three extractor methods below are unchanged.
+
+```toml
+[project.entry-points."lineage_ci.extractors"]
+"example-sql" = "example_sql:extractor"
+[project.entry-points."lineage_ci.conformance"]
+"example-sql" = "example_sql.fixtures:conformance_fixture"
+```
 
 ```python
 from typing import Iterable, Iterator, Protocol
@@ -81,6 +101,18 @@ The runner loads an extractor only if it passes the conformance suite (XC-8). Th
 | Isolation | No network call other than `ctx.schema_at` (enforced by the test sandbox) |
 
 A stub extractor that passes the suite ships with the runner, so WP-18 can be built and tested before any real extractor exists.
+
+## Deterministic content and measured time
+
+The complete `unit-manifest.json` retains actual `started`, `finished` and each
+unit's `duration_ms`. For Action/container parity, `scan-content.json` removes
+exactly those three fields and uses deterministic JSON serialization. All other
+fields remain in the comparison. A runtime duration is never fabricated to obtain
+byte equality. Source commit, input schemas, extractor versions, configuration and
+prior cache state must match for the comparison.
+
+The completion protocol and recovery rules are specified in
+[unit-snapshot-protocol.md](../../evidence/interfaces/unit-snapshot-protocol.md).
 
 ## Onboarding a repository
 

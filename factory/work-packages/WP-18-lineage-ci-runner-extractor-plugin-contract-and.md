@@ -36,7 +36,7 @@ The one step every onboarded repository runs. It validates .lineage.yaml, detect
 - A PR scan that changes only src/checkout/main.go re-extracts 1 unit and marks 15 unchanged, and 100% of its events go to the overlay keyed by repository and PR
 - Runner overhead, excluding extractor time, is 60 seconds or less at p95 over 20 scans
 - With the evidence topic unreachable, 100% of fault scenarios exit 0, write outcome unavailable and raise an alert
-- The same scan gives byte-identical manifests as a GitHub Action and as a plain container command (1 of 1 non-GitHub runner)
+- The same scan gives byte-identical normalized scan content as a GitHub Action and as a plain container command (1 of 1 non-GitHub runner), excluding only started, finished and per-unit duration_ms; full manifests retain measured timings
 - The stub extractor passes 100% of the conformance suite
 - Every visible scenario traced to the requirements above passes
 - Holdout pass rate at or above the family rate in `factory/parameters.yaml`, where the family has holdout scenarios
