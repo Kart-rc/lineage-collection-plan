@@ -259,6 +259,27 @@ def check(write=False):
         if not traced.get(r):
             errors.append(f"{r} is traced by no visible scenario")
 
+    # owners and tiers: every golden node has one (WP-01, WP-17)
+    cat = yaml.safe_load(open(os.path.join(FIX, "catalog.yaml")))
+    svcs, dsets, flags = set(cat.get("services") or {}), set(cat.get("datasets") or {}), set(cat.get("flags") or {})
+    gg = json.load(open(os.path.join(FIX, "golden-graph.json"))); gd = json.load(open(os.path.join(FIX, "dbt", "golden-dbt.json")))
+    nodes = set(gd["datasets"])
+    for k in ["service_edges", "field_edges", "gated_field_edges", "flag_edges"]:
+        for e in gg[k]:
+            nodes |= {e["from"].split("#")[0], e["to"].split("#")[0]}
+    for e in gd["field_edges"]:
+        nodes |= {e["from"].split("#")[0], e["to"].split("#")[0]}
+    def owned(n):
+        scheme = n.split("://")[0]
+        if scheme == "svc":
+            return n.split("/")[-1] in svcs
+        if scheme in ("api", "otel", "logs"):
+            return n.split("/")[3] in svcs          # a call's messages and a service's spans and logs belong to the service
+        return n in dsets or n in flags
+    unowned = sorted(n for n in nodes if not owned(n))
+    for n in unowned:
+        errors.append(f"golden node without owner and tier in catalog.yaml: {n}")
+
     # interfaces
     env = json.load(open(ENVELOPE)); jsonschema.Draft202012Validator.check_schema(env)
     chg = json.load(open(CHANGES)); jsonschema.Draft202012Validator.check_schema(chg)
@@ -303,9 +324,10 @@ def check(write=False):
     print(f"requirements {len(rid)}: served {sum(1 for r in rid if served.get(r))}, traced by a visible scenario {sum(1 for r in rid if traced.get(r))}")
     print(f"work packages {len(W)}: done-when lines {sum(len(w['done_when']) for w in W)}, all measurable: {not any('not measurable' in e for e in errors)}")
     print(f"visible scenarios {len(sids)} in {len({s['file'] for s in scen})} files")
+    print(f"golden nodes {len(nodes)}: {len(nodes) - len(unowned)} with an owner and a tier")
     print("envelope v2 accepts " + ", ".join(f"{n} {k}s" for k, n in sorted(kinds.items())) + f"; rejects {len(invalid_examples())} of {len(invalid_examples())} invalid examples")
     gates = sorted(os.path.basename(g)[:-3] for g in glob.glob(F("factory", "gates", "G*.md")))
-    print("gates signed: " + (", ".join(gates) if gates else "none") + "; open: " + ", ".join(g for g in ["G1", "G3"] if not any(x.startswith(g) for x in gates)))
+    print("gates signed: " + (", ".join(gates) if gates else "none") + "; open: " + (", ".join(g for g in ["G1", "G3"] if not any(x.startswith(g) for x in gates)) or "none"))
     for n in notes:
         print(n)
     print(f"{len(errors)} errors")
