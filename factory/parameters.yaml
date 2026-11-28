@@ -1,8 +1,9 @@
 # Every number the build is judged by, in one place. Agents read this file; only people change it (protected path,
 # approved at gate G1). Requirement IDs refer to doc 06; decisions to doc 08.
-# Status: DRAFT for G1, 27 November 2026. Values marked "proposed" were undefined before this file.
+# Status: approved at gate G1, 28 November 2026 (factory/gates/G1-2026-11-28.md). Values marked "set at G1" were
+# undefined before this file.
 
-version: 0.1.0-draft
+version: 1.0.0
 
 evidence:
   # Set by the evidence library, never by a collector (doc 03, step 1). db_span is new (D27): a database client span.
@@ -21,7 +22,7 @@ states:
   latent: {rule: an edge with a condition that is false; walked by must-not-flow checks; never counted as impact}  # D30
 
 incremental:
-  mass_close_hold:              # IN-2, proposed: hold the write and alert when one extraction would close
+  mass_close_hold:              # IN-2, set at G1: hold the write and alert when one extraction would close
     max_share_of_extractor_edges: 0.20     # more than 20% of that extractor's open edges
     min_edges: 10                          # and at least 10 edges (so tiny extractors are not held on every change)
   freshness_p95_minutes: 15     # IN-10: merge or run to edge visible
@@ -43,7 +44,7 @@ detect_resolve:
   rank_first_share: 0.70                   # IR-5
   rank_top3_share: 0.90                    # IR-5
   incident_window: {before_first_failure_minutes: 60}   # IR-2: from the last passing check, at most 60 minutes back
-  score:                                   # IR-4, proposed: deterministic, every term shown with the candidate (D32)
+  score:                                   # IR-4, set at G1: deterministic, every term shown with the candidate (D32)
     formula: "0.50*lineage + 0.25*time + 0.15*direction + 0.10*failing_calls"
     terms:
       lineage: "1.0 if the change touches the deepest failing callee on the walked path; 0.6 if it touches another node the failing node depends on; 0.0 otherwise"
@@ -65,7 +66,7 @@ baseline_accuracy:             # BL-6 and per-hop thresholds used in work packag
   service_edges: {precision: 0.95, recall: 0.90, upstream_asserted_recall: 1.00}
 
 factory:
-  holdout_pass_rate:           # proposed, by work package family; a family below its rate cannot be promoted (doc 06, autonomy ladder)
+  holdout_pass_rate:           # set at G1, by work package family; a family below its rate cannot be promoted (doc 06, autonomy ladder)
     core_semantics: 1.00       # merge, score, bitemporal, resolver: property-style; any failure blocks
     extractors: 0.90
     impact: 0.85

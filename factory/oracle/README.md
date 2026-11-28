@@ -1,6 +1,6 @@
 # Oracle
 
-PROTECTED: only people merge changes here (constitution, protected paths).
+PROTECTED: only people merge changes here (constitution, protected paths). Signed at gate G3 on 28 November 2026; each oracle file is pinned by hash in [`../gates/G3-2026-11-28.md`](../gates/G3-2026-11-28.md).
 
 The oracle is what makes "correct" machine-checkable. On the reference slice its parts are:
 

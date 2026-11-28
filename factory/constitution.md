@@ -1,6 +1,6 @@
 # Constitution
 
-Every agent run in the factory loads this file first. It restates the operating principles of [doc 06](../docs/06-element-lineage-factory-spec.md#operating-principles) as rules an agent can follow, and adds the protected paths and the definition of done. Status: draft for gate G1, 27 November 2026.
+Every agent run in the factory loads this file first. It restates the operating principles of [doc 06](../docs/06-element-lineage-factory-spec.md#operating-principles) as rules an agent can follow, and adds the protected paths and the definition of done. Status: approved at gate G1, 28 November 2026 ([record](gates/G1-2026-11-28.md)).
 
 ## Rules
 
@@ -27,6 +27,7 @@ Only a person merges a change to these. Agents propose.
 | `fixtures/otel-demo-3.1.0/golden-graph.json`, `fixtures/otel-demo-3.1.0/dbt/golden-dbt.json` | The golden graph (G3) |
 | `fixtures/otel-demo-3.1.0/change-replay.json`, `incident-scenarios.json`, `checks.yaml`, `contracts/` | Replay corpora, checks and contracts (G3) |
 | `code/reference_slice.py` | The source of the golden graph and its citation checker |
+| `factory/gates/` | One record per gate decision: who approved what, at which commit |
 
 ## Definition of done
 

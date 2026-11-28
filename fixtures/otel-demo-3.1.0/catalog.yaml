@@ -29,6 +29,8 @@ services:
   flagd:           {criticality: low,      tier: 3, owner: team-platform,      kind: platform}
   flagd-ui:        {criticality: low,      tier: 3, owner: team-platform,      kind: platform}
   kafka:           {criticality: low,      tier: 3, owner: team-platform,      kind: platform}
+  agent:           {criticality: low,      tier: 3, owner: team-platform,      kind: service}            # compose.agent.yaml; not run in the twin
+  otel-collector:  {criticality: unlabelled, tier: 1, owner: team-platform,    kind: platform}           # no label in the demo; tier 1 because it carries span attributes from checkout and payment, masked card numbers included
 
 # Data assets. Tier follows the most critical producer, not the demo's label for the broker or database.
 datasets:
@@ -38,6 +40,35 @@ datasets:
   postgres://astronomy-db/astronomy_db.accounting.shipping:    {tier: 3, owner: team-finance-data, producer: accounting}
   postgres://astronomy-db/astronomy_db.catalog.products:       {tier: 2, owner: team-catalog,      producer: product-catalog}
   valkey://valkey-cart/cart:                                    {tier: 2, owner: team-commerce,     producer: cart}
+  postgres://astronomy-db/astronomy_db.accounting.*:           {tier: 3, owner: team-finance-data, producer: accounting, note: "the golden graph's pattern node for the three tables"}
+  # The thin dbt model (D37): its producer is the orders_mart job, owned by the finance team; tier follows the tables it reads.
+  postgres://astronomy-db/astronomy_db.analytics_staging.stg_orders:      {tier: 3, owner: team-finance-data, producer: dbt orders_mart}
+  postgres://astronomy-db/astronomy_db.analytics_staging.stg_order_items: {tier: 3, owner: team-finance-data, producer: dbt orders_mart}
+  postgres://astronomy-db/astronomy_db.analytics_staging.stg_shipping:    {tier: 3, owner: team-finance-data, producer: dbt orders_mart}
+  postgres://astronomy-db/astronomy_db.analytics_marts.fct_order_value:   {tier: 3, owner: team-finance-data, producer: dbt orders_mart}
+  bi://finance/finance_orders_dashboard:                                   {tier: 3, owner: team-finance-data, producer: dbt exposure}
+
+# Feature flags (D29). Derived, not invented: a flag's owner is the owner of the first service that reads it in
+# code, and its tier is the tier of its most critical reader.
+flags:
+  flag://otel-demo/adFailure: {tier: 3, owner: team-catalog, read_by: [ad]}
+  flag://otel-demo/adHighCpu: {tier: 3, owner: team-catalog, read_by: [ad]}
+  flag://otel-demo/adManualGc: {tier: 3, owner: team-catalog, read_by: [ad]}
+  flag://otel-demo/aiRunawayAgent: {tier: 3, owner: team-platform, read_by: [agent]}
+  flag://otel-demo/aiSlowResponse: {tier: 3, owner: team-platform, read_by: [agent]}
+  flag://otel-demo/cartFailure: {tier: 2, owner: team-commerce, read_by: [cart]}
+  flag://otel-demo/emailMemoryLeak: {tier: 3, owner: team-fulfilment, read_by: [email]}
+  flag://otel-demo/emitRawPii: {tier: 1, owner: team-payments, read_by: [checkout, payment]}
+  flag://otel-demo/failedReadinessProbe: {tier: 2, owner: team-commerce, read_by: [cart]}
+  flag://otel-demo/imageSlowLoad: {tier: 1, owner: team-web, read_by: [frontend]}
+  flag://otel-demo/intlShippingSlowdown: {tier: 2, owner: team-fulfilment, read_by: [shipping]}
+  flag://otel-demo/kafkaQueueProblems: {tier: 1, owner: team-payments, read_by: [checkout, fraud-detection]}
+  flag://otel-demo/loadGeneratorFloodHomepage: {tier: 3, owner: team-platform, read_by: [load-generator]}
+  flag://otel-demo/paymentFailure: {tier: 1, owner: team-payments, read_by: [payment]}
+  flag://otel-demo/paymentUnreachable: {tier: 1, owner: team-payments, read_by: [checkout]}
+  flag://otel-demo/productCatalogFailure: {tier: 2, owner: team-catalog, read_by: [product-catalog]}
+  flag://otel-demo/productCatalogLockContention: {tier: 2, owner: team-catalog, read_by: [product-catalog]}
+  flag://otel-demo/recommendationCacheFailure: {tier: 3, owner: team-catalog, read_by: [recommendation]}
 
 # Noted, not changed: the demo labels accounting and fraud-detection "low". In a card-payments estate
 # the equivalent consumers would be tier 1. The reference slice keeps the demo's own values so the

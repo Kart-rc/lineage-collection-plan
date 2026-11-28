@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Lineage query API
-  version: 0.1.0-draft
+  version: 1.0.0
   description: |
     The four queries the PR bot, the RCA service, the UI and coding agents use (doc 06, Interfaces).
     Every query takes as_of and min_confidence. Requirements: IA-4, IA-9, IN-5, IN-6, IN-7, IR-2, IR-4, XC-2, XC-5.

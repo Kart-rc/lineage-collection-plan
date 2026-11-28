@@ -335,16 +335,16 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
       <div class="verdict-main">
         <div class="verdict-word">Ready<span>.</span></div>
         <p>We have what the build needs: a real multi-service system to build against, a verified truth to grade every build, 37 decisions, and for every work package acceptance criteria a harness can check.</p>
-        <p class="muted small">What we don't have yet belongs to later stages: our own data products, access to them, and the cloud stage environment. Each is scheduled, and none blocks the start. Three sign-offs do.</p>
+        <p class="muted small">What we don't have yet belongs to later stages: our own data products, access to them, and the cloud stage environment. Each is scheduled, and none blocks the start. The spec pack was approved at gate G1 on 28 November; the golden graph was signed at gate G3 the same day. Builds can now be graded against it.</p>
       </div>
       <div class="lanes">
-        <div class="lane s-have"><b>Ready now</b><p>The reference system and its golden graph (89 citations checked against source), the twin, 37 decisions, and the spec pack: measurable done-when for all 39 work packages, interfaces as schemas, visible scenarios.</p></div>
-        <div class="lane"><b style="color:var(--gate)">Needs you</b><p>Approve the spec pack and accept the graph store record (gate G1). Sign the golden graph (gate G3). Have someone who does not build write the holdout cases.</p></div>
+        <div class="lane s-have"><b>Ready now</b><p>The reference system and its golden graph (89 citations checked against source), the twin, 38 decisions, and the spec pack, approved at G1 on 28 November together with ADR-002 (Neptune): measurable done-when for all 39 work packages, interfaces as schemas, visible scenarios.</p></div>
+        <div class="lane"><b style="color:var(--gate)">Needs you</b><p>Have someone who does not build write the holdout cases, outside this repository. G1 and G3 are signed.</p></div>
         <div class="lane"><b class="muted">Comes later</b><p>Pick our second slice in wave 1. Then access to its code and warehouse, a Neptune stage instance, and model access for private repositories.</p></div>
       </div>
     </div>
     <div class="facts" aria-label="Key facts">
-      <div class="fact"><strong>37</strong><span>decisions: 25 from evidence, 7 by you, 5 drafted for your G1 approval</span></div>
+      <div class="fact"><strong>38</strong><span>decisions: 26 from evidence, 7 by you, 5 approved by you at gate G1</span></div>
       <div class="fact"><strong>39 / 39</strong><span>work packages with measurable done-when; 97 checks in all</span></div>
       <div class="fact"><strong>18 / 18</strong><span>connections seen in the running system are in the golden graph</span></div>
       <div class="fact"><strong>8 / 10</strong><span>injected incidents caught within 2 minutes, the true cause ranked first in all 8</span></div>
@@ -501,7 +501,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
       </div>
     </div>
     <div class="inputs" id="inputs-list"></div>
-    <p class="conclusion"><b>What this means:</b> of the 16 inputs needed to start, 11 are in hand. Two more, the holdout scenarios and the twin's lineage platform, are the first work of wave 0 itself. The last three are your sign-offs. Everything still missing is needed for slice 2, on our own data, and is scheduled for wave 1 onward.</p>
+    <p class="conclusion"><b>What this means:</b> of the 16 inputs needed to start, 14 are in hand, including the spec pack and ADR-002 (approved at G1) and the golden graph (signed at G3), both on 28 November. The other two, the holdout scenarios and the twin's lineage platform, are the first work of wave 0 itself. Everything still missing is needed for slice 2, on our own data, and is scheduled for wave 1 onward.</p>
   </section>
 
   <!-- ASSUMPTIONS -->
@@ -549,10 +549,11 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
 
   <!-- ASKS -->
   <section id="asks" aria-labelledby="h-asks">
-    <div class="sec-head"><div class="eyebrow">What happens next</div><h2 id="h-asks">Three decisions, then wave 0 starts</h2></div>
+    <div class="sec-head"><div class="eyebrow">What happens next</div><h2 id="h-asks">G1 and G3 are signed; wave 0 is under way</h2></div>
     <div class="asks">
-      <div class="ask"><span class="when">Before wave 0 · gate G1</span><b>Approve the spec pack</b><p>The constitution, parameters, 41 requirements, interfaces and done-when for 39 work packages in <code>factory/</code>, drafted on 27 November. ADR-002 (Neptune) goes with it; it is still marked Proposed.</p></div>
-      <div class="ask"><span class="when">During wave 0 · gate G3</span><b>Sign the golden graph, name the holdout authors</b><p>Sign the golden graph: 23 service edges, 36 field edges, 8 flag-gated and 20 flag edges on the demo, plus 35 for the dbt model. Name someone who does not build to write at least 7 changes and 7 incidents outside this repository.</p></div>
+      <div class="ask"><span class="when">Done 28 November · gate G1</span><b>Spec pack and ADR-002 approved</b><p>Approved as merged to main in <code>b86111d</code>: the constitution, parameters, 41 requirements, interfaces and done-when for 39 work packages, with ADR-002 (Neptune). Record: <code>factory/gates/G1-2026-11-28.md</code>.</p></div>
+      <div class="ask"><span class="when">Done 28 November · gate G3</span><b>Golden graph signed</b><p>23 service edges, 36 field edges, 8 flag-gated and 20 flag edges on the demo, plus 35 for the dbt model, and the visible corpora, each file pinned by hash. Record: <code>factory/gates/G3-2026-11-28.md</code>.</p></div>
+      <div class="ask"><span class="when">During wave 0 · WP-02</span><b>Name the holdout authors</b><p>Someone who does not build writes at least 7 changes and 7 incidents outside this repository, including changes made close together (D38).</p></div>
       <div class="ask"><span class="when">During wave 1</span><b>Choose slice 2</b><p>One of our data products, ideally one that crosses a service, a stream and Snowflake or Databricks. Then arrange access to its repositories and warehouse.</p></div>
     </div>
     <div class="talk">
@@ -579,7 +580,7 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
       "We want to know, for any field in our data, where it comes from and where it goes. With that we can stop breaking changes before they merge, and find the cause of bad data in minutes instead of hours.",
       "No product does this across service code, streams and warehouses, so we build it with an AI factory. Agents write the code, people approve at four gates, and every build is graded against a known truth.",
       "As that truth we used a real open-source online shop: a dozen services in ten languages. We ran it, and every connection lineage saw was one we expected. It watched card data being masked correctly. We then broke the shop ten different ways: it caught eight within two minutes, each time with the right cause ranked first. The two it missed raised no alarm at all, and that is the next thing to fix.",
-      "We can start now. Every work package has acceptance criteria a machine can check. I need three things: approve the spec, sign the golden graph, and have someone outside the build write the hidden test cases. During the first wave we pick which of our own data products goes second."
+      "We can start now. Every work package has acceptance criteria a machine can check, and the spec was approved at the first gate on 28 November. The golden graph is signed too. One thing remains: have someone outside the build write the hidden test cases. During the first wave we pick which of our own data products goes second."
     ],
     engineers: [
       "The reference slice is the OpenTelemetry Demo at 3.1.0, specifically the order flow: frontend to checkout in Go, its gRPC and HTTP calls, the orders topic in Kafka, and accounting in C# writing three Postgres tables through EF Core. The golden graph has 23 service edges, 36 field edges, 8 flag-gated edges and 20 flag edges, and all 89 citations are verified against the source.",
@@ -859,9 +860,9 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
     ["What to build", "Component breakdown", "have", "25 of 27 components with an input, a work package and a test. Search and catalog UI wait for wave 5.", "doc 09", "start"],
     ["What to build", "Acceptance criteria per work package", "have", "Done-when for all 39 work packages, 97 lines, each with a number or a named sign-off; checked by code/spec_pack.py. A draft awaiting G1.", "factory/work-packages/", "start"],
     ["What to build", "Interface contracts", "have", "Envelope v2 and lineage.changes as JSON Schema, the four queries as OpenAPI 3.1. Every golden edge and run event validates.", "factory/specs/*/interfaces/", "start"],
-    ["What to build", "Spec pack approval", "you", "The constitution, parameters, requirements, interfaces and work packages wait for your G1 approval.", "factory/README.md", "start"],
+    ["What to build", "Spec pack approval", "have", "Approved at gate G1 on 28 November 2026, as merged to main in b86111d.", "factory/gates/G1-2026-11-28.md", "start"],
     ["What to test against", "A real multi-service system", "have", "OpenTelemetry Demo 3.1.0, a dozen services in ten languages, pinned and cited.", "doc 07", "start"],
-    ["What to test against", "The truth (golden graph)", "part", "Built and verified: 89 citations hold. It waits for your sign-off at G3.", "fixtures/otel-demo-3.1.0/golden-graph.json", "start"],
+    ["What to test against", "The truth (golden graph)", "have", "Signed at gate G3 on 28 November 2026; every oracle file pinned by hash. 89 citations hold; 56 of 56 nodes have an owner and a tier.", "factory/gates/G3-2026-11-28.md", "start"],
     ["What to test against", "Real changes to replay", "have", "13 visible: C1 to C6 from git history, C7 from the run, C8 to C13 authored, each with expected readers and gate result. The holdout adds at least 7 more.", "change-replay.json", "start"],
     ["What to test against", "Visible scenarios", "have", "Given/When/Then for every requirement, tagged with the requirement IDs they trace.", "factory/specs/*/scenarios/visible/", "start"],
     ["What to test against", "Real incidents to replay", "part", "10 visible incidents run in the twin across nine families: 8 caught with the true cause first. The holdout adds at least 7 more, including changes made close together.", "incident-scenarios.json, capture-2026-11-27/incident-replay.json", "later"],
@@ -872,7 +873,7 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
     ["How it runs", "Neptune stage instance", "not", "Your choice (D12). Needs an AWS account and instance for WP-13's tests.", "wave 1", "later"],
     ["How it runs", "Model access for private code", "not", "Bedrock in the platform account (D19). It is not needed while agents read public code.", "slice 2", "later"],
     ["Who decides", "Approver for the gates", "have", "You, for G1 to G4, until domain teams join (D20).", "doc 08", "start"],
-    ["Who decides", "Graph store record", "you", "ADR-002 names Neptune but is still Proposed. Accept it at G1.", "docs/adr/ADR-002", "start"],
+    ["Who decides", "Graph store record", "have", "ADR-002 accepted at gate G1 on 28 November 2026: own the graph of record, on Neptune, with Neo4j standing in locally.", "docs/adr/ADR-002", "start"],
     ["Who decides", "Owners and tiers", "part", "Tiers are the demo's own; owners are illustrative. Real owners come with slice 2.", "catalog.yaml", "later"],
     ["Our estate", "Slice 2 data product", "you", "Which of our products goes second, ideally one crossing a service, a stream and a warehouse.", "pick in wave 1", "later"],
     ["Our estate", "Access to our code and warehouses", "not", "Repositories, plus Snowflake ACCESS_HISTORY and the Databricks lineage tables, for slice 2's collectors.", "slice 2", "later"],
