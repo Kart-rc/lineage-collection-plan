@@ -1,0 +1,21 @@
+{
+  "user_message": "approve all 4",
+  "approved": [
+    "Complete-unit snapshot boundary",
+    "Expression-change events",
+    "Normalized manifest parity retaining real timings",
+    "Companion conformance fixture discovery"
+  ],
+  "scope": "Design directions approved; exact protected amendments prepared for human merge; no G2/G3/G4 approval inferred",
+  "proposal_sha256": {
+    "proposals/G1-wave-0-1.md": "2f53ae4584eeb05d306028d8f51e82904dd36e8fb1260164c3975cf0f70064c2",
+    "proposals/unit-snapshot-protocol.md": "110f6b8de4f53c8e4ac32b8788d1f5435c29666fad14d1a0fba7ed1753121045",
+    "lineage-ci/contract-proposals.md": "79a2549b917b2a1087dc2d47590049dc40b984d4064b3552146679cab2621f64"
+  },
+  "recorded_at_utc": "2026-11-28T05:43:24.480626+00:00",
+  "proposal_provenance": {
+    "archive": "factory/runs/wave-0-1-runtime-bridge/artifacts/candidate-source.tar.gz",
+    "sha256": "f75d916900fb7425328f5d5d4bc218c2ea1fce2147cb89a94fdc8f636ee5acca",
+    "meaning": "Preserved proposal text preceding user approval, not subsequent implementation text"
+  }
+}

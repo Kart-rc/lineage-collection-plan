@@ -1,0 +1,37 @@
+[
+  {
+    "gap": "Independent holdout evidence",
+    "owner": "Independent test owner selected by the user",
+    "recommendation": "Author and manage private cases outside the builder repository. Connect the aggregate-only runner; return signed family pass rates and failure categories bound to the candidate.",
+    "acceptance": "Required family rates and corpus custody verified; no case text exposed to builders.",
+    "blocking": "Wave acceptance, not local implementation"
+  },
+  {
+    "gap": "Original historical captures",
+    "owner": "Capture custodian or reference-twin operator",
+    "recommendation": "Recover original raw captures if retained. Otherwise capture fresh runs and label them separately; do not treat saved summaries as replayed input.",
+    "acceptance": "Source identities, counts and reproducible reports; change original-specific criteria only by explicit spec amendment.",
+    "blocking": "Original-run replay claims"
+  },
+  {
+    "gap": "Full reference environment capacity and workload measurements",
+    "owner": "Twin environment operator",
+    "recommendation": "Use an overlay-backed or larger Docker host; run three cold starts, ten minutes of reference load, producer p99 overhead and required end-to-end p95 checks. Measure collector capacity before raising bounds.",
+    "acceptance": "WP03 and carried timing requirements measured on actual reference workload.",
+    "blocking": "Full-wave performance and fresh-run evidence"
+  },
+  {
+    "gap": "Integration acceptance beyond local runner",
+    "owner": "Relevant work-package implementers",
+    "recommendation": "Complete real extractor/artifact reuse, PR impact and authorized comment/alert adapters where required; keep unavailable output truthful until then.",
+    "acceptance": "Applicable work-package done-when lines and visible scenarios pass without stub claims.",
+    "blocking": "Remaining end-to-end work-package acceptance"
+  },
+  {
+    "gap": "Human merge and gates",
+    "owner": "Requesting user as D20 approver",
+    "recommendation": "Review and merge the precise G1 amendment in draft PR8, then review the implementation evidence at G2. Record G4 only once release evidence satisfies its existing rules.",
+    "acceptance": "Human records bind actual commits and report/oracle hashes; no G3 change is proposed.",
+    "blocking": "Formal merge and release acceptance"
+  }
+]

@@ -1,0 +1,71 @@
+{
+  "yaml": "valid",
+  "shell_commands_validated": 16,
+  "snapshot_container_enabled": true,
+  "commands": [
+    {
+      "job": "local",
+      "command": "python -m pip install -r requirements.lock"
+    },
+    {
+      "job": "local",
+      "command": "python -m pip install --no-deps -e ."
+    },
+    {
+      "job": "local",
+      "command": "python code/spec_pack.py --check"
+    },
+    {
+      "job": "local",
+      "command": "python scripts/check_oracle.py"
+    },
+    {
+      "job": "local",
+      "command": "python code/observed_edges.py --selftest"
+    },
+    {
+      "job": "local",
+      "command": "python code/element_lineage_demo.py --check"
+    },
+    {
+      "job": "local",
+      "command": "python -m pytest tests/test_ci.py -m 'not integration and not neptune' --junitxml=runner-test-results.xml"
+    },
+    {
+      "job": "local",
+      "command": "python -m pytest --ignore=tests/test_ci.py -m 'not integration and not neptune' --junitxml=test-results.xml"
+    },
+    {
+      "job": "source-citations",
+      "command": "python code/reference_slice.py --check reference-demo"
+    },
+    {
+      "job": "docker-integration",
+      "command": "python -m pip install -r requirements.lock && python -m pip install --no-deps -e ."
+    },
+    {
+      "job": "docker-integration",
+      "command": "docker compose -p lineage-twin -f twin/compose.yaml up -d --wait"
+    },
+    {
+      "job": "docker-integration",
+      "command": "docker build -f lineage-ci/Dockerfile -t lineage-ci:ci ."
+    },
+    {
+      "job": "docker-integration",
+      "command": "docker build -f twin/worker.Dockerfile -t lineage-platform:ci ."
+    },
+    {
+      "job": "docker-integration",
+      "command": "python -m pytest tests/test_ci.py --junitxml=docker-runner-test-results.xml"
+    },
+    {
+      "job": "docker-integration",
+      "command": "python -m pytest tests/test_core_bolt.py tests/test_pipeline.py tests/test_pipeline_kafka.py tests/test_snapshots_kafka.py tests/test_collector_kafka.py tests/test_twin_infrastructure.py --junitxml=docker-test-results.xml"
+    },
+    {
+      "job": "docker-integration",
+      "command": "docker compose -p lineage-twin -f twin/compose.yaml down"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "verdict": "PASS_WITH_RISK",
+  "scope": "Four approved G1 directions implemented in the local Docker Neo4j twin",
+  "full_wave_completion": "BLOCKED",
+  "open_implementation_findings": 0,
+  "findings": [
+    {
+      "id": "AC-1",
+      "severity": "P2",
+      "title": "Applicable plugin accuracy floors were not enforced",
+      "status": "closed"
+    },
+    {
+      "id": "AC-2",
+      "severity": "P2",
+      "title": "Held snapshots lacked durable attributable release",
+      "status": "closed",
+      "followups_closed": [
+        "runtime ownership drift",
+        "backdated approval rejection"
+      ]
+    },
+    {
+      "id": "AC-H1",
+      "category": "test evidence synchronization",
+      "title": "Final-image restart test raced startup and did not prove duplicate consumption",
+      "status": "closed",
+      "initial_failure_found_by": "parent",
+      "production_source_changed": false
+    }
+  ],
+  "independent_checks": [
+    {
+      "artifact": "initial-source-tests.xml",
+      "tests": 112,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 3,
+      "passed": 109
+    },
+    {
+      "artifact": "live-transport-tests.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1
+    },
+    {
+      "artifact": "contract-tests.xml",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 14
+    },
+    {
+      "artifact": "conformance-tests.xml",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 10
+    },
+    {
+      "artifact": "expression-bolt-tests.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1
+    },
+    {
+      "artifact": "final-source-tests.xml",
+      "tests": 53,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 53
+    },
+    {
+      "artifact": "container-restart-final.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1,
+      "seconds": 18.53,
+      "worker_image": "sha256:10559917bd66f7494fd104f6fbdae5e5835cc4b0c4dc0ade6dc9e3739fc0bfcd"
+    }
+  ],
+  "independent_probes": "probe-results.json",
+  "spec_check_errors": 0,
+  "source_manifest_sha256": "1a137c11281d9bddcf656f9c1327ca8fa8647c1d25bba89197d75694dec4cb14",
+  "review_sha256": "1097fdfaeab899afce11229862f9361b7fbc10b5e8a36344983edffa7df29a3e",
+  "base_commit": "0df76476b2fdd29d38b8e63ccb1f9c1a02db66ca",
+  "limits": [
+    "Shared local objects and SQLite; one writer per graph/archive",
+    "At-least-once delivery with stable-key deduplication",
+    "Actor/action is attribution; external access control is not implemented",
+    "Final image builds and full integrated suite belong to parent evidence; one final-image restart test independently rerun",
+    "Synthetic checks are not original full-reference/demo/timing or private holdout acceptance"
+  ],
+  "remaining_gates": [
+    "Human merge of protected exact G1 amendment",
+    "Human G2 review",
+    "G4 release approval"
+  ],
+  "holdout_cases_accessed_or_authored": false,
+  "source_repaired_by_verifier": false,
+  "shared_infrastructure_restarted_by_verifier": false,
+  "external_messages_or_merges_by_verifier": false,
+  "images_built_by_verifier": false,
+  "test_harness_repair_history": {
+    "parent_initial_runner_passes": 45,
+    "parent_initial_platform_passes": 321,
+    "parent_initial_platform_failures": 1,
+    "final_failed_case_independent_recheck": "passed",
+    "implementation_changed": false,
+    "initial_failure_preserved": true
+  }
+}

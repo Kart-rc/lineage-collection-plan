@@ -1,5 +1,51 @@
 # Lineage collection: plan, architecture and starter kit
 
+## Wave 0 and Wave 1 implementation candidate
+
+The local implementation is on the current branch under `src/lineage/`, with
+executable tests under `tests/`. It uses **Neo4j Community in Docker**, as requested
+for this build. AWS Neptune compatibility is outside the current acceptance scope.
+
+Install Python 3.12 dependencies and run the local checks:
+
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.lock
+.venv/bin/pip install --no-deps -e .
+.venv/bin/python code/spec_pack.py --check
+.venv/bin/python scripts/check_oracle.py
+.venv/bin/python -m pytest -m 'not integration'
+```
+
+Built wheels bundle the versioned public schemas and fixture inputs; a normal
+installed CLI works without a source checkout. `LINEAGE_REPO_ROOT` can select an
+explicit versioned specification checkout. Holdout cases and run records are
+never bundled.
+
+Start the local database, broker and queue store with
+`python3 twin/start.py platform`; see [twin instructions](twin/README.md) for the
+pinned demo checkout and full profile. The [CI runner](lineage-ci/README.md) reads
+exact Git commits, and the [evaluator](evaluation/README.md) reports missing
+evidence as blocked. [Runtime ingestion](docs/11-local-implementation.md) connects
+Kafka, the immutable Parquet archive, Neo4j and the changes outbox.
+The optional `python -m lineage.collector` bridge forwards bounded, append-only
+raw exports and committed fault events using read-only inputs and persistent
+metadata progress. Its Docker setup and limits are in the same runtime guide;
+the follow-up evidence is in `factory/runs/wave-0-1-runtime-bridge/`.
+
+This is a **candidate, not an approved completion of both waves**. The private
+holdout, original historical captures, full-demo cold-start/load checks, and
+required human gates remain outstanding. The user approved all four contract
+directions; their exact interface amendments are prepared for human merge in
+[draft PR #8](https://github.com/Kart-rc/lineage-collection-plan/pull/8).
+The current candidate implements durable static completion, expression changes,
+normalized manifest parity and companion plugin fixtures. The implementation
+guide records validation and operating limits. Oracle files and thresholds remain
+unchanged; this does not represent a merged G1 amendment or G2/G4 approval.
+
+The [implementation review guide](docs/12-wave-0-1-review.md) maps the component
+commits, measured checks and remaining acceptance requirements for G2 review.
+
 End-to-end lineage across microservices, streaming, analytics and ML features and models. The approach is top down. Gateway and mesh logs come first, then catalog and component overlay, then static code and runtime edges, proven on one vertical slice before widening. The graph is stored for impact analysis and used with data contracts and data quality checks for prevention, root-cause analysis and remediation.
 
 Every example follows one illustrative card-payments slice:

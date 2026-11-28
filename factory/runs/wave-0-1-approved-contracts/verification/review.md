@@ -1,0 +1,58 @@
+# Independent verification: approved contract candidate
+
+**Verdict: PASS_WITH_RISK.** Scope is implementation of the four approved G1 directions in the local Docker Neo4j twin, not completion or release of all Wave 0/1 work. Full-wave completion remains **BLOCKED** by the separately recorded acceptance and human-gate requirements.
+
+The reviewer read the constitution, the original WP-10–14/WP-18 requirements, the current run's `approval.json`, the proposed G1 amendment, and the amended interfaces. The user's “approve all 4” authorizes these design directions. The proposed record correctly does not impersonate a protected human merge, G2, G3, or G4. Neo4j is the authorized graph target; Neptune is not a blocker for this build. No protected oracle or threshold was changed by this reviewer. No private holdout was read, inferred, or authored.
+
+The review covers complete/empty/deleted unit transport, generation and route identity, immutable publication, combined runtime/static receipt recovery, expression changes with schema versioning, normalized manifest parity, and companion plugin conformance discovery. It is an independent source review with negative probes and actual local service checks. Synthetic local tests do not establish full-reference accuracy, original-capture acceptance, fresh-demo timings, or holdout results.
+
+## Evidence
+
+| Check | Independent result | Artifact |
+| --- | --- | --- |
+| Initial snapshots, core semantics, pipeline, archive, CI suite | 109 passed, 3 explicitly skipped; 56.90 seconds | `initial-source-tests.xml` |
+| Mixed runtime and snapshot Kafka transport with Neo4j and restart | 1 passed; 5.57 seconds | `live-transport-tests.xml` |
+| Contract examples and negative schema cases | 14 passed; 0.24 seconds | `contract-tests.xml` |
+| Repaired conformance floors, companion discovery, normalization and wrapper parity | 10 passed; 2.11 seconds | `conformance-tests.xml` |
+| Expression owner lifetimes, bitemporal views and three rebuilds on Neo4j | 1 passed; 0.66 seconds | `expression-bolt-tests.xml` |
+| Direct SQLite journal failure with actual Neo4j | Atomic rollback passed; exact retry, runtime survival, schema-v2 changes and three rebuilds passed | `atomic-recovery-probe.py`, `probe-results.json` |
+| Final repaired snapshot, release, archive, pipeline and expression checks | 53 passed; 24 unrelated cases deselected; 4.14 seconds | `final-source-tests.xml` |
+| Direct held-snapshot release against Neo4j | Restart, atomic acceptance, failed projection recovery, approval-time views and exact retries passed | `release-recovery-probe.py`, `probe-results.json` |
+| Final worker image restart and duplicate-consumption check | 1 passed; 18.53 seconds; committed snapshot offset reaches 4 | `container-restart-final.xml` |
+| Specification checker | 0 errors; proposed G1 remains unsigned | independently executed `code/spec_pack.py --check` |
+
+The initial source suite's skipped cases required a configured real graph/container/Kafka environment. The separately listed live checks supply selected live evidence; they do not convert that source run into a complete container parity or full-demo run. Parent build and integrated-suite evidence is distinct from the independent checks above. The final worker-image check below independently verifies the refined restart barrier.
+
+The direct atomicity probe installs a SQLite trigger that aborts insertion into the acceptance journal, after change-outbox and receipt-status mutations have been attempted. It verifies that the entire transaction rolls back, existing Neo4j assertions remain unchanged, and the pending receipt remains retryable. After removing the trigger, the same snapshot is accepted with a valid expression change. Runtime ownership survives a later static deletion. Three rebuilds from the mixed archive match actual Neo4j. The probe creates and removes only its own unique graph namespace.
+
+## Findings and rechecks
+
+**AC-1 — P2, conformance accuracy floor: CLOSED.** Before repair, `check_conformance` applied the ordinary .90/.90 field floor to every extractor. A companion fixture for `ef-core-orm` could request .90/.90, return nine of ten expected edges, pass every check, and register. That contradicts WP-24's .95/.95 floor and the amended companion-fixture contract. The minimal synthetic reproducer is `conformance-floor-probe.py`. It originally printed `registered: true`; after repair it prints `false`. The implementation at `src/lineage/plugins.py:351` and `:380` now resolves deterministic ORM/descriptor floors from approved parameters and the model-assisted precision exception from WP-29, without inventing a model-assisted recall floor. The targeted regression suite passes.
+
+**AC-2 — P2, durable held-snapshot release: CLOSED.** Before repair, the pipeline staged the held receipt but reset the merge engine when raising `ReviewRequired`, losing its in-memory hold. There was no pipeline release API or durable owner action. The original `hold-probe.py` accepted a ten-edge unit and attempted a complete deletion; it observed one pending receipt, ten retained edges, no held operations, and no release method. The graph was safe, but the receipt could not be released through the documented durable path. During repair, `hold-state-drift-probe.py` additionally found that runtime support arriving after the hold could remove the guard condition and prevent an otherwise valid explicit release. The repair persists hold metadata (`src/lineage/pipeline.py:132`, `src/lineage/archive.py:144`) and adds attributable release (`src/lineage/pipeline.py:148`) with release audit, outbox, accepted receipt and ordered journal committed together (`src/lineage/archive.py:166`). Replayed release checks the original held operation identity, even when current evidence ownership has removed the guard. Approval cannot precede the pending receipt or already accepted knowledge (`src/lineage/pipeline.py:167`).
+
+The independent final `release-recovery-probe.py` verifies all of the following against real Neo4j: a ten-edge deletion remains held across archive restart; an injected journal INSERT failure rolls back release attribution, outbox and receipt acceptance; an injected projection failure after durable acceptance recovers on restart; the recorded-time view has ten edges before approval and zero afterward; the ten closure events cite the attributable owner action; exact source redelivery and repeated owner approval emit no new logical changes; a different actor is rejected. The scratch projection injector was calibrated to fail only on new assertions so it actually exercises the post-acceptance point, rather than the pre-release restoration step.
+
+The ownership-drift probe now returns `released`, with no pending hold and all ten runtime-supported edges retained. The backdated-approval probe now rejects with `Approval cannot precede already accepted knowledge`. These are visible synthetic negative checks, not hidden cases. No open implementation finding remains within this review scope.
+
+**AC-H1 — test evidence synchronization, CLOSED (initial failure found by parent).** The parent final-image suite reported 45 runner passes and 321 platform passes with one failing container restart test. The old check could observe existing graph contents before the second container started, then race container shutdown; it also did not prove that the restarted worker consumed the two redeliveries. This was a test-harness defect, with no production source change. The repaired `tests/test_snapshots_kafka.py` uses a passive committed-offset observer that never subscribes or joins the worker consumer group. It waits for runtime offset >= 1 and snapshot offset >= 2 before the first stop, then snapshot offset >= 4 after restart and two redeliveries. It checks that the acceptance journal still contains exactly three receipts and the rebuilt graph hash is unchanged. Cleanup waits for container creation or client exit and removes the uniquely named test container through its finally path.
+
+The verifier independently ran that repaired test with `LINEAGE_WORKER_IMAGE=lineage-platform:approved-contracts` on image `sha256:10559917bd66f7494fd104f6fbdae5e5835cc4b0c4dc0ade6dc9e3739fc0bfcd`: **1 passed in 18.53 seconds**. No `snapshots-*` test containers remained afterward. This supersedes the earlier weak restart synchronization as evidence of redelivery consumption. The initial parent failure remains part of the repair history; it is not erased or presented as an all-green initial suite.
+
+Generated `src/lineage_collection.egg-info/` metadata is excluded from the final source manifest. A wheel-build rewrite of its `SOURCES.txt` was not an implementation change. Before refreshing hashes, the verifier confirmed that the only changed reviewed file outside that generated directory was `tests/test_snapshots_kafka.py`. The final manifest pins 77 implementation, contract, test and build files.
+
+## Validated behavior and limits
+
+Completion manifests and additive envelope-v2 events use separate topics. Snapshot content is durable before publication and checked as canonical bytes against its SHA-256 reference, complete count/event hash, exact revision, producer, route and reservation. Failed or partial extractions cannot replace prior units. Explicit complete empty and deleted sets are representable. Repeated generation content is idempotent; a conflict fails. Older valid generations may fill historical views while newer generation heads and tombstones remain authoritative.
+
+Merged routes reject proposed snapshots. Proposed ingestion binds an archive and graph namespace to one repository/PR; the original route/revision stays in the receipt even when the projection adapter removes the PR marker. This is a local single-writer boundary, not multi-tenant authorization or distributed consensus.
+
+Expression hashes are canonical supporting sets, owned independently by units and runtime evidence. Changed support emits schema-v2 `expression_changed` with previous/current sets, including an empty set for loss. Hashless legacy events remain v1; the legacy condition-change example still validates. Consumers must support v2 before enabling these producers. Citations alone remain non-material.
+
+Normalized scan content excludes only manifest `started`, `finished` and per-unit `duration_ms`. Full manifests retain measured timing. Parity assumes the same source, configuration and starting cache. Companion conformance fixtures are loaded and executed under the existing isolation/deadline boundary, with missing/invalid/failing fixtures refusing plugin load.
+
+Delivery is at least once. A crash after broker acknowledgment but before the local checkpoint may redeliver the same stable content key; downstream consumers must deduplicate. The shared local archive and SQLite coordinator do not establish distributed publication, remote object-store authorization or production rollout. The release actor/action record is local attribution, not authentication. Operators must enforce single-writer operation and caller access controls outside this reference implementation.
+
+The original full-wave blockers remain: protected amendment merge and human G2/G4, private holdout custody/results and missing original/full-reference twin evidence with required cold starts, workload and timing measurements. These checks do not certify remaining later-wave impact/comment/alert integrations. No external messages, protected merges, image builds or shared-infrastructure restarts were performed by this verifier.
+
+Final source and contract hashes are recorded in `source-hashes.json`; machine-readable scope, findings, evidence and boundaries are in `verdict.json`.
