@@ -7,7 +7,7 @@
   "additionalProperties": false,
   "required": ["schemaVersion", "eventType", "recordedAt", "edgeKey", "edge", "change", "current", "causes"],
   "properties": {
-    "schemaVersion": {"const": "1"},
+    "schemaVersion": {"enum": ["1", "2"], "description": "v1 retains legacy fields; v2 carries expression hashes. Upgrade consumers before enabling v2 producers."},
     "eventType": {"const": "EDGE_CHANGE"},
     "recordedAt": {"type": "string", "format": "date-time", "description": "Transaction time"},
     "edgeKey": {"type": "string", "pattern": "^\\S+ \\| [A-Z_]+ \\| \\S+$", "description": "<from URN> | <type> | <to URN>, element URNs carry #<field path>"},
@@ -22,7 +22,7 @@
         "masking": {"type": "boolean"}
       }
     },
-    "change": {"enum": ["opened", "closed", "state_changed", "confidence_changed", "condition_activated", "condition_deactivated", "disputed", "held"],
+    "change": {"enum": ["opened", "closed", "state_changed", "confidence_changed", "condition_activated", "condition_deactivated", "disputed", "held", "expression_changed"],
                "description": "held: a re-extraction that would close more than the allowed share of an extractor's edges was held for review (IN-2)"},
     "previous": {"$ref": "#/$defs/version"},
     "current": {"$ref": "#/$defs/version"},
@@ -44,8 +44,93 @@
         "conditionState": {"enum": ["active", "latent", null], "description": "D30: latent while the condition is false"},
         "validFrom": {"type": "string", "format": "date-time"},
         "validTo": {"type": ["string", "null"], "format": "date-time"},
-        "sources": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        "sources": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "expressionHashes": {"type": "array", "items": {"type": "string", "pattern": "^sha256:[0-9a-f]{8,64}$"}, "uniqueItems": true,
+                             "description": "Sorted supporting hash set; present on both v2 version objects, including empty sets. Retains envelope-v2 abbreviated-hash compatibility."}
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schemaVersion": {
+            "const": "1"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "change": {
+            "enum": [
+              "opened",
+              "closed",
+              "state_changed",
+              "confidence_changed",
+              "condition_activated",
+              "condition_deactivated",
+              "disputed",
+              "held"
+            ]
+          },
+          "previous": {
+            "not": {
+              "required": [
+                "expressionHashes"
+              ]
+            }
+          },
+          "current": {
+            "not": {
+              "required": [
+                "expressionHashes"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schemaVersion": {
+            "const": "2"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "previous": {
+            "required": [
+              "expressionHashes"
+            ]
+          },
+          "current": {
+            "required": [
+              "expressionHashes"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "change": {
+            "const": "expression_changed"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "previous"
+        ],
+        "properties": {
+          "schemaVersion": {
+            "const": "2"
+          }
+        }
+      }
+    }
+  ]
 }
