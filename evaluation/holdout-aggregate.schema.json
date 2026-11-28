@@ -1,0 +1,500 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "corpora": {
+      "additionalProperties": false,
+      "properties": {
+        "changes": {
+          "additionalProperties": false,
+          "properties": {
+            "families": {
+              "additionalProperties": {
+                "additionalProperties": false,
+                "properties": {
+                  "holdout": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "visible": {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "visible",
+                  "holdout"
+                ],
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "holdout": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "visible": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "visible",
+            "holdout",
+            "families"
+          ],
+          "type": "object"
+        },
+        "incidents": {
+          "additionalProperties": false,
+          "properties": {
+            "families": {
+              "additionalProperties": {
+                "additionalProperties": false,
+                "properties": {
+                  "holdout": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "visible": {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "visible",
+                  "holdout"
+                ],
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "holdout": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "visible": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "visible",
+            "holdout",
+            "families"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "changes",
+        "incidents"
+      ],
+      "type": "object"
+    },
+    "coverage": {
+      "additionalProperties": false,
+      "properties": {
+        "caller_cause": {
+          "const": true
+        },
+        "near_simultaneous_changes": {
+          "const": true
+        },
+        "no_visible_copies": {
+          "const": true
+        },
+        "silent_failure": {
+          "const": true
+        },
+        "targeting_rule": {
+          "const": true
+        }
+      },
+      "required": [
+        "near_simultaneous_changes",
+        "silent_failure",
+        "caller_cause",
+        "targeting_rule",
+        "no_visible_copies"
+      ],
+      "type": "object"
+    },
+    "families": {
+      "additionalProperties": false,
+      "properties": {
+        "core_semantics": {
+          "additionalProperties": false,
+          "properties": {
+            "failure_categories": {
+              "additionalProperties": false,
+              "properties": {
+                "accuracy": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "coverage": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "custody": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "hard_zero": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "regression": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "schema": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "timing": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "unavailable": {
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            },
+            "passed": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "total": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "total",
+            "passed",
+            "failure_categories"
+          ],
+          "type": "object"
+        },
+        "detect_resolve": {
+          "additionalProperties": false,
+          "properties": {
+            "failure_categories": {
+              "additionalProperties": false,
+              "properties": {
+                "accuracy": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "coverage": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "custody": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "hard_zero": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "regression": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "schema": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "timing": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "unavailable": {
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            },
+            "passed": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "total": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "total",
+            "passed",
+            "failure_categories"
+          ],
+          "type": "object"
+        },
+        "extractors": {
+          "additionalProperties": false,
+          "properties": {
+            "failure_categories": {
+              "additionalProperties": false,
+              "properties": {
+                "accuracy": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "coverage": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "custody": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "hard_zero": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "regression": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "schema": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "timing": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "unavailable": {
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            },
+            "passed": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "total": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "total",
+            "passed",
+            "failure_categories"
+          ],
+          "type": "object"
+        },
+        "impact": {
+          "additionalProperties": false,
+          "properties": {
+            "failure_categories": {
+              "additionalProperties": false,
+              "properties": {
+                "accuracy": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "coverage": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "custody": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "hard_zero": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "regression": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "schema": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "timing": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "unavailable": {
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            },
+            "passed": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "total": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "total",
+            "passed",
+            "failure_categories"
+          ],
+          "type": "object"
+        },
+        "platform": {
+          "additionalProperties": false,
+          "properties": {
+            "failure_categories": {
+              "additionalProperties": false,
+              "properties": {
+                "accuracy": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "coverage": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "custody": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "hard_zero": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "regression": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "schema": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "timing": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "unavailable": {
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            },
+            "passed": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "total": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "total",
+            "passed",
+            "failure_categories"
+          ],
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "approved_by": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "builders_cannot_read": {
+          "const": true
+        },
+        "candidate_commit": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "independent_author": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "job_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "oracle_sha256": {
+          "additionalProperties": {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "run_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "store_id": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "store_id",
+        "job_id",
+        "run_id",
+        "candidate_commit",
+        "oracle_sha256",
+        "independent_author",
+        "approved_by",
+        "builders_cannot_read"
+      ],
+      "type": "object"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "signatures": {
+      "additionalProperties": false,
+      "properties": {
+        "owners": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "platform_lead": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "owners",
+        "platform_lead"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "provenance",
+    "families",
+    "corpora",
+    "signatures",
+    "coverage"
+  ],
+  "type": "object"
+}
