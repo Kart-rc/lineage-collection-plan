@@ -1,6 +1,6 @@
 # Gate G4: release `<name>`, `<YYYY-MM-DD>`
 
-Template, proposed in G1 amendment 2 (D40). To record a release, copy this file to `factory/gates/G4-<YYYY-MM-DD>-<name>.md` and replace every placeholder. The rules are in the [constitution](../../constitution.md), "Release gate (G4)"; the numbers are in [`parameters.yaml`](../../parameters.yaml) under `release_gate`. Every `##` section below is required: `code/spec_pack.py --check` fails a record that lacks one. Sections 2 to 10 come from `lineage-eval release` (WP-04); a person writes Decision.
+Template, set in G1 amendment 2 (D40), 28 November 2026. To record a release, copy this file to `factory/gates/G4-<YYYY-MM-DD>-<name>.md` and replace every placeholder. The rules are in the [constitution](../../constitution.md), "Release gate (G4)"; the numbers are in [`parameters.yaml`](../../parameters.yaml) under `release_gate`. Every `##` section below is required: `code/spec_pack.py --check` fails a record that lacks one. Sections 2 to 10 come from `lineage-eval release` (WP-04); a person writes Decision.
 
 ## Decision
 

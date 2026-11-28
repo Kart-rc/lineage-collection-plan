@@ -569,7 +569,7 @@ All checks passed.</pre>
           <tr><th scope="row">G1 Spec</th><td>Domain owner and platform lead</td><td>Requirements, interfaces and scenarios. Is this the right thing to build?</td><td>Before any plan or code</td></tr>
           <tr><th scope="row">G2 Change</th><td>Spec owner for the hop</td><td>The evidence bundle: scores, reviewer findings, diff</td><td>Every change at level 2; protected paths and exceptions at levels 3 and 4</td></tr>
           <tr><th scope="row">G3 Oracle</th><td>Platform lead and the owning team</td><td>Any change to the golden graph, replay corpora, harness or gate policy</td><td>Always. Agents propose; only people merge.</td></tr>
-          <tr><th scope="row">G4 Release</th><td>Named approver</td><td>Stage replay of a day of production evidence; accuracy must not drop</td><td>Every production release</td></tr>
+          <tr><th scope="row">G4 Release</th><td>Named approver (the platform lead until slice 2, D20)</td><td>A replay of the twin until slice 2, then a day of production evidence. Every metric at its floor; nothing the last approved release passed now fails; zero must-not-flow violations, stored values and blocked builds; timings at their bars (D40)</td><td>Every release</td></tr>
         </tbody>
       </table>
     </div>

@@ -196,7 +196,7 @@ Owners confirm or dispute each one, and edges move from probable to confirmed or
 
 ## Service levels by wave
 
-None of these is live today. Waves run in order and are not dated. A bar holds for teams once the release that contains the work package carrying it passes the release gate, G4. The rules for G4 are proposed in [G1 amendment 2](../factory/gates/proposed/G1-amendment-2.md):
+None of these is live today. Waves run in order and are not dated. A bar holds for teams once the release that contains the work package carrying it passes the release gate, G4. The rules for G4 were set in [G1 amendment 2](../factory/gates/G1-amendment-2-2026-11-28.md):
 - every metric at its bar;
 - nothing that passed in the last approved release now failing;
 - zero must-not-flow violations, stored values and blocked builds;

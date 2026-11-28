@@ -7,7 +7,7 @@ Wave 0 · family platform · start level 2 · limits: 6 build attempts, 1 workin
 
 ## Scope
 
-The oracle's executable part - score, replay changes, replay incidents, run holdout - built from code/observed_edges.py and code/run_checks.py; and, proposed in G1 amendment 2 (D40), the release comparison behind gate G4 (lineage-eval release).
+The oracle's executable part - score, replay changes, replay incidents, run holdout - built from code/observed_edges.py and code/run_checks.py; and the release comparison behind gate G4, lineage-eval release (G1 amendment 2, D40).
 
 ## Inputs
 
@@ -31,9 +31,9 @@ The oracle's executable part - score, replay changes, replay incidents, run hold
 - `lineage-eval replay incidents` on run 1 reproduces I1 detection at 2.0 minutes and paymentFailure ranked first
 - 3 consecutive runs on the same inputs give identical output files (byte for byte)
 - The holdout runner's output contains 0 case texts: only a pass rate and failure categories per family
-- Proposed in G1 amendment 2: `lineage-eval release` on two identical builds reports 0 lost cases and 0 on every hard zero, and its report carries the SHA-256 of all 8 G3-pinned oracle files
-- Proposed in G1 amendment 2: 3 seeded regressions are each caught and named - 1 golden field edge dropped (lost case), 1 credit_card edge to the orders topic added (hard zero), 1 incident whose true cause falls to second (lost case)
-- Proposed in G1 amendment 2: the report fills 10 of the 11 required sections of the G4 template, all but Decision, and spec_pack.py accepts it
+- `lineage-eval release` on two identical builds reports 0 lost cases and 0 on every hard zero, and its report carries the SHA-256 of all 8 G3-pinned oracle files
+- 3 seeded regressions are each caught and named - 1 golden field edge dropped (lost case), 1 credit_card edge to the orders topic added (hard zero), 1 incident whose true cause falls to second (lost case)
+- the report fills 10 of the 11 required sections of the G4 template, all but Decision, and spec_pack.py accepts it
 - Every visible scenario traced to the requirements above passes
 - Holdout pass rate at or above the family rate in `factory/parameters.yaml`, where the family has holdout scenarios
 - `python3 code/spec_pack.py --check` reports 0 errors

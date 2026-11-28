@@ -51,7 +51,7 @@ You approve all four gates until domain teams join for slice 2 (D20): G1 spec, G
 
 ## Release gate (G4)
 
-**Proposed in G1 amendment 2 (D40), not yet approved.** The numbers are in `parameters.yaml` under `release_gate`; each record follows [`gates/templates/G4-release.md`](gates/templates/G4-release.md).
+Approved in G1 amendment 2 (D40) on 28 November 2026 ([record](gates/G1-amendment-2-2026-11-28.md)). The numbers are in `parameters.yaml` under `release_gate`; each record follows [`gates/templates/G4-release.md`](gates/templates/G4-release.md).
 
 1. **Every release is gated.** A wave is available to teams once the release that holds its last work package passes.
 2. **Floor.** Every metric the release carries meets its bar in `parameters.yaml` and in its work package's done-when.

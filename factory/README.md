@@ -1,6 +1,6 @@
 # Factory spec pack
 
-What the agents build from and what the harness grades against, for the reference slice in [doc 07](../docs/07-reference-slice-otel-demo.md). The layout is the one doc 06 specifies under "Spec pack layout". Status: **approved at gate G1 on 28 November 2026** at commit `b86111d` ([gate record](gates/G1-2026-11-28.md); decisions D33 to D37 in [doc 08](../docs/08-build-decisions.md)). Amendment 1, build-time collection (D39), was approved the same day ([record](gates/G1-amendment-1-2026-11-28.md)). Amendment 2, rules and numbers for the release gate G4 (D40), is proposed and awaiting approval ([proposal](gates/proposed/G1-amendment-2.md)). A change to a protected path now needs a new G1 record. The oracle was signed at gate G3 the same day ([record](gates/G3-2026-11-28.md)); a change to it needs a new G3 record.
+What the agents build from and what the harness grades against, for the reference slice in [doc 07](../docs/07-reference-slice-otel-demo.md). The layout is the one doc 06 specifies under "Spec pack layout". Status: **approved at gate G1 on 28 November 2026** at commit `b86111d` ([gate record](gates/G1-2026-11-28.md); decisions D33 to D37 in [doc 08](../docs/08-build-decisions.md)). Amendment 1, build-time collection (D39), was approved the same day ([record](gates/G1-amendment-1-2026-11-28.md)). Amendment 2, rules and numbers for the release gate G4 (D40), was approved the same day ([record](gates/G1-amendment-2-2026-11-28.md)). A change to a protected path now needs a new G1 record. The oracle was signed at gate G3 the same day ([record](gates/G3-2026-11-28.md)); a change to it needs a new G3 record.
 
 ```text
 python3 code/spec_pack.py --check     # must report 0 errors before any work package starts
@@ -20,13 +20,12 @@ python3 code/spec_pack.py --write     # re-render the markdown after editing a Y
 | [`work-packages/`](work-packages/README.md) | Done-when for all 40 work packages: one YAML source, one rendered file each | People at G1 |
 | [`oracle/`](oracle/README.md) | Index of the golden graph, replay corpora, checks and contracts; the harness and gate policies land here | People (protected) |
 | [`oracle/holdout/README.md`](oracle/holdout/README.md) | Custody rules. The holdout itself is never in this repository | People (protected) |
-| [`gates/`](gates/) | One record per gate decision: who approved what, at which commit | People |
-| [`gates/templates/G4-release.md`](gates/templates/G4-release.md) | The record every release fills in at G4: 11 required sections, checked by `spec_pack.py` (proposed in amendment 2) | People |
-| [`gates/proposed/`](gates/proposed/) | Amendments awaiting approval | People |
+| [`gates/`](gates/) | One record per gate decision: who approved what, at which commit. Amendments awaiting approval wait in `gates/proposed/` | People |
+| [`gates/templates/G4-release.md`](gates/templates/G4-release.md) | The record every release fills in at G4: 11 required sections, checked by `spec_pack.py` (amendment 2) | People |
 
 ## What is not here yet, and which work package brings it
 
-- The harness `lineage-eval` (WP-04), built from `code/observed_edges.py` and `code/run_checks.py`, including `lineage-eval release` for G4 (proposed in amendment 2).
+- The harness `lineage-eval` (WP-04), built from `code/observed_edges.py` and `code/run_checks.py`, including `lineage-eval release` for G4 (amendment 2).
 - The twin's one-command start with the lineage platform beside the demo (WP-03). Today the demo runs with the files in `fixtures/otel-demo-3.1.0/run/`.
 - The holdout corpora (WP-02), written by people outside this repository.
 - Golden edges for the complement repository (WP-01), needed by WP-22 and WP-25.

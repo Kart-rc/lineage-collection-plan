@@ -1,10 +1,10 @@
 # Every number the build is judged by, in one place. Agents read this file; only people change it (protected path,
 # approved at gate G1). Requirement IDs refer to doc 06; decisions to doc 08.
 # Status: approved at gate G1, 28 November 2026 (factory/gates/G1-2026-11-28.md). Values marked "set at G1" were
-# undefined before this file. The release_gate section is PROPOSED in G1 amendment 2 (factory/gates/proposed/), not yet
-# approved; on approval the version becomes 1.1.0.
+# undefined before this file. Version 1.1.0 adds release_gate, approved in G1 amendment 2 the same day
+# (factory/gates/G1-amendment-2-2026-11-28.md).
 
-version: 1.1.0-proposed
+version: 1.1.0
 
 evidence:
   # Set by the evidence library, never by a collector (doc 03, step 1). db_span is new (D27): a database client span.
@@ -78,7 +78,7 @@ factory:
   start_levels: {wave_0: people_or_2, wave_1: 2, wave_2_and_later: "2 until wave 1 meets its holdout pass rate, then the level in the work package (D18)"}
   limits: {build_attempts: 6, wall_clock: 1 working day, cost: recorded per merged change, cap: none}   # D21
 
-release_gate:                  # G4, doc 06 station 8. PROPOSED in G1 amendment 2 (D40), not yet approved. The rules are in
+release_gate:                  # G4, doc 06 station 8. Set in G1 amendment 2 (D40), 28 November 2026. The rules are in
                                # constitution.md, "Release gate (G4)"; each record follows factory/gates/templates/G4-release.md
   unit: release                # every release is gated; a wave is available to teams once the release holding its last work package passes
   baseline: last_approved_release           # both scored against the oracle pinned by the latest G3 record
