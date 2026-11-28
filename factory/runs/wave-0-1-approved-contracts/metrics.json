@@ -1,0 +1,44 @@
+{
+  "unique_final_passing_cases": 367,
+  "final_unresolved_failures": 0,
+  "final_skips": 0,
+  "runs": {
+    "checks/runner-final.xml": {
+      "tests": 45,
+      "passed": 45,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "checks/platform-final.xml": {
+      "tests": 322,
+      "passed": 321,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "verification/final-container-restart-tests.xml": {
+      "tests": 1,
+      "passed": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "aggregation": "The final targeted test replaces the same failed harness case from the full platform run; counts are not blindly added.",
+  "spec_errors": 0,
+  "oracle_hashes_matched": 8,
+  "independent_open_findings": 0,
+  "implementation_repair_rounds": {
+    "runner_family_floors": 1,
+    "durable_hold_release": 1
+  },
+  "harness_repair_rounds": 1,
+  "images": {
+    "lineage-platform:approved-contracts": "sha256:10559917bd66f7494fd104f6fbdae5e5835cc4b0c4dc0ade6dc9e3739fc0bfcd",
+    "lineage-ci:approved-contracts": "sha256:cf9f6e451e6e00d817d72da479360e58c6b31ecb860d61648a6be4fd6d9b2559"
+  },
+  "tokens_used": null,
+  "token_accounting": "Not exposed by execution tools",
+  "source_tree_sha256": "0530da5e5373e003cfbc1502610b4520eeea785360bab9a63d885135f22caca8"
+}

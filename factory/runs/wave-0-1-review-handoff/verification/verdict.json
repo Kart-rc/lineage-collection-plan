@@ -1,0 +1,40 @@
+{
+  "verdict": "PASS_WITH_RISK",
+  "scope": "CI workflow process separation, coverage and evidence retention only",
+  "open_findings": 0,
+  "workflow_sha256": "9f4b1503458ed6932935244f0b85efad8ead785618f48ad6d85c0b9360b6a67b",
+  "review_sha256": "f740cfba1637d80148878fe291e1872d711cb5f11a223081df0db19b180a98de",
+  "collection_sha256": "8b9edadc556c889664a29e05b6a8531a4d19df5f52d7b8b0380389d3b637edc4",
+  "prior_manifest": "factory/runs/wave-0-1-approved-contracts/verification/source-hashes.json",
+  "previously_reviewed_files": 77,
+  "unchanged_previously_reviewed_files": 76,
+  "changed_files": [
+    ".github/workflows/verify.yml"
+  ],
+  "coverage": {
+    "all_collected": 367,
+    "local_runner": 43,
+    "local_remaining": 311,
+    "docker_runner": 45,
+    "docker_transport": 19,
+    "selected_union": 367,
+    "omitted": [],
+    "unexpected": [],
+    "local_runner_overlap": [],
+    "docker_runner_overlap": [],
+    "static_snapshot_test_in_actual_worker_job": true,
+    "worker_image": "lineage-platform:ci"
+  },
+  "test_bodies_executed": false,
+  "github_hosted_workflow_executed": false,
+  "source_repaired_by_verifier": false,
+  "infrastructure_changed_by_verifier": false,
+  "external_messages_or_merges_by_verifier": false,
+  "full_wave_completion": "BLOCKED",
+  "remaining_boundaries": [
+    "Actual workflow execution is parent evidence",
+    "Protected human merge and G2/G4 remain pending",
+    "Original full-wave acceptance gaps remain"
+  ],
+  "recorded_at_utc": "2026-11-28T06:18:10.892998+00:00"
+}

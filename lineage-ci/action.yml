@@ -1,0 +1,58 @@
+name: lineage-ci
+description: Run the same fail-open CLI used outside GitHub (local candidate transport)
+inputs:
+  stage:
+    description: proposed or merged
+    required: true
+  commit:
+    description: Exact checked-in Git commit SHA
+    required: true
+  base:
+    description: Exact merged baseline commit SHA
+    default: ''
+  pr:
+    description: Positive PR number for proposed scans
+    default: ''
+  config:
+    description: Configuration path within the scanned Git commit
+    default: .lineage.yaml
+  out:
+    description: Artifact output directory
+    default: .lineage-out
+  state-dir:
+    description: Persistent local candidate cache directory
+    default: .lineage-state
+  transport:
+    description: local completion staging, kafka publication, or unavailable fault injection
+    default: local
+  snapshot-root:
+    description: Shared durable snapshot archive and generation coordinator directory
+    default: ''
+  broker:
+    description: Kafka bootstrap servers (required for kafka transport)
+    default: ''
+  snapshot-topic:
+    description: Separate complete-unit snapshot completion topic
+    default: lineage.unit-snapshots
+  stub:
+    description: Enable fixture-only stub extraction
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - name: Run lineage-ci
+      shell: bash
+      env:
+        LINEAGE_STAGE: ${{ inputs.stage }}
+        LINEAGE_COMMIT: ${{ inputs.commit }}
+        LINEAGE_BASE: ${{ inputs.base }}
+        LINEAGE_PR: ${{ inputs.pr }}
+        LINEAGE_CONFIG: ${{ inputs.config }}
+        LINEAGE_OUT: ${{ inputs.out }}
+        LINEAGE_STATE_DIR: ${{ inputs.state-dir }}
+        LINEAGE_TRANSPORT: ${{ inputs.transport }}
+        LINEAGE_SNAPSHOT_ROOT: ${{ inputs.snapshot-root }}
+        LINEAGE_BROKER: ${{ inputs.broker }}
+        LINEAGE_SNAPSHOT_TOPIC: ${{ inputs.snapshot-topic }}
+        LINEAGE_STUB: ${{ inputs.stub }}
+      run: bash "$GITHUB_ACTION_PATH/action.sh"

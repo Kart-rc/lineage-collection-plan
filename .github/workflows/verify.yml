@@ -1,0 +1,85 @@
+name: Verify lineage candidate
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  local:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -r requirements.lock
+      - run: python -m pip install --no-deps -e .
+      - run: python code/spec_pack.py --check
+      - run: python scripts/check_oracle.py
+      - run: python code/observed_edges.py --selftest
+      - run: python code/element_lineage_demo.py --check
+      - name: Verify the runner in a fresh interpreter
+        run: python -m pytest tests/test_ci.py -m 'not integration and not neptune' --junitxml=runner-test-results.xml
+      - name: Verify the remaining local checks
+        run: python -m pytest --ignore=tests/test_ci.py -m 'not integration and not neptune' --junitxml=test-results.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: local-test-results
+          path: |
+            runner-test-results.xml
+            test-results.xml
+  source-citations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: open-telemetry/opentelemetry-demo
+          ref: dedc0178918e260823323b8d95005a8cb924b007
+          path: reference-demo
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python code/reference_slice.py --check reference-demo
+  docker-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      LINEAGE_TWIN_LIVE: '1'
+      LINEAGE_NEO4J_URI: bolt://127.0.0.1:17687
+      LINEAGE_TEST_BOLT_URL: bolt://127.0.0.1:17687
+      LINEAGE_TEST_BROKER: 127.0.0.1:19092
+      LINEAGE_CI_IMAGE: lineage-ci:ci
+      LINEAGE_COLLECTOR_IMAGE: lineage-platform:ci
+      LINEAGE_WORKER_IMAGE: lineage-platform:ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -r requirements.lock && python -m pip install --no-deps -e .
+      - name: Start isolated local infrastructure
+        run: docker compose -p lineage-twin -f twin/compose.yaml up -d --wait
+      - name: Build the same CI runner used outside GitHub
+        run: docker build -f lineage-ci/Dockerfile -t lineage-ci:ci .
+      - name: Build the runtime collector image
+        run: docker build -f twin/worker.Dockerfile -t lineage-platform:ci .
+      - name: Verify the dedicated CI runner and its container
+        run: python -m pytest tests/test_ci.py --junitxml=docker-runner-test-results.xml
+      - name: Verify live graph, broker, queue store and both evidence transports
+        run: python -m pytest tests/test_core_bolt.py tests/test_pipeline.py tests/test_pipeline_kafka.py tests/test_snapshots_kafka.py tests/test_collector_kafka.py tests/test_twin_infrastructure.py --junitxml=docker-test-results.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: docker-test-results
+          path: |
+            docker-runner-test-results.xml
+            docker-test-results.xml
+      - name: Stop this job's infrastructure
+        if: always()
+        run: docker compose -p lineage-twin -f twin/compose.yaml down
