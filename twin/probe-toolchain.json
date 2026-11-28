@@ -1,0 +1,10 @@
+{
+  "version": "go1.27.4",
+  "platform": "linux/amd64",
+  "archive": "go1.27.4.linux-amd64.tar.gz",
+  "sha256": "7226736c2339719cda28fbf3a54d71aa63bcefe376e98cef00034268dab24840",
+  "source": "https://go.dev/dl/?mode=json",
+  "download": "https://go.dev/dl/go1.27.4.linux-amd64.tar.gz",
+  "cgo_enabled": false,
+  "third_party_go_modules": false
+}
