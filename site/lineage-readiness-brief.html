@@ -338,13 +338,13 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
         <p class="muted small">What we don't have yet belongs to later stages: our own data products, access to them, and the cloud stage environment. Each is scheduled, and none blocks the start. The spec pack was approved at gate G1 on 28 November; the golden graph was signed at gate G3 the same day. Builds can now be graded against it.</p>
       </div>
       <div class="lanes">
-        <div class="lane s-have"><b>Ready now</b><p>The reference system and its golden graph (89 citations checked against source), the twin, 38 decisions, and the spec pack, approved at G1 on 28 November together with ADR-002 (Neptune): measurable done-when for all 40 work packages, interfaces as schemas, visible scenarios.</p></div>
+        <div class="lane s-have"><b>Ready now</b><p>The reference system and its golden graph (89 citations checked against source), the twin, 39 decisions, and the spec pack, approved at G1 on 28 November together with ADR-002 (Neptune): measurable done-when for all 40 work packages, interfaces as schemas, visible scenarios.</p></div>
         <div class="lane"><b style="color:var(--gate)">Needs you</b><p>Have someone who does not build write the holdout cases, outside this repository. G1 and G3 are signed.</p></div>
         <div class="lane"><b class="muted">Comes later</b><p>Pick our second slice in wave 1. Then access to its code and warehouse, a Neptune stage instance, and model access for private repositories.</p></div>
       </div>
     </div>
     <div class="facts" aria-label="Key facts">
-      <div class="fact"><strong>38</strong><span>decisions: 26 from evidence, 7 by you, 5 approved by you at gate G1</span></div>
+      <div class="fact"><strong>39</strong><span>decisions: 26 from evidence, 7 by you, 6 approved by you at gate G1</span></div>
       <div class="fact"><strong>40 / 40</strong><span>work packages with measurable done-when; 104 checks in all</span></div>
       <div class="fact"><strong>18 / 18</strong><span>connections seen in the running system are in the golden graph</span></div>
       <div class="fact"><strong>8 / 10</strong><span>injected incidents caught within 2 minutes, the true cause ranked first in all 8</span></div>
@@ -551,7 +551,7 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
   <section id="asks" aria-labelledby="h-asks">
     <div class="sec-head"><div class="eyebrow">What happens next</div><h2 id="h-asks">G1 and G3 are signed; wave 0 is under way</h2></div>
     <div class="asks">
-      <div class="ask"><span class="when">Done 28 November · gate G1</span><b>Spec pack and ADR-002 approved</b><p>Approved as merged to main in <code>b86111d</code>: the constitution, parameters, 41 requirements, interfaces and done-when for 39 work packages, with ADR-002 (Neptune). Record: <code>factory/gates/G1-2026-11-28.md</code>.</p></div>
+      <div class="ask"><span class="when">Done 28 November · gate G1</span><b>Spec pack and ADR-002 approved</b><p>Approved as merged to main in <code>b86111d</code>: the constitution, parameters, 41 requirements, interfaces and done-when for 39 work packages, with ADR-002 (Neptune). Amendment 1, approved the same day, adds build-time collection: one <code>lineage-ci</code> step and one <code>.lineage.yaml</code> file per repository (WP-18). Records in <code>factory/gates/</code>.</p></div>
       <div class="ask"><span class="when">Done 28 November · gate G3</span><b>Golden graph signed</b><p>23 service edges, 36 field edges, 8 flag-gated and 20 flag edges on the demo, plus 35 for the dbt model, and the visible corpora, each file pinned by hash. Record: <code>factory/gates/G3-2026-11-28.md</code>.</p></div>
       <div class="ask"><span class="when">During wave 0 · WP-02</span><b>Name the holdout authors</b><p>Someone who does not build writes at least 7 changes and 7 incidents outside this repository, including changes made close together (D38).</p></div>
       <div class="ask"><span class="when">During wave 1</span><b>Choose slice 2</b><p>One of our data products, ideally one that crosses a service, a stream and Snowflake or Databricks. Then arrange access to its repositories and warehouse.</p></div>

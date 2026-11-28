@@ -1,6 +1,6 @@
 # Factory spec pack
 
-What the agents build from and what the harness grades against, for the reference slice in [doc 07](../docs/07-reference-slice-otel-demo.md). The layout is the one doc 06 specifies under "Spec pack layout". Status: **approved at gate G1 on 28 November 2026** at commit `b86111d` ([gate record](gates/G1-2026-11-28.md); decisions D33 to D37 in [doc 08](../docs/08-build-decisions.md)). A change to a protected path now needs a new G1 record. The oracle was signed at gate G3 the same day ([record](gates/G3-2026-11-28.md)); a change to it needs a new G3 record.
+What the agents build from and what the harness grades against, for the reference slice in [doc 07](../docs/07-reference-slice-otel-demo.md). The layout is the one doc 06 specifies under "Spec pack layout". Status: **approved at gate G1 on 28 November 2026** at commit `b86111d` ([gate record](gates/G1-2026-11-28.md); decisions D33 to D37 in [doc 08](../docs/08-build-decisions.md)). Amendment 1, build-time collection (D39), was approved the same day ([record](gates/G1-amendment-1-2026-11-28.md)). A change to a protected path now needs a new G1 record. The oracle was signed at gate G3 the same day ([record](gates/G3-2026-11-28.md)); a change to it needs a new G3 record.
 
 ```text
 python3 code/spec_pack.py --check     # must report 0 errors before any work package starts
