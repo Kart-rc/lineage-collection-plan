@@ -1,0 +1,430 @@
+<title>Lineage Onboarding Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: a working guide for application teams. The self-check sits first (questions beside the result, stacked on phones),
+   then the journey as a real sequence, then entry points, service levels, templates and limits. Tokens match the sibling pages. */
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --sunk: #eceef2; --line: #d8dce3; --line-strong: #b9c0cb;
+  --ink: #16202c; --muted: #5a6575;
+  --accent: #0b6e62; --accent-soft: #d9efeb;
+  --warn: #9a5400; --warn-soft: #fbead2;
+  --ok: #2b7a3a; --ok-soft: #dcefe0;
+  --bad: #b8322f; --bad-soft: #f7dedc;
+  --gate: #6a4fa0; --gate-soft: #ebe4f6;
+  --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --sunk: #1e252e; --line: #2c3540; --line-strong: #44505e;
+  --ink: #e6ebf1; --muted: #9aa6b4;
+  --accent: #4fc2b1; --accent-soft: #163a36;
+  --warn: #f0a94b; --warn-soft: #3a2a12;
+  --ok: #6cc77e; --ok-soft: #1b3a23;
+  --bad: #f07a70; --bad-soft: #442120;
+  --gate: #b99ae0; --gate-soft: #2e2540; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --sunk: #1e252e; --line: #2c3540; --line-strong: #44505e;
+  --ink: #e6ebf1; --muted: #9aa6b4;
+  --accent: #4fc2b1; --accent-soft: #163a36;
+  --warn: #f0a94b; --warn-soft: #3a2a12;
+  --ok: #6cc77e; --ok-soft: #1b3a23;
+  --bad: #f07a70; --bad-soft: #442120;
+  --gate: #b99ae0; --gate-soft: #2e2540; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 var(--f-body); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 72px; }
+h1, h2, h3, h4 { font-family: var(--f-display); margin: 0; line-height: 1.2; text-wrap: balance; }
+h1 { font-size: clamp(30px, 5vw, 42px); font-weight: 700; letter-spacing: -0.015em; }
+h2 { font-size: clamp(21px, 3vw, 26px); font-weight: 600; }
+h3 { font-size: 17px; font-weight: 600; }
+h4 { font-size: 14.5px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+a { color: var(--accent); text-underline-offset: 2px; }
+code { font-family: var(--f-mono); font-size: 0.88em; background: var(--sunk); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.eyebrow { font: 500 12px/1.3 var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.muted { color: var(--muted); }
+.small { font-size: 13.5px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+section { padding-top: 46px; display: grid; gap: 16px; }
+.sec-head { display: grid; gap: 8px; }
+header { display: grid; gap: 12px; }
+.lede { font-size: 17.5px; line-height: 1.55; max-width: 66ch; }
+.three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 2px solid var(--ink); margin-top: 6px; }
+.three div { padding: 12px 16px 12px 0; display: grid; gap: 4px; align-content: start; }
+.three div + div { padding-left: 16px; border-left: 1px solid var(--line); }
+.three b { font: 600 15.5px var(--f-display); }
+.three span { font-size: 14px; color: var(--muted); line-height: 1.45; }
+@media (max-width: 720px) { .three { grid-template-columns: 1fr; } .three div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); } }
+
+/* self-check */
+.check { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 900px) { .check { grid-template-columns: 1fr; } }
+.qs { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 14px; }
+#questions { display: grid; gap: 16px; }
+.q { display: grid; gap: 7px; }
+.q label.qt, .q .qt { font-weight: 600; font-size: 14px; line-height: 1.35; }
+.opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.opts button { font: 500 13px var(--f-body); border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 11px; cursor: pointer; }
+.opts button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.qs-foot { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; border-top: 1px solid var(--line); padding-top: 12px; }
+.example-tag { font: 500 11.5px var(--f-mono); letter-spacing: 0.05em; text-transform: uppercase; color: var(--warn); background: var(--warn-soft); padding: 3px 7px; border-radius: 4px; }
+.btn { font: 600 13px var(--f-body); border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.result { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 14px; align-content: start; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); }
+@media (max-width: 900px) { .result { position: static; } }
+.level { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.level b { font: 700 24px var(--f-display); }
+.cov { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.cov-row { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; line-height: 1.45; }
+.cov-row .k { font-weight: 600; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font: 600 11.5px/1 var(--f-body); padding: 4px 8px; border-radius: 999px; white-space: nowrap; margin-right: 6px; }
+.chip::before { font: 700 11px/1 var(--f-mono); }
+.c-ok { background: var(--ok-soft); color: var(--ok); } .c-ok::before { content: "✓"; }
+.c-part { background: var(--warn-soft); color: var(--warn); } .c-part::before { content: "◐"; }
+.c-gap { background: var(--bad-soft); color: var(--bad); } .c-gap::before { content: "○"; }
+.c-na { background: var(--sunk); color: var(--muted); } .c-na::before { content: "–"; }
+.next { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; }
+@media (max-width: 420px) { .cov-row { grid-template-columns: 1fr; gap: 2px; } }
+
+/* journey */
+.journey-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; padding: 3px; gap: 3px; background: var(--surface); }
+.seg button { font: 600 13px var(--f-body); border: 0; background: transparent; color: var(--muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+.steps { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+@media (max-width: 900px) { .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.step { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 10px 11px; cursor: pointer; display: grid; gap: 3px; color: var(--ink); font: inherit; }
+.step .n { font: 600 12px var(--f-mono); color: var(--muted); }
+.step b { font: 600 14px/1.25 var(--f-display); }
+.step .who { font-size: 12px; color: var(--muted); }
+.step[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.step[aria-selected="true"] .n { color: var(--accent); }
+.step.off { opacity: 0.45; }
+.step-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; }
+@media (max-width: 760px) { .step-panel { grid-template-columns: 1fr; } }
+.step-panel .full { grid-column: 1 / -1; }
+.step-panel h4 { font: 500 12px var(--f-mono); text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 4px; }
+.step-panel p, .step-panel li { font-size: 14.5px; line-height: 1.55; }
+.step-panel ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.done { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 8px 12px; border-radius: 0 8px 8px 0; font-size: 14px; }
+
+/* entry points, tables, templates */
+.cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+.col { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 10px; align-content: start; }
+.col ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+.col li { font-size: 14px; line-height: 1.45; padding-left: 14px; position: relative; }
+.col li::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.col li b { font-weight: 600; }
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 12.5px var(--f-body); color: var(--muted); background: var(--sunk); }
+tr:last-child td { border-bottom: 0; }
+td.num { font-family: var(--f-mono); font-size: 13px; white-space: nowrap; }
+.templates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .templates { grid-template-columns: 1fr; } }
+.tpl { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.tpl-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+pre { margin: 0; background: var(--sunk); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font: 12.5px/1.55 var(--f-mono); }
+.limits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 24px; }
+@media (max-width: 760px) { .limits { grid-template-columns: 1fr; } }
+.limits div { border-top: 1px solid var(--line); padding-top: 10px; display: grid; gap: 3px; }
+.limits b { font-weight: 600; font-size: 14.5px; }
+.limits span { font-size: 14px; color: var(--muted); line-height: 1.5; }
+details.faq { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+details.faq summary { cursor: pointer; font-weight: 600; font-size: 14.5px; }
+details.faq p { margin-top: 8px; font-size: 14px; }
+.faqs { display: grid; gap: 8px; }
+footer { margin-top: 52px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Element-level lineage · for application teams · 28 November 2026</div>
+    <h1>Lineage onboarding guide</h1>
+    <p class="lede">How an application flow gets its lineage captured and managed: where to start, what each step asks of your team, and what you get back. Check your flow first; the guide below explains each step.</p>
+    <div class="three">
+      <div><b>You do three things</b><span>Onboard each repository with one change, name owners and tiers, and write checks and tier 1 contracts.</span></div>
+      <div><b>The platform does the rest</b><span>Reads your code on every pull request and merge, collects runtime evidence centrally, and keeps a versioned field-level graph.</span></div>
+      <div><b>You get back</b><span>Impact reports on pull requests, an API for "what breaks if I change this", and alerts that arrive with the cause ranked.</span></div>
+    </div>
+  </header>
+
+  <!-- SELF-CHECK -->
+  <section id="self-check" aria-labelledby="h-check">
+    <div class="sec-head"><div class="eyebrow">Step 0 in a minute</div><h2 id="h-check">Check your flow</h2>
+      <p class="muted">Answer for the flow you want covered. The result shows the level to aim for, what coverage to expect, and where to start. It opens filled in with the platform's reference flow as an example.</p></div>
+    <div class="check">
+      <form class="qs" id="qs" onsubmit="return false">
+        <div id="questions"></div>
+        <div class="qs-foot"><span class="example-tag" id="example-tag">Example: reference order flow</span><button type="button" class="btn" id="btn-clear">Start with my flow</button><button type="button" class="btn" id="btn-example">Show the example again</button></div>
+      </form>
+      <aside class="result" aria-live="polite" id="result"></aside>
+    </div>
+  </section>
+
+  <!-- JOURNEY -->
+  <section id="journey" aria-labelledby="h-journey">
+    <div class="journey-head">
+      <div class="sec-head"><div class="eyebrow">What to expect</div><h2 id="h-journey">Seven steps from intake to steady state</h2></div>
+      <div class="seg" role="group" aria-label="Level">
+        <button type="button" id="lv-covered" data-lv="covered" aria-pressed="true">Covered</button>
+        <button type="button" id="lv-certified" data-lv="certified" aria-pressed="false">Certified</button>
+      </div>
+    </div>
+    <p class="muted small" id="level-note"></p>
+    <div class="steps" role="tablist" aria-label="Steps" id="steps"></div>
+    <div class="step-panel" id="step-panel" aria-live="polite"></div>
+  </section>
+
+  <!-- ENTRY POINTS -->
+  <section id="entry" aria-labelledby="h-entry">
+    <div class="sec-head"><div class="eyebrow">The entry points</div><h2 id="h-entry">How a flow gets in, what is collected, and where you use it</h2></div>
+    <div class="cols">
+      <div class="col"><h3>Getting in</h3><ul>
+        <li><b>One change per repository:</b> a <code>.lineage.yaml</code> file and the <code>lineage-ci</code> step in CI.</li>
+        <li><b>Owners and tiers</b> in the catalog, one line per service and dataset.</li>
+        <li><b>Contracts</b> for tier 1 data: fields, types, compatibility, forbidden fields.</li>
+        <li><b>Checks</b> on what matters: rates, errors, lag, latency, data quality.</li>
+      </ul></div>
+      <div class="col"><h3>What the platform collects</h3><ul>
+        <li><b>OpenTelemetry traces</b> with a <code>service.name</code> matching <code>.lineage.yaml</code>.</li>
+        <li><b>Message spans</b> that name their topic, joined on the topic name.</li>
+        <li><b>Database spans or warehouse query history</b> (Snowflake, Databricks) for column reads and writes.</li>
+        <li><b>OpenLineage</b> from Spark, dbt, Flink and Feast, switched on centrally.</li>
+        <li><b>Change events:</b> deploys, flag changes, merges.</li>
+      </ul></div>
+      <div class="col"><h3>Where you use it</h3><ul>
+        <li><b>Pull requests:</b> an impact report with readers, owners and a gate result.</li>
+        <li><b><code>/impact</code> API and agent tool:</b> ask before a pull request exists.</li>
+        <li><b>Alerts:</b> the path upstream, ranked causes and blast radius.</li>
+        <li><b><code>/upstream</code>, <code>/diff</code>, <code>/explain</code>:</b> history, changes and evidence.</li>
+        <li><b>Owner queue:</b> edges to confirm or dispute.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- SERVICE LEVELS -->
+  <section id="levels" aria-labelledby="h-levels">
+    <div class="sec-head"><div class="eyebrow">What you can count on</div><h2 id="h-levels">Service levels, each tied to a requirement</h2></div>
+    <div class="tbl"><table>
+      <thead><tr><th>What</th><th>Bar</th><th>Requirement</th></tr></thead>
+      <tbody>
+        <tr><td>First full scan after onboarding a repository</td><td>Within 1 hour</td><td class="num">XC-7</td></tr>
+        <tr><td>Impact report on a pull request</td><td>Within 5 minutes at p95</td><td class="num">IA-1</td></tr>
+        <tr><td>A merged change visible in the graph</td><td>Within 15 minutes at p95</td><td class="num">IN-10</td></tr>
+        <tr><td>Alert enriched with path, ranked causes and blast radius</td><td>Within 2 minutes</td><td class="num">IR-1</td></tr>
+        <tr><td>Accuracy on a certified flow</td><td>Field-edge precision and recall at least 90%</td><td class="num">BL-6</td></tr>
+        <tr><td>Consumers that actually broke, listed in the report</td><td>At least 80% on the change replays</td><td class="num">IA-8</td></tr>
+        <tr><td>True cause of an incident</td><td>First at least 70% of the time, in the top three at least 90%</td><td class="num">IR-5</td></tr>
+        <tr><td>Your build and your services</td><td>Never blocked or slowed by the platform; the CI step fails open</td><td class="num">XC-3, IA-6</td></tr>
+        <tr><td>What is stored</td><td>Metadata only: names, schemas, expressions, counts and times</td><td class="num">XC-1</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- TEMPLATES -->
+  <section id="templates" aria-labelledby="h-tpl">
+    <div class="sec-head"><div class="eyebrow">Copy and adapt</div><h2 id="h-tpl">Three files to start from</h2></div>
+    <div class="templates">
+      <div class="tpl"><div class="tpl-head"><h4>.lineage.yaml</h4><button type="button" class="btn" data-copy="t-yaml">Copy</button></div>
+<pre id="t-yaml">version: 1
+repository: payments-api
+environment: prod
+owner: team-payments
+services:
+  - {name: checkout, path: src/checkout,
+     language: go, extractors: [go-assembly]}
+schemas:
+  - {kind: protobuf, path: proto/orders.proto}
+build: {reuse_artifacts: true, max_minutes: 5}</pre>
+        <p class="small muted">Service names must equal the <code>service.name</code> your services emit at runtime.</p></div>
+      <div class="tpl"><div class="tpl-head"><h4>CI step, any CI system</h4><button type="button" class="btn" data-copy="t-ci">Copy</button></div>
+<pre id="t-ci"># on pull requests
+lineage-ci validate
+lineage-ci scan --stage proposed \
+  --commit $SHA --base $BASE_SHA --pr $PR_NUMBER
+lineage-ci impact --pr $PR_NUMBER --comment
+
+# on merges to the default branch
+lineage-ci scan --stage merged --commit $SHA</pre>
+        <p class="small muted">A GitHub Action wraps the same commands. The runner arrives in wave 1 (WP-18).</p></div>
+      <div class="tpl"><div class="tpl-head"><h4>A check</h4><button type="button" class="btn" data-copy="t-check">Copy</button></div>
+<pre id="t-check">- id: orders-rate
+  node: kafka://prod/orders
+  metric: kafka.partition.current_offset
+  where: {topic: orders}
+  fail_if: rate_ratio &lt; 0.5 or rate_ratio &gt; 3.0
+  min_events: 20</pre>
+        <p class="small muted">Set thresholds before any incident and never tune them on one.</p></div>
+    </div>
+  </section>
+
+  <!-- LIMITS & AVAILABILITY -->
+  <section id="limits" aria-labelledby="h-limits">
+    <div class="sec-head"><div class="eyebrow">Set expectations</div><h2 id="h-limits">What it does not do, and when each part arrives</h2></div>
+    <div class="limits">
+      <div><b>Code-only edges are probable</b><span>Runtime evidence is what confirms them, so turn on tracing and query history early.</span></div>
+      <div><b>A technology without an extractor is a stated gap</b><span>You get table-level edges and runtime evidence until an extractor exists. One extractor serves every flow that uses it.</span></div>
+      <div><b>Analysis starts from a failing check</b><span>A silent failure needs its own check. In the platform's test runs, a silent cart failure and a traffic flood fired none.</span></div>
+      <div><b>Metadata only</b><span>No data values and no row-level provenance. Code goes to a model only for units no rule can read, through the approved endpoint.</span></div>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>After</th><th>An onboarded flow gets</th></tr></thead>
+      <tbody>
+        <tr><td><b>Today</b></td><td>The quick map (step 1), run by the platform team with the prototypes</td></tr>
+        <tr><td><b>Wave 1</b></td><td>Service-level lineage from traces; repository onboarding with the runner; owners and tiers; the owner queue</td></tr>
+        <tr><td><b>Wave 2</b></td><td>Field-level lineage from code: protobuf and Avro, Go, C# with Entity Framework, SQL and dbt, PyFlink and Feast first; Kotlin and others follow</td></tr>
+        <tr><td><b>Wave 3</b></td><td>PR impact reports and the contract gate</td></tr>
+        <tr><td><b>Wave 4</b></td><td>Alerts with the upstream path and ranked causes</td></tr>
+        <tr><td><b>Wave 5</b></td><td>Search, a lineage UI, and projections into Unity Catalog and Snowflake Horizon</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" aria-labelledby="h-faq">
+    <div class="sec-head"><div class="eyebrow">Questions teams ask</div><h2 id="h-faq">Before you start</h2></div>
+    <div class="faqs">
+      <details class="faq"><summary>Do we need a golden graph?</summary><p>Only to certify the flow. Covered flows rely on the scoring, the owner queue and sampled audits.</p></details>
+      <details class="faq"><summary>Our CI is not GitHub.</summary><p>The <code>lineage-ci</code> CLI is the product. Run the same commands in any CI system; the GitHub Action only wraps them.</p></details>
+      <details class="faq"><summary>Will this slow our builds or services?</summary><p>A pull request scan stays within 5 minutes at p95 and reuses what your build already produces. Runtime collection reads exported telemetry and never sits in a request path.</p></details>
+      <details class="faq"><summary>A service is written in a language nobody supports.</summary><p>It shows as a gap with a reason, its runtime edges still appear, and a model can propose candidate edges that never become confirmed on their own. Ask for an extractor; one serves every flow that uses that language.</p></details>
+      <details class="faq"><summary>Who owns an edge?</summary><p>The owner of the dataset or service it writes to, as recorded in the catalog. That owner receives the queue items and review requests.</p></details>
+      <details class="faq"><summary>What leaves our systems?</summary><p>Metadata only. Source code goes to a model only for units no rule can read, and only through the approved endpoint in the platform account.</p></details>
+    </div>
+  </section>
+
+  <footer>Source: <code>docs/10-onboarding-an-application-flow.md</code>, with the contracts in <code>factory/specs/build-collection/</code> and the decisions in doc 08 (D7, D8, D22, D27, D29, D39). The example flow is the OpenTelemetry Demo order flow, the platform's reference slice.</footer>
+</div>
+
+<script>
+(() => {
+  /* ---------------- self-check ---------------- */
+  const LANGS = [
+    ["go", "Go", "w2"], ["csharp", "C# with Entity Framework", "w2"], ["kotlin", "Kotlin", "after"], ["sql", "SQL or dbt", "w2"],
+    ["pyflink", "PyFlink, Feast, MLflow", "w2"], ["java", "Java", "after"], ["python", "Python services", "after"],
+    ["ts", "TypeScript or JavaScript", "after"], ["rust", "Rust", "after"], ["other", "Something else", "gap"]
+  ];
+  const Q = [
+    { id: "trace", t: "Do the flow's services emit OpenTelemetry traces with a service.name?", o: [["all", "All of them"], ["some", "Some"], ["none", "None"]] },
+    { id: "msg", t: "Do message hops (Kafka or queues) name their topic in spans?", o: [["yes", "Yes"], ["no", "No"], ["na", "No queues"]] },
+    { id: "db", t: "Can the platform see database or warehouse access?", o: [["spans", "Statements in database spans"], ["history", "Warehouse query history"], ["neither", "Neither"]] },
+    { id: "schema", t: "How are payloads defined?", o: [["typed", "Protobuf or Avro"], ["orm", "ORM models or DDL only"], ["untyped", "Untyped JSON"]] },
+    { id: "langs", t: "Which languages and tools does the flow's code use?", multi: true, o: LANGS.map(l => [l[0], l[1]]) },
+    { id: "ci", t: "Where do the builds run?", o: [["github", "GitHub Actions"], ["other", "Another CI system"], ["none", "No CI"]] },
+    { id: "owners", t: "Is there a named owner for every service and dataset?", o: [["yes", "Yes"], ["partly", "Partly"], ["no", "No"]] },
+    { id: "crit", t: "Does the flow move money, personal data or regulatory reporting?", o: [["yes", "Yes"], ["no", "No"]] }
+  ];
+  const EXAMPLE = { trace: "all", msg: "yes", db: "spans", schema: "typed", langs: ["go", "csharp", "kotlin", "sql", "java", "python", "ts", "rust", "other"], ci: "github", owners: "yes", crit: "yes" };
+  let A = JSON.parse(JSON.stringify(EXAMPLE)), isExample = true;
+  const qs = document.getElementById("questions");
+  qs.innerHTML = Q.map(q => `<div class="q" role="group" aria-labelledby="qt-${q.id}"><span class="qt" id="qt-${q.id}">${q.t}</span><div class="opts">${q.o.map(([v, l]) => `<button type="button" id="o-${q.id}-${v}" data-q="${q.id}" data-v="${v}" aria-pressed="false">${l}</button>`).join("")}</div></div>`).join("");
+  qs.addEventListener("click", e => {
+    const b = e.target.closest("button[data-q]"); if (!b) return;
+    const q = Q.find(x => x.id === b.dataset.q), v = b.dataset.v;
+    if (q.multi) { const s = new Set(A[q.id] || []); s.has(v) ? s.delete(v) : s.add(v); A[q.id] = [...s]; }
+    else A[q.id] = A[q.id] === v ? null : v;
+    isExample = false; render();
+  });
+  document.getElementById("btn-clear").addEventListener("click", () => { A = { langs: [] }; isExample = false; render(); });
+  document.getElementById("btn-example").addEventListener("click", () => { A = JSON.parse(JSON.stringify(EXAMPLE)); isExample = true; render(); });
+
+  const chip = (cls, t) => `<span class="chip ${cls}">${t}</span>`;
+  function render() {
+    Q.forEach(q => q.o.forEach(([v]) => {
+      const on = q.multi ? (A[q.id] || []).includes(v) : A[q.id] === v;
+      document.getElementById(`o-${q.id}-${v}`).setAttribute("aria-pressed", String(!!on));
+    }));
+    document.getElementById("example-tag").hidden = !isExample;
+    const answered = Q.filter(q => q.multi ? (A[q.id] || []).length : A[q.id]).length;
+    const res = document.getElementById("result");
+    if (!answered) {
+      res.innerHTML = `<div class="eyebrow">Your result</div><p>Answer the questions on the left. The expected level, coverage and first steps appear here as you go.</p>`;
+      return;
+    }
+    const level = A.crit === "yes" ? "Certified" : A.crit === "no" ? "Covered" : "Covered, or certified if critical";
+    const rows = [];
+    rows.push(["Calls between services", A.trace === "all" ? chip("c-ok", "Confirmed at runtime") + "from traces, plus code" : A.trace === "some" ? chip("c-part", "Partly") + "runtime where traced; code only for the rest" : A.trace === "none" ? chip("c-gap", "Code only") + "probable until traces exist; gateway logs cover the front door" : chip("c-na", "Not answered")]);
+    rows.push(["Message hops", A.msg === "yes" ? chip("c-ok", "Confirmed at runtime") + "joined on the topic name" : A.msg === "no" ? chip("c-part", "Code only") + "add the destination name to producer and consumer spans" : A.msg === "na" ? chip("c-na", "None in this flow") : chip("c-na", "Not answered")]);
+    rows.push(["Data stores", A.db === "spans" || A.db === "history" ? chip("c-ok", "Columns at runtime") + (A.db === "spans" ? "parsed from statements in spans" : "from warehouse query history") : A.db === "neither" ? chip("c-part", "Code and DDL only") + "grant query-history access or add statements to spans" : chip("c-na", "Not answered")]);
+    rows.push(["Field identity", A.schema === "typed" ? chip("c-ok", "Strong") + "field numbers and types from schemas" : A.schema === "orm" ? chip("c-part", "Medium") + "columns from ORM and DDL; payload fields from code" : A.schema === "untyped" ? chip("c-gap", "Weak") + "field names only from code; renames are hard to tell from removals" : chip("c-na", "Not answered")]);
+    const L = A.langs || [];
+    const by = k => LANGS.filter(l => L.includes(l[0]) && l[2] === k).map(l => l[1]);
+    const lang = [];
+    if (by("w2").length) lang.push(chip("c-ok", "Wave 2") + by("w2").join(", ") + ", each with an accuracy bar");
+    if (by("after").length) lang.push(chip("c-part", "After Go") + by("after").join(", ") + ": in the service scanner's scope (WP-23), no accuracy bar yet; until then opaque edges plus runtime");
+    if (by("gap").length) lang.push(chip("c-gap", "Stated gap") + by("gap").join(", ") + ": table level plus runtime; model-proposed candidates");
+    rows.push(["Field lineage from code", lang.length ? lang.join("<br>") : chip("c-na", "Not answered")]);
+    rows.push(["Pull request reports", A.ci === "github" || A.ci === "other" ? chip("c-ok", "Yes") + (A.ci === "github" ? "through the GitHub Action" : "the same CLI in your CI") : A.ci === "none" ? chip("c-gap", "No") + "without CI there is no static evidence and no pre-merge impact" : chip("c-na", "Not answered")]);
+    rows.push(["Routing to owners", A.owners === "yes" ? chip("c-ok", "Ready") : A.owners === "partly" || A.owners === "no" ? chip("c-part", "Step 3 first") + "the owner queue and review requests need owners" : chip("c-na", "Not answered")]);
+    const next = [];
+    next.push("Ask the platform team for a quick map from a stage capture. It works today.");
+    if (A.trace === "some" || A.trace === "none") next.push("Add OpenTelemetry tracing, with service.name equal to the names in .lineage.yaml.");
+    if (A.msg === "no") next.push("Add the topic name (messaging.destination.name) to producer and consumer spans.");
+    if (A.db === "neither") next.push("Give the platform read access to warehouse query history, or enable statements in database spans.");
+    if (A.ci !== "none") next.push("Onboard each repository: one pull request with .lineage.yaml and the lineage-ci step (wave 1).");
+    else next.push("Set up CI first; without it the flow gets runtime lineage only.");
+    if (A.owners && A.owners !== "yes") next.push("Name an owner and a tier for every service and dataset.");
+    next.push("Write checks for the flow, plus contracts for its tier 1 data.");
+    if (A.crit === "yes") next.push("Plan certification: about two hours per owner for the golden graph, signed at gate G3.");
+    if (by("gap").length || by("after").length) next.push("Ask for the extractors you need; each serves every flow that uses that technology.");
+    res.innerHTML = `
+      <div class="eyebrow">${isExample ? "Example result: reference order flow" : "Your result"}</div>
+      <div class="level"><span class="muted small">Aim for</span><b>${level}</b></div>
+      <div class="cov">${rows.map(([k, v]) => `<div class="cov-row"><span class="k">${k}</span><span>${v}</span></div>`).join("")}</div>
+      <div><h4 style="margin-bottom:6px">First steps</h4><ol class="next">${next.map(n => `<li>${n}</li>`).join("")}</ol></div>`;
+  }
+  render();
+
+  /* ---------------- journey ---------------- */
+  const STEPS = [
+    { n: 0, t: "Intake", who: "Team and platform", you: "Name the flow, its repositories, services and data stores, owners and tier.", platform: "Checks what the flow already emits and which technologies have extractors.", get: "A coverage list: field level from code, runtime only, or a stated gap, hop by hop.", done: "The coverage list is agreed with the flow's lead.", effort: "An hour, mostly the self-check above." },
+    { n: 1, t: "Quick map", who: "Platform", you: "Point the platform at the flow's stage environment.", platform: "Adds the capture add-on to your OpenTelemetry collector and scores what it sees. Works today with the prototypes.", get: "A map of services, topics and tables, with columns written. On the reference flow it found every expected service and topic edge.", done: "Every service and data store is on the map, or on the gap list with a reason.", effort: "About a day, by the platform team." },
+    { n: 2, t: "Onboard repositories", who: "Team", you: "One pull request per repository: .lineage.yaml and the lineage-ci step.", platform: "Scans the default branch, then every pull request and merge; re-reads only what changed.", get: "First full scan within 1 hour; a report on every pull request within 5 minutes.", done: "The first scan's manifest lists a unit for every configured service, schema and project.", effort: "One small pull request per repository. A wrong file never fails the build." },
+    { n: 3, t: "Owners, contracts, checks", who: "Team", you: "Owners and tiers in the catalog; contracts for tier 1 data; checks on what matters.", platform: "Routes questions and reviews to owners; runs the checks; enforces the contracts.", get: "Routing, gate rules and alerts that start incident analysis.", done: "Every node has an owner and a tier; every tier 1 element has a contract and a check.", effort: "One line per service and dataset; a contract and a check per tier 1 element." },
+    { n: 4, t: "Reconcile", who: "Owners", you: "Confirm or dispute the edges in the first owner queue.", platform: "Lists edges seen only in code, only at runtime, or in disagreement.", get: "Edges move from probable to confirmed or verified.", done: "The first queue is empty and every tier 1 path is confirmed or verified.", effort: "A few minutes per item; the queue shrinks as runtime evidence arrives." },
+    { n: 5, t: "Certify", who: "Owners and platform", certOnly: true, you: "Write the golden graph with the platform, each edge cited; sign it at gate G3.", platform: "Builds change and incident corpora, a third held out and written by people who do not build; reports accuracy weekly.", get: "Measured accuracy (at least 90% precision and recall) and a pull request gate allowed to block tier 1 contract breaks.", done: "G3 is signed and the first weekly report meets 90%.", effort: "About two hours per owner in the first week (the plan's estimate)." },
+    { n: 6, t: "Steady state", who: "Platform", you: "Keep .lineage.yaml, owners and checks current as the flow changes.", platform: "Re-scans changed units on merge; keeps every version of every edge; marks edges dormant after 30 days without runtime evidence.", get: "New edges within 15 minutes; lineage as of any past time; incidents recorded from landing to fix.", done: "Ongoing.", effort: "Part of normal change work." }
+  ];
+  let lv = "covered", cur = 0;
+  const stepsEl = document.getElementById("steps"), panel = document.getElementById("step-panel");
+  function drawSteps() {
+    stepsEl.innerHTML = STEPS.map((s, i) => `<button type="button" role="tab" class="step${s.certOnly && lv === "covered" ? " off" : ""}" id="step-${s.n}" aria-selected="${i === cur}"><span class="n">Step ${s.n}</span><b>${s.t}</b><span class="who">${s.who}${s.certOnly ? " · certified only" : ""}</span></button>`).join("");
+    stepsEl.querySelectorAll(".step").forEach((b, i) => b.addEventListener("click", () => { cur = i; drawSteps(); }));
+    const s = STEPS[cur];
+    panel.innerHTML = `
+      <div class="full"><h3>Step ${s.n}: ${s.t}</h3>${s.certOnly && lv === "covered" ? '<p class="small muted">Only for certified flows. Switch the level above to include it.</p>' : ""}</div>
+      <div><h4>Your team</h4><p>${s.you}</p></div>
+      <div><h4>The platform</h4><p>${s.platform}</p></div>
+      <div><h4>You get</h4><p>${s.get}</p></div>
+      <div><h4>Effort</h4><p>${s.effort}</p></div>
+      <div class="full done"><b>Done when:</b> ${s.done}</div>`;
+    document.getElementById("level-note").textContent = lv === "covered"
+      ? "Covered: steps 0 to 4, then steady state. Current, scored lineage with pull request reports that warn, and incident analysis. Right for most flows."
+      : "Certified: all seven steps. Adds a signed golden graph, measured accuracy, and a pull request gate that may block tier 1 contract breaks. For flows that move money, personal data or regulatory reporting.";
+  }
+  document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
+    lv = b.dataset.lv; document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    if (lv === "covered" && STEPS[cur].certOnly) cur = 4; drawSteps();
+  }));
+  drawSteps();
+
+  /* ---------------- copy ---------------- */
+  document.querySelectorAll("[data-copy]").forEach(btn => btn.addEventListener("click", () => {
+    const el = document.getElementById(btn.dataset.copy), text = el.textContent;
+    const done = () => { btn.textContent = "Copied"; setTimeout(() => btn.textContent = "Copy", 1500); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = "Selected"; setTimeout(() => btn.textContent = "Copy", 2000); };
+    try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+  }));
+})();
+</script>
