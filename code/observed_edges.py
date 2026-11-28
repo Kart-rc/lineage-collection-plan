@@ -20,8 +20,20 @@ from collections import Counter, defaultdict
 try:
     import sqlglot
     from sqlglot import exp
-except ImportError:          # the regex fallback still finds tables, not columns
+    from sqlglot.dialects.postgres import Postgres
+    from sqlglot.errors import ErrorLevel
+except ImportError:
     sqlglot = None
+
+
+if sqlglot:
+    class _MetadataPostgresParser(Postgres.Parser):
+        def _warn_unsupported(self):
+            """SQLGlot's default hook logs raw SQL even with strict errors.
+
+            Override only this parser instance's behavior; never change the
+            shared logger or process stderr. Unsupported nodes are skipped.
+            """
 
 SERVER, CLIENT, PRODUCER, CONSUMER = 2, 3, 4, 5
 KIND = {"SPAN_KIND_SERVER": SERVER, "SPAN_KIND_CLIENT": CLIENT, "SPAN_KIND_PRODUCER": PRODUCER, "SPAN_KIND_CONSUMER": CONSUMER}
@@ -84,11 +96,19 @@ class Resolver:
 
 # ---------------------------------------------------------------- database statements
 def sql_access(text):
-    """[(verb, table, [columns])] for every statement in a possibly batched SQL text."""
+    """Recognized SQL projected to metadata, without logging or retaining values.
+
+    Unsupported commands and parser failures produce no access mappings. Regex
+    fallback is unsafe here: text inside a literal can resemble a table access.
+    Parser exceptions can contain the original query and are never reported.
+    """
     out = []
     if sqlglot:
         try:
-            for st in sqlglot.parse(text, read="postgres"):
+            dialect = Postgres()
+            parser = _MetadataPostgresParser(dialect=dialect, error_level=ErrorLevel.IMMEDIATE,
+                                            error_message_context=0)
+            for st in parser.parse(dialect.tokenize(text), text):
                 if isinstance(st, exp.Insert):
                     schema = st.this if isinstance(st.this, exp.Schema) else None
                     t = schema.this if schema else st.this
@@ -99,21 +119,15 @@ def sql_access(text):
                 elif isinstance(st, exp.Delete):
                     t = st.find(exp.Table)
                     out.append(("WRITES", f"{t.db}.{t.name}".strip("."), []))
-                elif st is not None and st.find(exp.Select):
+                elif st is not None and not isinstance(st, exp.Command) and st.find(exp.Select):
                     tabs = {t.alias_or_name: f"{t.db}.{t.name}".strip(".") for t in st.find_all(exp.Table)}
                     for alias, table in tabs.items():
                         cols = sorted({c.name for c in st.find_all(exp.Column) if c.table == alias or (not c.table and len(tabs) == 1)})
                         out.append(("READS", table, cols))
-            if out:
-                return out
+            return out
         except Exception:
-            out = []
-    for stmt in filter(str.strip, text.split(";")):
-        m = TABLE.search(stmt)
-        if m:
-            verb = "WRITES" if re.match(r"\s*(insert|update|delete|merge)", stmt, re.I) else "READS"
-            out.append((verb, m.group(1).replace('"', ""), []))
-    return out
+            return []
+    return []
 
 
 # ---------------------------------------------------------------- building edges
