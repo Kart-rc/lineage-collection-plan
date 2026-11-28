@@ -1,0 +1,4062 @@
+{
+  "capture": {
+    "failure_categories": [],
+    "raw_files": {
+      "logs.jsonl": {
+        "complete_jsonl_lines": 1901,
+        "jsonl_validated": false,
+        "max_complete_jsonl_line_bytes": 122875,
+        "present": true,
+        "processed": false,
+        "sha256": "de3dee8389393a9c123187efae4e4dbab1fc2ed41ce467408b83716a52639c31",
+        "size_bytes": 5935029,
+        "trailing_bytes": 0
+      },
+      "metrics.jsonl": {
+        "complete_jsonl_lines": 482,
+        "jsonl_validated": false,
+        "max_complete_jsonl_line_bytes": 153764,
+        "present": true,
+        "processed": false,
+        "sha256": "e6dad21bdcd2200cae671c67cf8307fe445e60985ce05962b0f991b2a122ffd1",
+        "size_bytes": 11178167,
+        "trailing_bytes": 0
+      },
+      "traces.jsonl": {
+        "complete_jsonl_lines": 1496,
+        "jsonl_validated": false,
+        "max_complete_jsonl_line_bytes": 69509,
+        "present": true,
+        "processed": false,
+        "sha256": "309ada2bbecc96a1514885ba2c1946fadcb60db7750cfe010225ce46d194fbc9",
+        "size_bytes": 11796104,
+        "trailing_bytes": 0
+      }
+    }
+  },
+  "claims": {
+    "full_in10_p95_measured": false,
+    "full_wp03_accepted": false,
+    "g4_approved": false,
+    "holdout_measured": false,
+    "three_cold_starts": false
+  },
+  "collector_health": {
+    "available": true,
+    "category": "input_limit",
+    "sent": 0,
+    "status": "error",
+    "updated_at": 1795871488.892071
+  },
+  "failure_categories": [
+    "load_services_not_healthy",
+    "forwarding_proof_failed",
+    "smoke_failed"
+  ],
+  "first_failure": "load_services_not_healthy",
+  "first_failure_at": "2026-11-28T13:11:30.052404Z",
+  "flow": {
+    "baseline": {
+      "accepted_receipts": 10,
+      "graph_nodes": 10,
+      "graph_revisions": 6,
+      "graph_versions": 6,
+      "outbox_sent": 5,
+      "outbox_total": 6
+    },
+    "final": {
+      "accepted_receipts": 976,
+      "graph_nodes": 22,
+      "graph_revisions": 227,
+      "graph_versions": 1011,
+      "outbox_sent": 31,
+      "outbox_total": 31
+    },
+    "holds": false
+  },
+  "identities": {
+    "demo_commit": "dedc0178918e260823323b8d95005a8cb924b007",
+    "probe_sha256": "29d64f078a501a3fac6b912f6554bb0d776b5f7d7e8a9f9fe1bb7a8bfb863433",
+    "source_commit": "282433d4c933db13b57e9f9a557e65522607392e",
+    "source_sha256": {
+      "twin/images.lock.json": "d2938f8d614c63cb867394355b5d8566216a630fca48ff88e776cbb84d4ce0b3",
+      "twin/pilot.py": "5c36a0f9af8c90e31632c2a8d81754ec4580e4c1b93d6dfe8c5f387d7cedf220",
+      "twin/probe-toolchain.json": "10337ce5fb839b4e92f4cdada9406e6ed61f944d9b2b23657cfdd9eb4cefe1b1",
+      "twin/smoke.py": "116f71fa21bee1291468de5ed882f92c40bd6f5b7c1b1fb4015d15503411c299",
+      "twin/start.py": "1a93b5bd42489a5d59ca1ed1afe98c8ecaba5f4cb419869aebd5e625dcdd4912"
+    },
+    "worker_image_id": "sha256:1e66be47aee7d66fcec196c31bf6e958b467cdfa8b0e80b94fe41f61f08dbb7a"
+  },
+  "limits": {
+    "emergency_memory_available_bytes": 268435456,
+    "max_raw_bytes": 4294967296,
+    "minimum_disk_free_bytes": 1073741824,
+    "minimum_load_seconds": 600,
+    "sample_interval_seconds": 30,
+    "score_memory_limit_mb": 8192,
+    "score_timeout_seconds": 180,
+    "startup_seconds": 900
+  },
+  "load": {
+    "all_healthy": false,
+    "samples": [
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 0.000025,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 30.000567,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 60.000075,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 90.000081,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 120.000081,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 150.000082,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 180.000076,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 210.000085,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 240.000088,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 270.000078,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 300.000086,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 330.000087,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 360.000565,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 390.000085,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 420.00187,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 450.000093,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 480.000098,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 510.000087,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 540.000075,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": true,
+        "elapsed_seconds": 570.000076,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      },
+      {
+        "all_healthy": false,
+        "elapsed_seconds": 600.00009,
+        "exact_service_set": true,
+        "services": [
+          {
+            "health": "healthy",
+            "service": "accounting",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "ad",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "astronomy-db",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "cart",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "checkout",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "currency",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "email",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "flagd-ui",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "fraud-detection",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "frontend-proxy",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "image-provider",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "kafka",
+            "state": "running"
+          },
+          {
+            "health": "unhealthy",
+            "service": "lineage-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-kafka",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-neo4j",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-postgres",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "lineage-worker",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "load-generator",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "otel-collector",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "payment",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "product-catalog",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "quote",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "recommendation",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "shipping",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "telemetry-docs",
+            "state": "running"
+          },
+          {
+            "health": "healthy",
+            "service": "valkey-cart",
+            "state": "running"
+          }
+        ],
+        "unexpected_count": 0
+      }
+    ],
+    "traffic": {
+      "all_active": true,
+      "baseline": {
+        "available": true,
+        "num_requests": 11,
+        "state": "running",
+        "user_count": 5
+      },
+      "counters_monotonic": true,
+      "holds": true,
+      "request_count_delta": 582,
+      "request_count_increased": true,
+      "samples": [
+        {
+          "available": true,
+          "elapsed_seconds": 0.32876105000002553,
+          "num_requests": 11,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 30.538685985,
+          "num_requests": 49,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 60.48038461500002,
+          "num_requests": 67,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 90.79420254200002,
+          "num_requests": 91,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 120.432963989,
+          "num_requests": 120,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 150.63814261000002,
+          "num_requests": 153,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 180.42987291900002,
+          "num_requests": 192,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 210.637991939,
+          "num_requests": 217,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 240.736622155,
+          "num_requests": 253,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 270.37985102799996,
+          "num_requests": 276,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 300.48175294500004,
+          "num_requests": 319,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 330.94248055599996,
+          "num_requests": 340,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 360.484109483,
+          "num_requests": 364,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 390.78470766399994,
+          "num_requests": 402,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 421.049812181,
+          "num_requests": 430,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 450.63673867299997,
+          "num_requests": 453,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 480.58324570599996,
+          "num_requests": 495,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 510.896573,
+          "num_requests": 521,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 540.531863513,
+          "num_requests": 542,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 570.430102505,
+          "num_requests": 569,
+          "state": "running",
+          "user_count": 5
+        },
+        {
+          "available": true,
+          "elapsed_seconds": 600.535789914,
+          "num_requests": 593,
+          "state": "running",
+          "user_count": 5
+        }
+      ]
+    }
+  },
+  "ownership": {
+    "acquired": true,
+    "project": "lineage-twin"
+  },
+  "purpose": "readiness_feasibility_pilot",
+  "resources": {
+    "initial": {
+      "architecture": "x86_64",
+      "cpu_count": 4,
+      "docker_root_disk": {
+        "free_bytes": 91736735744,
+        "method": "statvfs",
+        "total_bytes": 154993672192
+      },
+      "docker_storage_driver": "overlayfs",
+      "memory": {
+        "available_bytes": 15727714304,
+        "total_bytes": 16758394880
+      }
+    },
+    "samples": [
+      {
+        "docker_root_disk": {
+          "free_bytes": 80296042496,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 0.000025,
+        "memory": {
+          "available_bytes": 12532350976,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80289886208,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 30.000567,
+        "memory": {
+          "available_bytes": 12291055616,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80286519296,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 60.000075,
+        "memory": {
+          "available_bytes": 12467859456,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80283688960,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 90.000081,
+        "memory": {
+          "available_bytes": 12177342464,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80280911872,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 120.000081,
+        "memory": {
+          "available_bytes": 12379250688,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80278564864,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 150.000082,
+        "memory": {
+          "available_bytes": 12308078592,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80276762624,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 180.000076,
+        "memory": {
+          "available_bytes": 12321619968,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80274841600,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 210.000085,
+        "memory": {
+          "available_bytes": 12244209664,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80272891904,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 240.000088,
+        "memory": {
+          "available_bytes": 12185645056,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80271134720,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 270.000078,
+        "memory": {
+          "available_bytes": 12217065472,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80269103104,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 300.000086,
+        "memory": {
+          "available_bytes": 12229603328,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80267329536,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 330.000087,
+        "memory": {
+          "available_bytes": 12142768128,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80265969664,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 360.000565,
+        "memory": {
+          "available_bytes": 12275019776,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80263811072,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 390.000085,
+        "memory": {
+          "available_bytes": 12118806528,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80262164480,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 420.00187,
+        "memory": {
+          "available_bytes": 12068843520,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80260612096,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 450.000093,
+        "memory": {
+          "available_bytes": 12177199104,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80258510848,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 480.000098,
+        "memory": {
+          "available_bytes": 12112408576,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80256540672,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 510.000087,
+        "memory": {
+          "available_bytes": 12009328640,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80255406080,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 540.000075,
+        "memory": {
+          "available_bytes": 12128468992,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80253612032,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 570.000076,
+        "memory": {
+          "available_bytes": 12061057024,
+          "total_bytes": 16758394880
+        }
+      },
+      {
+        "docker_root_disk": {
+          "free_bytes": 80252219392,
+          "method": "statvfs",
+          "total_bytes": 154993672192
+        },
+        "elapsed_seconds": 600.00009,
+        "memory": {
+          "available_bytes": 12010848256,
+          "total_bytes": 16758394880
+        }
+      }
+    ]
+  },
+  "run_id": "abc0d320248e4bc482e8e705c39b0f60",
+  "run_window": {
+    "duration_seconds": 600.535933527,
+    "ended_at": "2026-11-28T13:11:30.267100Z",
+    "started_at": "2026-11-28T13:01:29.731185Z"
+  },
+  "schema_version": 1,
+  "shutdown": {
+    "attempted": true,
+    "stopped": true
+  },
+  "smoke": {
+    "claims": {
+      "full_wp03_accepted": false,
+      "holdout_measured": false,
+      "timings_measured": false
+    },
+    "counts": {
+      "collector_events": null,
+      "control_edges": null,
+      "data_edges": null,
+      "redacted_endpoints": 0
+    },
+    "diagnostics": {},
+    "failure_categories": [
+      "invalid_otlp"
+    ],
+    "precision": null,
+    "raw_capture_replayed": false,
+    "raw_files": {
+      "logs.jsonl": {
+        "complete_jsonl_lines": 1901,
+        "jsonl_validated": false,
+        "max_complete_jsonl_line_bytes": 122875,
+        "present": true,
+        "processed": false,
+        "sha256": "de3dee8389393a9c123187efae4e4dbab1fc2ed41ce467408b83716a52639c31",
+        "size_bytes": 5935029,
+        "trailing_bytes": 0
+      },
+      "metrics.jsonl": {
+        "complete_jsonl_lines": 482,
+        "jsonl_validated": false,
+        "max_complete_jsonl_line_bytes": 153764,
+        "present": true,
+        "processed": false,
+        "sha256": "e6dad21bdcd2200cae671c67cf8307fe445e60985ce05962b0f991b2a122ffd1",
+        "size_bytes": 11178167,
+        "trailing_bytes": 0
+      },
+      "traces.jsonl": {
+        "complete_jsonl_lines": 1496,
+        "jsonl_validated": false,
+        "max_complete_jsonl_line_bytes": 69509,
+        "present": true,
+        "processed": false,
+        "sha256": "309ada2bbecc96a1514885ba2c1946fadcb60db7750cfe010225ce46d194fbc9",
+        "size_bytes": 11796104,
+        "trailing_bytes": 0
+      }
+    },
+    "scope": "WP-03 service-edge smoke only",
+    "status": "blocked"
+  },
+  "startup": {
+    "allContainersHealthy": true,
+    "allRunning": true,
+    "demoCommit": "dedc0178918e260823323b8d95005a8cb924b007",
+    "elapsedSeconds": 132.522626,
+    "exactServiceSet": true,
+    "expectedServiceNames": [
+      "accounting",
+      "ad",
+      "astronomy-db",
+      "cart",
+      "checkout",
+      "currency",
+      "email",
+      "flagd",
+      "flagd-ui",
+      "fraud-detection",
+      "frontend",
+      "frontend-proxy",
+      "image-provider",
+      "kafka",
+      "lineage-collector",
+      "lineage-kafka",
+      "lineage-neo4j",
+      "lineage-postgres",
+      "lineage-worker",
+      "load-generator",
+      "otel-collector",
+      "payment",
+      "product-catalog",
+      "quote",
+      "recommendation",
+      "shipping",
+      "telemetry-docs",
+      "valkey-cart"
+    ],
+    "expectedServices": 28,
+    "oneShotPrerequisites": [
+      {
+        "exitCode": 0,
+        "service": "lineage-topics",
+        "status": "completed"
+      }
+    ],
+    "phase": "complete",
+    "probeSha256": "29d64f078a501a3fac6b912f6554bb0d776b5f7d7e8a9f9fe1bb7a8bfb863433",
+    "scope": "full-demo",
+    "services": [
+      {
+        "health": "healthy",
+        "service": "accounting",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "ad",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "astronomy-db",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "cart",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "checkout",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "currency",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "email",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "flagd",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "flagd-ui",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "fraud-detection",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "frontend",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "frontend-proxy",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "image-provider",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "kafka",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "lineage-collector",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "lineage-kafka",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "lineage-neo4j",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "lineage-postgres",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "lineage-worker",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "load-generator",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "otel-collector",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "payment",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "product-catalog",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "quote",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "recommendation",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "shipping",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "telemetry-docs",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "valkey-cart",
+        "state": "running"
+      }
+    ],
+    "status": "passed",
+    "storageDriver": "overlayfs",
+    "timeoutSeconds": 900,
+    "workerImageId": "sha256:1e66be47aee7d66fcec196c31bf6e958b467cdfa8b0e80b94fe41f61f08dbb7a"
+  },
+  "startup_observation": {
+    "all_healthy": true,
+    "exact_service_set": true,
+    "services": [
+      {
+        "health": "healthy",
+        "service": "accounting",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "ad",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "astronomy-db",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "cart",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "checkout",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "currency",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "email",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "flagd",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "flagd-ui",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "fraud-detection",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "frontend",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "frontend-proxy",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "image-provider",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "kafka",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "lineage-collector",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "lineage-kafka",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "lineage-neo4j",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "lineage-postgres",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "lineage-worker",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "load-generator",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "otel-collector",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "payment",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "product-catalog",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "quote",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "recommendation",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "shipping",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "telemetry-docs",
+        "state": "running"
+      },
+      {
+        "health": "healthy",
+        "service": "valkey-cart",
+        "state": "running"
+      }
+    ],
+    "unexpected_count": 0
+  },
+  "startup_observed_seconds": 132.605541,
+  "startup_scope": {
+    "description": "One readiness trial using previously built images and probe",
+    "image_preparation_included": false,
+    "probe_preparation_included": false
+  },
+  "status": "blocked"
+}

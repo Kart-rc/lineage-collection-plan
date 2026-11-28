@@ -1,0 +1,447 @@
+{
+  "candidate": 9,
+  "recorded_at": "2026-11-28T13:46:25.181944+00:00",
+  "scope": "Deterministic execution of actual pilot; no live workload or Docker operations",
+  "temporary_raw_state_location": "/tmp; removed by TemporaryDirectory",
+  "real_subprocess_execution_denied": true,
+  "cases": [
+    {
+      "case": "five_users_control",
+      "expected_status": "passed",
+      "pilot_status": "passed",
+      "duration_seconds": 600.0,
+      "traffic_holds": true,
+      "progress_proven": true,
+      "max_no_progress_interval_seconds": 30.0,
+      "request_count_delta": 210,
+      "user_counts": [
+        5
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "only_one_user_for_entire_window",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": true,
+      "max_no_progress_interval_seconds": 30.0,
+      "request_count_delta": 210,
+      "user_counts": [
+        1
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_user_count_mismatch"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "four_users_for_entire_window",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": true,
+      "max_no_progress_interval_seconds": 30.0,
+      "request_count_delta": 210,
+      "user_counts": [
+        4
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_user_count_mismatch"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "six_users_for_entire_window",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": true,
+      "max_no_progress_interval_seconds": 30.0,
+      "request_count_delta": 210,
+      "user_counts": [
+        6
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_user_count_mismatch"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "five_users_only_one_request_at_final_sample",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": false,
+      "max_no_progress_interval_seconds": 600.0,
+      "request_count_delta": 1,
+      "user_counts": [
+        5
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_progress_unproven"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true,
+        "no_inactivity_inference": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "one_user_at_baseline_then_five",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": true,
+      "max_no_progress_interval_seconds": 30.0,
+      "request_count_delta": 210,
+      "user_counts": [
+        1,
+        5
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_user_count_mismatch"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "four_users_midwindow_then_recovered",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": true,
+      "max_no_progress_interval_seconds": 30.0,
+      "request_count_delta": 210,
+      "user_counts": [
+        4,
+        5
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_user_count_mismatch"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "four_users_at_final_sample",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": true,
+      "max_no_progress_interval_seconds": 30.0,
+      "request_count_delta": 210,
+      "user_counts": [
+        4,
+        5
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_user_count_mismatch"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "flat_long_inflight_is_unproven",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": false,
+      "max_no_progress_interval_seconds": 600.0,
+      "request_count_delta": 0,
+      "user_counts": [
+        5
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_progress_unproven"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true,
+        "no_inactivity_inference": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "large_initial_burst_cannot_prove_rest_of_window",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": false,
+      "max_no_progress_interval_seconds": 600.0,
+      "request_count_delta": 99900,
+      "user_counts": [
+        5
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_progress_unproven"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true,
+        "no_inactivity_inference": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "completion_each_sixty_seconds_control",
+      "expected_status": "passed",
+      "pilot_status": "passed",
+      "duration_seconds": 600.0,
+      "traffic_holds": true,
+      "progress_proven": true,
+      "max_no_progress_interval_seconds": 60.0,
+      "request_count_delta": 10,
+      "user_counts": [
+        5
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "completion_each_ninety_seconds_is_unproven",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": false,
+      "max_no_progress_interval_seconds": 90.0,
+      "request_count_delta": 6,
+      "user_counts": [
+        5
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_progress_unproven"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true,
+        "no_inactivity_inference": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "late_progress_cannot_cover_sixty_one_second_probe_gap",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": false,
+      "max_no_progress_interval_seconds": 61.0,
+      "request_count_delta": 210,
+      "user_counts": [
+        5
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_progress_unproven"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true,
+        "no_inactivity_inference": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "post_sample_delay_cannot_cover_sixty_one_second_tail",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 631.0,
+      "traffic_holds": false,
+      "progress_proven": false,
+      "max_no_progress_interval_seconds": 61.0,
+      "request_count_delta": 200,
+      "user_counts": [
+        5
+      ],
+      "sample_intervals": 20,
+      "failure_categories": [
+        "load_progress_unproven"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true,
+        "no_inactivity_inference": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "counter_reset_then_recovery",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": true,
+      "max_no_progress_interval_seconds": 60.0,
+      "request_count_delta": 210,
+      "user_counts": [
+        5
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_request_counter_reset"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true
+      },
+      "all_checks_passed": true
+    },
+    {
+      "case": "unavailable_sample_then_recovery",
+      "expected_status": "blocked",
+      "pilot_status": "blocked",
+      "duration_seconds": 600.0,
+      "traffic_holds": false,
+      "progress_proven": true,
+      "max_no_progress_interval_seconds": 60.0,
+      "request_count_delta": 210,
+      "user_counts": [
+        5
+      ],
+      "sample_intervals": 21,
+      "failure_categories": [
+        "load_generator_probe_unavailable"
+      ],
+      "checks": {
+        "expected_status": true,
+        "minimum_window": true,
+        "matching_traffic_verdict": true,
+        "stopped_before_scoring": true,
+        "metadata_sentinel_absent": true,
+        "no_full_acceptance_claims": true,
+        "required_category_present": true
+      },
+      "all_checks_passed": true
+    }
+  ],
+  "all_checks_passed": true
+}

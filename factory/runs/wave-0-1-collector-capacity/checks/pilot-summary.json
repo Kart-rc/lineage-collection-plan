@@ -1,0 +1,14 @@
+{
+  "acceptance_changed": false,
+  "candidate": 8,
+  "infrastructure_actions_performed": false,
+  "new_cases": 49,
+  "raw_data_exported": false,
+  "resource_limits_changed": false,
+  "scope": "pilot structural failure and effective collector capacity metadata projection",
+  "source_sha256": {
+    "tests/test_twin_pilot.py": "eff1fed0ad7c59b8024636a9b0ca8bc7c0f39013ea6be696f84db3a532d1f261",
+    "twin/pilot.py": "a39518dbc95512eabeed8de1aba434675c440d805bfa4228f726849d72e9c280"
+  },
+  "tests_passed": 99
+}

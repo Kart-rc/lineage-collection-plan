@@ -1,0 +1,31 @@
+{
+  "candidate": 9,
+  "operation": "pytest collection only; not test execution",
+  "selections": {
+    "all": {
+      "count": 602,
+      "node_ids_sha256": "be7359c01e10c58221ecfb5706d48796fdc5b7ca2b7ec26e779575ff930a39c4"
+    },
+    "local_runner": {
+      "count": 43,
+      "node_ids_sha256": "1abac196a0614fd785ca28403b533104975078c94f3bfd7b8f8d8ced428eb1e6"
+    },
+    "local_remaining": {
+      "count": 546,
+      "node_ids_sha256": "67b81004f359430311c7fa26f126368f7cb2a7d465fe94947bde25c2b401ceea"
+    },
+    "docker_runner": {
+      "count": 45,
+      "node_ids_sha256": "a8719f4aff537abf959bec0881b3f8597bb81eb8e093964405b3e9d6655bcf45"
+    },
+    "docker_transport": {
+      "count": 19,
+      "node_ids_sha256": "068edabf9c88edec50d7c4300f306d17d0590ca870792b5214300b2102b55573"
+    }
+  },
+  "unique_ci_cases": 602,
+  "all_cases": 602,
+  "omitted_from_ci": [],
+  "extra_ci_cases": [],
+  "counts_overlap": true
+}

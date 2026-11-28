@@ -1,0 +1,53 @@
+{
+  "claims": {
+    "full_wp03_accepted": false,
+    "holdout_measured": false,
+    "timings_measured": false
+  },
+  "counts": {
+    "collector_events": null,
+    "control_edges": null,
+    "data_edges": null,
+    "redacted_endpoints": 0
+  },
+  "diagnostics": {},
+  "failure_categories": [
+    "invalid_otlp"
+  ],
+  "precision": null,
+  "raw_capture_replayed": false,
+  "raw_files": {
+    "logs.jsonl": {
+      "complete_jsonl_lines": 1901,
+      "jsonl_validated": false,
+      "max_complete_jsonl_line_bytes": 122875,
+      "present": true,
+      "processed": false,
+      "sha256": "de3dee8389393a9c123187efae4e4dbab1fc2ed41ce467408b83716a52639c31",
+      "size_bytes": 5935029,
+      "trailing_bytes": 0
+    },
+    "metrics.jsonl": {
+      "complete_jsonl_lines": 482,
+      "jsonl_validated": false,
+      "max_complete_jsonl_line_bytes": 153764,
+      "present": true,
+      "processed": false,
+      "sha256": "e6dad21bdcd2200cae671c67cf8307fe445e60985ce05962b0f991b2a122ffd1",
+      "size_bytes": 11178167,
+      "trailing_bytes": 0
+    },
+    "traces.jsonl": {
+      "complete_jsonl_lines": 1496,
+      "jsonl_validated": false,
+      "max_complete_jsonl_line_bytes": 69509,
+      "present": true,
+      "processed": false,
+      "sha256": "309ada2bbecc96a1514885ba2c1946fadcb60db7750cfe010225ce46d194fbc9",
+      "size_bytes": 11796104,
+      "trailing_bytes": 0
+    }
+  },
+  "scope": "WP-03 service-edge smoke only",
+  "status": "blocked"
+}

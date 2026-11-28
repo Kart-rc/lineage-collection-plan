@@ -1,0 +1,140 @@
+{
+  "artifacts": {
+    "review.md": "de8397e5f373921d2d42d6d3a19045f9719bdce68a18a8bd8fa08e7367afa5d6",
+    "source-hashes.json": "5479ee296e784b8a1439015cc43f8458e5a689996308c2a8db565628b61472ae"
+  },
+  "authorization": {
+    "additional_repair_number": 2,
+    "candidate": 8,
+    "cumulative_cap": 9,
+    "deadline_utc": "2026-11-28T20:42:29.143137+00:00",
+    "remaining_authorized_repair_attempts": 1
+  },
+  "boundaries": {
+    "docker_lifecycle_or_image_pulls": false,
+    "full_workload": false,
+    "implementation_or_oracle_edits": false,
+    "private_holdout_access_or_authorship": false,
+    "production_access": false,
+    "remote_writes_or_messages": false,
+    "shared_service_mutation": false,
+    "temporary_test_capture_trees_retained": false
+  },
+  "candidate": 8,
+  "checks": [
+    {
+      "artifact": "focused-tests.xml",
+      "duration_seconds": 17.39,
+      "failures": 0,
+      "id": "focused-unit-regression",
+      "passed": 327
+    },
+    {
+      "artifact": "fault-tests.xml",
+      "failures": 0,
+      "id": "static-infrastructure-and-fault-contracts",
+      "live_tests_deselected": 3,
+      "passed": 11
+    },
+    {
+      "errors": 0,
+      "exit_code": 0,
+      "id": "spec-pack"
+    },
+    {
+      "exit_code": 0,
+      "id": "oracle-pins",
+      "matched": 8
+    },
+    {
+      "artifact": "pinned-source-check.json",
+      "id": "independent-pinned-file-exporter-source-check",
+      "read_sources": 6
+    },
+    {
+      "artifact": "traffic-boundary-results.json",
+      "cases": 4,
+      "id": "traffic-boundary-probes",
+      "unexpected_success_cases": 3
+    }
+  ],
+  "claims": {
+    "actual_load_measured": false,
+    "full_in10_ia1_timings_measured": false,
+    "full_wave_complete": false,
+    "full_wp03_accepted": false,
+    "g2_approved": false,
+    "g4_approved": false,
+    "holdout_measured": false,
+    "reference_smoke_precision_measured": false,
+    "sustained_health_forwarding_measured": false,
+    "three_cold_starts": false
+  },
+  "collector_capacity_and_canonical_otlp_additional_findings": 0,
+  "open_finding_count": 2,
+  "open_findings": [
+    {
+      "evidence": "traffic-boundary-results.json",
+      "file": "twin/pilot.py",
+      "id": "V8-1",
+      "lines": [
+        488,
+        583,
+        596
+      ],
+      "observed": "One or four users at baseline and all samples still pass for 600 mock seconds.",
+      "preexisting_in_inherited_pilot": true,
+      "required_correction": "Enforce the declared five-user workload at baseline and throughout the measurement, including mid-window drops.",
+      "severity": "P1",
+      "status": "open",
+      "title": "Pilot accepts fewer than the required five users"
+    },
+    {
+      "evidence": "traffic-boundary-results.json",
+      "file": "twin/pilot.py",
+      "id": "V8-2",
+      "interpretation": "Insufficient evidence of sustained activity, not proof of inactivity; long in-flight requests can also leave completion counters flat.",
+      "lines": [
+        598,
+        599,
+        600,
+        601,
+        602,
+        620,
+        621,
+        622,
+        623,
+        624
+      ],
+      "observed": "Five users, flat earlier completion counts, and a single final increment pass the entire 600-second mock window.",
+      "preexisting_in_inherited_pilot": true,
+      "required_correction": "Define a conservative activity-evidence policy across the window. For flat intervals, add bounded metadata evidence of ongoing activity or withhold success as unproven; do not invent a response-throughput floor.",
+      "severity": "P2",
+      "status": "open",
+      "title": "A final request completion does not establish sustained activity across the load window"
+    }
+  ],
+  "readiness_scope": "A hosted pilot whose passing status certifies the requested workload; this is not a claim that diagnostic execution is operationally unsafe.",
+  "ready_for_hosted_trial": false,
+  "recorded_at": "2026-11-28T13:40:15.583198+00:00",
+  "remaining_acceptance_evidence": [
+    "Fresh hosted exact-28 healthy startup within 900 seconds",
+    "At least 600 seconds of verified five-user request activity with sustained health/forwarding",
+    "Exact nonempty service-edge precision at least 0.95 on the actual capture",
+    "Three qualifying cold starts bound to the final candidate",
+    "Applicable traced timings, original-specific replay and holdout evidence",
+    "Human G2/G4 gates"
+  ],
+  "schema_version": 1,
+  "source_identity": {
+    "archive_sha256": "7c9f996483e9d95d1cb1d74aa0cb16b97411d999b469d27219c53fabd0cde420",
+    "final_freeze_unchanged": true,
+    "frozen_files_matching": 8,
+    "protected_original_files_matching": 11,
+    "published_parent": "aabfe7dadc404bead9a88161545c33c49fa6d62d",
+    "unchanged_prior_sources_matching": 13
+  },
+  "stage": "WP-03 independent pre-hosted code and evidence verification",
+  "verdict": "CHANGES_REQUIRED",
+  "verifier": "verify8"
+}

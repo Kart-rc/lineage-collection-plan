@@ -1,0 +1,68 @@
+{
+  "capacity_profile": {
+    "container_memory_bytes": 2147483648,
+    "limits": {
+      "max_acknowledged": 100000,
+      "max_events": 4096,
+      "max_input_bytes": 67108864,
+      "max_line_bytes": 1048576,
+      "max_memory_bytes": 1610612736,
+      "max_metadata_bytes": 8388608,
+      "max_sends_per_cycle": 128,
+      "parse_timeout": 30.0,
+      "send_timeout": 5.0
+    },
+    "name": "reference-ten-minute-v1",
+    "parent_headroom_bytes": 536870912,
+    "scope": "ten-minute-reference-twin"
+  },
+  "capture_mount_read_only": true,
+  "collector_command": [
+    "--capture-dir",
+    "/capture",
+    "--changes",
+    "/changes/events.jsonl",
+    "--state",
+    "/collector-state",
+    "--broker",
+    "lineage-kafka:9092",
+    "--topic",
+    "lineage.evidence",
+    "--poll-interval",
+    "5",
+    "--max-input-bytes",
+    "67108864",
+    "--max-events",
+    "4096",
+    "--max-line-bytes",
+    "1048576",
+    "--max-metadata-bytes",
+    "8388608",
+    "--max-memory-bytes",
+    "1610612736",
+    "--parse-timeout",
+    "30.0",
+    "--send-timeout",
+    "5.0",
+    "--max-sends-per-cycle",
+    "128",
+    "--max-acknowledged",
+    "100000"
+  ],
+  "collector_memory_limit_bytes": 2147483648,
+  "collector_networks": [
+    "lineage"
+  ],
+  "container_read_only": true,
+  "isolated_collector_broker": "lineage-kafka:9092",
+  "operation": "compose rendering and validation only; no starts/pulls/restarts",
+  "pid_limit": 64,
+  "service_count": 28,
+  "source_sha256": {
+    "twin/collector.compose.yaml": "fc1f2da0db51222665338b3a4b25ed09c23f1534975c0bbf5d095ed8562e6d7f",
+    "twin/start.py": "2e615ae888ab08524fadd4e582e0918bbbe66d24f19c898f86090465746362c0"
+  },
+  "status": "passed",
+  "upstream_checkout_unchanged": true,
+  "upstream_commit": "dedc0178918e260823323b8d95005a8cb924b007"
+}

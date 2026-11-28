@@ -1,0 +1,58 @@
+[
+  {
+    "case": "five_users_control",
+    "pilot_status": "passed",
+    "duration_seconds": 600.0,
+    "traffic_holds": true,
+    "user_counts": [
+      5
+    ],
+    "request_count_delta": 210,
+    "samples_with_increase": 21,
+    "sample_intervals": 21,
+    "failure_categories": [],
+    "real_docker_or_network_operations": false
+  },
+  {
+    "case": "only_one_user_for_entire_window",
+    "pilot_status": "passed",
+    "duration_seconds": 600.0,
+    "traffic_holds": true,
+    "user_counts": [
+      1
+    ],
+    "request_count_delta": 210,
+    "samples_with_increase": 21,
+    "sample_intervals": 21,
+    "failure_categories": [],
+    "real_docker_or_network_operations": false
+  },
+  {
+    "case": "four_users_for_entire_window",
+    "pilot_status": "passed",
+    "duration_seconds": 600.0,
+    "traffic_holds": true,
+    "user_counts": [
+      4
+    ],
+    "request_count_delta": 210,
+    "samples_with_increase": 21,
+    "sample_intervals": 21,
+    "failure_categories": [],
+    "real_docker_or_network_operations": false
+  },
+  {
+    "case": "five_users_only_one_request_at_final_sample",
+    "pilot_status": "passed",
+    "duration_seconds": 600.0,
+    "traffic_holds": true,
+    "user_counts": [
+      5
+    ],
+    "request_count_delta": 1,
+    "samples_with_increase": 1,
+    "sample_intervals": 21,
+    "failure_categories": [],
+    "real_docker_or_network_operations": false
+  }
+]

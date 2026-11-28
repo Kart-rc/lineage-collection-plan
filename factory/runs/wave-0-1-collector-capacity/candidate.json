@@ -1,0 +1,14 @@
+{
+  "candidate": 8,
+  "parent_candidate": 7,
+  "prior_published_head": "aabfe7dadc404bead9a88161545c33c49fa6d62d",
+  "approved_cumulative_attempt_limit": 9,
+  "approval_reference": "../wave-0-1-startup-repair/approval.json",
+  "repair_scope": "Bounded full-reference collector capacity and schema-correct OTLP structural validation with safe diagnostics",
+  "measured_failure_reference": "../wave-0-1-startup-repair/hosted/result.json",
+  "oracle_changes": false,
+  "local_full_workload_started": false,
+  "shared_infrastructure_mutated": false,
+  "tokens_used": null,
+  "token_usage_note": "Not exposed by execution tools"
+}

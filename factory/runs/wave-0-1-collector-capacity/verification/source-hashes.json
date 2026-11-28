@@ -1,0 +1,174 @@
+{
+  "additional_sources_sha256": {
+    "pyproject.toml": "8129a3ead44cca252aa5964c30f9d65b776c02d48e4a6ed4fbc614722a7a6e98",
+    "requirements.lock": "12c1594d6900c404153c224abf320b3732c13dddea7fd05c2b792860ac65a59a",
+    "setup.py": "bb313943e7dd2daba312fc1980f85b74a4c60534d9377c33436c2271a53ffaf2",
+    "src/lineage/service_edges.py": "407539b95d6df71e96e1ddd59013acaf18c4ebea5b7bf22e28ef9a34dd35ddc3",
+    "twin/flip.py": "3f69127b1e30bfe8668e408ea9c2fc6d2106e78600146158979922183162589a",
+    "twin/worker.Dockerfile": "afe7ec0ce25509000cd2e2e2ae3b6bee00ea371b49d468057213e83a3d8c908a"
+  },
+  "candidate": 8,
+  "evidence_sha256": {
+    "fault-tests.xml": "7d77c7812677924ae87e195c9660ed2cf2ee031eba57803fa31b43762d308602",
+    "focused-tests.xml": "4188309ac6b34f3c2a53e0d5cfeee696b28d7a5c2bc43cccfaee26ff28763a0b",
+    "pinned-source-check.json": "ffcb0d1ca37faac118a23dce5b1d26ed73f44ea55e015b72eff3da76f9c77fc5",
+    "traffic-boundary-probe.py": "489ab67dedef08779bae1610068c781e4150182dcfcc4c5ac89a185a7071bfcb",
+    "traffic-boundary-results.json": "a7646e23f7547a103f68302a044e9569cdc0c68bac6ba3c820622b6456e63829"
+  },
+  "final_freeze_recheck_at": "2026-11-28T13:40:15.583198+00:00",
+  "final_freeze_unchanged": true,
+  "frozen_archive_sha256": "7c9f996483e9d95d1cb1d74aa0cb16b97411d999b469d27219c53fabd0cde420",
+  "frozen_files": {
+    "tests/test_twin_pilot.py": {
+      "archive_matches": true,
+      "manifest_matches": true,
+      "sha256": "eff1fed0ad7c59b8024636a9b0ca8bc7c0f39013ea6be696f84db3a532d1f261"
+    },
+    "tests/test_twin_smoke.py": {
+      "archive_matches": true,
+      "manifest_matches": true,
+      "sha256": "455f49a3ac53e2b0adad55ddea97791bf33f50cb39021de9ed91044482823277"
+    },
+    "tests/test_twin_startup.py": {
+      "archive_matches": true,
+      "manifest_matches": true,
+      "sha256": "deb6c1487d73ad9590e08af86da0b617ca97101c6b06cc25766beccd5d314cdb"
+    },
+    "twin/README.md": {
+      "archive_matches": true,
+      "manifest_matches": true,
+      "sha256": "c0e98fb0669f2e41dec7e022bd57034ea631a5ed7be4d9a207e5fbf45a39afe4"
+    },
+    "twin/collector.compose.yaml": {
+      "archive_matches": true,
+      "manifest_matches": true,
+      "sha256": "fc1f2da0db51222665338b3a4b25ed09c23f1534975c0bbf5d095ed8562e6d7f"
+    },
+    "twin/pilot.py": {
+      "archive_matches": true,
+      "manifest_matches": true,
+      "sha256": "a39518dbc95512eabeed8de1aba434675c440d805bfa4228f726849d72e9c280"
+    },
+    "twin/smoke.py": {
+      "archive_matches": true,
+      "manifest_matches": true,
+      "sha256": "3ae0edb2177da6425c7201b02cc4636810dcebac296ff19fb427d7a295bfe860"
+    },
+    "twin/start.py": {
+      "archive_matches": true,
+      "manifest_matches": true,
+      "sha256": "2e615ae888ab08524fadd4e582e0918bbbe66d24f19c898f86090465746362c0"
+    }
+  },
+  "identity_scope": "frozen working-tree candidate; local HEAD is not the published parent",
+  "local_head": "0df76476b2fdd29d38b8e63ccb1f9c1a02db66ca",
+  "protected_original_checks": {
+    "code/reference_slice.py": {
+      "local_original_matches": true,
+      "sha256": "0ad1a90153e402cc4687c026d645e979eb323966fca905bbc7a9a5c4e0f331ee"
+    },
+    "factory/constitution.md": {
+      "local_original_matches": true,
+      "sha256": "8e0e06187c1b92bbd6d6852ad85ab7a98e6a6288a7562ea9be934164c580e4cc"
+    },
+    "factory/parameters.yaml": {
+      "local_original_matches": true,
+      "sha256": "9c4753b3c61e2fec59b1aea3906e194068ca033f07d5d036dd4a7f7706f0f787"
+    },
+    "factory/specs/evidence/interfaces/envelope-v2.schema.json": {
+      "local_original_matches": true,
+      "sha256": "ae614ab3cf0757df093dcdef24934497d6c4d1a37d3321c22c91e71445d88f96"
+    },
+    "factory/specs/requirements.yaml": {
+      "local_original_matches": true,
+      "sha256": "74a7878d75a2f0dcedc118b55c23510521c7411661586935a018364552c1a3f2"
+    },
+    "factory/work-packages/WP-03-twin-of-the-slice.md": {
+      "local_original_matches": true,
+      "sha256": "083d6be4234a7ed6e4773995f4056db85fd7ede2b238121cf36479462dd1a2f4"
+    },
+    "fixtures/otel-demo-3.1.0/change-replay.json": {
+      "local_original_matches": true,
+      "sha256": "86fb55b7477576d6c61a97d8fe23cbd7b472be559995fe707711350f80a68273"
+    },
+    "fixtures/otel-demo-3.1.0/checks.yaml": {
+      "local_original_matches": true,
+      "sha256": "1df2b883bee9973d0d26dd94c397acfe3683f89d722f464c682eb069c4955831"
+    },
+    "fixtures/otel-demo-3.1.0/dbt/golden-dbt.json": {
+      "local_original_matches": true,
+      "sha256": "d4fbfd304e33448008b1e436f72ddd67c0465bde3164e85db644d0fc3641d425"
+    },
+    "fixtures/otel-demo-3.1.0/golden-graph.json": {
+      "local_original_matches": true,
+      "sha256": "1100c74e39e9d071dda1449f03e6d81a917b21ba9ba37a27dd0054b58c9d700c"
+    },
+    "fixtures/otel-demo-3.1.0/incident-scenarios.json": {
+      "local_original_matches": true,
+      "sha256": "ee7fb9bd0450273dc99366836825b38fc6f1d28ed95ca71256beec990b1fc323"
+    }
+  },
+  "published_parent": "aabfe7dadc404bead9a88161545c33c49fa6d62d",
+  "recorded_at": "2026-11-28T13:37:58.698963+00:00",
+  "schema_version": 1,
+  "source_manifest_sha256": "b2d2c6bd23519150890e435a407524b72dc226117b5d60a0bf3286c8c3e68481",
+  "unchanged_prior_sources": {
+    ".github/workflows/full-reference-pilot.yml": {
+      "prior_candidate_matches": true,
+      "sha256": "fd98922a44843ca8b3578179366773f79aee91a5c82df944726c8ebbd2cefdf2"
+    },
+    "code/spec_pack.py": {
+      "prior_candidate_matches": true,
+      "sha256": "f311ab8821d087df68ba626cd4296cfba2ed65398f9c1195cf3b4cb886f889d1"
+    },
+    "factory/constitution.md": {
+      "prior_candidate_matches": true,
+      "sha256": "8e0e06187c1b92bbd6d6852ad85ab7a98e6a6288a7562ea9be934164c580e4cc"
+    },
+    "factory/parameters.yaml": {
+      "prior_candidate_matches": true,
+      "sha256": "9c4753b3c61e2fec59b1aea3906e194068ca033f07d5d036dd4a7f7706f0f787"
+    },
+    "factory/work-packages/WP-03-twin-of-the-slice.md": {
+      "prior_candidate_matches": true,
+      "sha256": "083d6be4234a7ed6e4773995f4056db85fd7ede2b238121cf36479462dd1a2f4"
+    },
+    "fixtures/otel-demo-3.1.0/run/sandbox.sh": {
+      "prior_candidate_matches": true,
+      "sha256": "77f03516f33b2162292458e383a53f96140afcd5586200a34a71f54f4e9777e0"
+    },
+    "scripts/check_oracle.py": {
+      "prior_candidate_matches": true,
+      "sha256": "ef1d49b58b3d4b89d2fec4ebdd2093ba08985ced4fc406380a4f0d01d9f3fe6d"
+    },
+    "src/lineage/collector.py": {
+      "prior_candidate_matches": true,
+      "sha256": "d29329f656db88d51e64d965adefadc91a85b8b5fa9aa77f74f6beb54f4c3a7b"
+    },
+    "tests/test_twin_infrastructure.py": {
+      "prior_candidate_matches": true,
+      "sha256": "ef54270b017cb1ca405a19566b0ff140c9b13ec3fd4cd4867662441f64a74fd5"
+    },
+    "twin/compose.yaml": {
+      "prior_candidate_matches": true,
+      "sha256": "18bf4874e88582db83ee0fe511b1d2d1d58ba649280a243a5e5bdb5fa2412d27"
+    },
+    "twin/images.lock.json": {
+      "prior_candidate_matches": true,
+      "sha256": "d2938f8d614c63cb867394355b5d8566216a630fca48ff88e776cbb84d4ce0b3"
+    },
+    "twin/probe-toolchain.json": {
+      "prior_candidate_matches": true,
+      "sha256": "10337ce5fb839b4e92f4cdada9406e6ed61f944d9b2b23657cfdd9eb4cefe1b1"
+    },
+    "twin/worker.compose.yaml": {
+      "prior_candidate_matches": true,
+      "sha256": "2e366b1f557bc5b391d9fe6f41601fe22056348d96af4d8428510e063a5879df"
+    }
+  },
+  "upstream": {
+    "clean": true,
+    "commit": "dedc0178918e260823323b8d95005a8cb924b007"
+  },
+  "verifier": "verify8"
+}

@@ -1,0 +1,174 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector-contrib/v0.159.0/exporter/fileexporter/go.mod",
+    "sha256": "e5b118b8f3cd910b372feb721a28f9989290f18233a722609c06ed42451248af",
+    "matches": [
+      {
+        "line": 26,
+        "text": "\tgo.opentelemetry.io/collector/pdata v1.65.0\n\tgo.opentelemetry.io/collector/pdata/pprofile v0.159.0\n\tgo.uber.org/goleak v1.3.0\n\tgo.uber.org/zap v1.28.0"
+      },
+      {
+        "line": 62,
+        "text": "\tgo.opentelemetry.io/collector/pdata/xpdata v0.159.0 // indirect\n\tgo.opentelemetry.io/collector/pipeline v1.65.0 // indirect\n\tgo.opentelemetry.io/collector/pipeline/xpipeline v0.159.0 // indirect\n\tgo.opentelemetry.io/collector/receiver v1.65.0 // indirect"
+      }
+    ]
+  },
+  {
+    "url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector-contrib/v0.159.0/exporter/fileexporter/marshaller.go",
+    "sha256": "41d87f471e8968ab2ee3ad19cfc3f1cdf2cd6fddb5987c8db7388f3c342c43d1",
+    "matches": [
+      {
+        "line": 96,
+        "text": "\tbuf, err := m.tracesMarshaler.MarshalTraces(td)\n\tif err != nil {\n\t\treturn nil, err\n\t}"
+      }
+    ]
+  },
+  {
+    "url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/generated_proto_exporttraceservicerequest.go",
+    "sha256": "80792a0172725b2522b2505fe8894ee43662919a2fd25cd1c428bcacb22054a0",
+    "matches": [
+      {
+        "line": 127,
+        "text": "// MarshalJSON marshals all properties from the current struct to the destination stream.\nfunc (orig *ExportTraceServiceRequest) MarshalJSON(dest *json.Stream) {\n\tdest.WriteObjectStart()\n\tif len(orig.ResourceSpans) > 0 {"
+      },
+      {
+        "line": 128,
+        "text": "func (orig *ExportTraceServiceRequest) MarshalJSON(dest *json.Stream) {\n\tdest.WriteObjectStart()\n\tif len(orig.ResourceSpans) > 0 {\n\t\tdest.WriteObjectField(\"resourceSpans\")"
+      },
+      {
+        "line": 133,
+        "text": "\t\torig.ResourceSpans[0].MarshalJSON(dest)\n\t\tfor i := 1; i < len(orig.ResourceSpans); i++ {\n\t\t\tdest.WriteMore()\n\t\t\torig.ResourceSpans[i].MarshalJSON(dest)"
+      },
+      {
+        "line": 136,
+        "text": "\t\t\torig.ResourceSpans[i].MarshalJSON(dest)\n\t\t}\n\t\tdest.WriteArrayEnd()\n\t}"
+      }
+    ]
+  },
+  {
+    "url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/generated_proto_resourcespans.go",
+    "sha256": "63f2e71cabd9acf8f34599b824c13b014ea0da35df3028f54eea6919a8119432",
+    "matches": [
+      {
+        "line": 139,
+        "text": "// MarshalJSON marshals all properties from the current struct to the destination stream.\nfunc (orig *ResourceSpans) MarshalJSON(dest *json.Stream) {\n\tdest.WriteObjectStart()\n\tdest.WriteObjectField(\"resource\")"
+      },
+      {
+        "line": 140,
+        "text": "func (orig *ResourceSpans) MarshalJSON(dest *json.Stream) {\n\tdest.WriteObjectStart()\n\tdest.WriteObjectField(\"resource\")\n\torig.Resource.MarshalJSON(dest)"
+      },
+      {
+        "line": 143,
+        "text": "\torig.Resource.MarshalJSON(dest)\n\tif len(orig.ScopeSpans) > 0 {\n\t\tdest.WriteObjectField(\"scopeSpans\")\n\t\tdest.WriteArrayStart()"
+      },
+      {
+        "line": 147,
+        "text": "\t\torig.ScopeSpans[0].MarshalJSON(dest)\n\t\tfor i := 1; i < len(orig.ScopeSpans); i++ {\n\t\t\tdest.WriteMore()\n\t\t\torig.ScopeSpans[i].MarshalJSON(dest)"
+      },
+      {
+        "line": 150,
+        "text": "\t\t\torig.ScopeSpans[i].MarshalJSON(dest)\n\t\t}\n\t\tdest.WriteArrayEnd()\n\t}"
+      },
+      {
+        "line": 161,
+        "text": "\t\torig.DeprecatedScopeSpans[0].MarshalJSON(dest)\n\t\tfor i := 1; i < len(orig.DeprecatedScopeSpans); i++ {\n\t\t\tdest.WriteMore()\n\t\t\torig.DeprecatedScopeSpans[i].MarshalJSON(dest)"
+      },
+      {
+        "line": 164,
+        "text": "\t\t\torig.DeprecatedScopeSpans[i].MarshalJSON(dest)\n\t\t}\n\t\tdest.WriteArrayEnd()\n\t}"
+      }
+    ]
+  },
+  {
+    "url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/generated_proto_scopespans.go",
+    "sha256": "8bb04a3312b623425adab1521271b15c73a1408a448252f7a699bde1d0243a06",
+    "matches": [
+      {
+        "line": 134,
+        "text": "// MarshalJSON marshals all properties from the current struct to the destination stream.\nfunc (orig *ScopeSpans) MarshalJSON(dest *json.Stream) {\n\tdest.WriteObjectStart()\n\tdest.WriteObjectField(\"scope\")"
+      },
+      {
+        "line": 135,
+        "text": "func (orig *ScopeSpans) MarshalJSON(dest *json.Stream) {\n\tdest.WriteObjectStart()\n\tdest.WriteObjectField(\"scope\")\n\torig.Scope.MarshalJSON(dest)"
+      },
+      {
+        "line": 138,
+        "text": "\torig.Scope.MarshalJSON(dest)\n\tif len(orig.Spans) > 0 {\n\t\tdest.WriteObjectField(\"spans\")\n\t\tdest.WriteArrayStart()"
+      },
+      {
+        "line": 142,
+        "text": "\t\torig.Spans[0].MarshalJSON(dest)\n\t\tfor i := 1; i < len(orig.Spans); i++ {\n\t\t\tdest.WriteMore()\n\t\t\torig.Spans[i].MarshalJSON(dest)"
+      },
+      {
+        "line": 145,
+        "text": "\t\t\torig.Spans[i].MarshalJSON(dest)\n\t\t}\n\t\tdest.WriteArrayEnd()\n\t}"
+      }
+    ]
+  },
+  {
+    "url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/generated_proto_span.go",
+    "sha256": "caa6846d97f21ae189ff39b8a703a95155758964068fcd341d518c6620ddca63",
+    "matches": [
+      {
+        "line": 179,
+        "text": "// MarshalJSON marshals all properties from the current struct to the destination stream.\nfunc (orig *Span) MarshalJSON(dest *json.Stream) {\n\tdest.WriteObjectStart()\n\tif !orig.TraceId.IsEmpty() {"
+      },
+      {
+        "line": 180,
+        "text": "func (orig *Span) MarshalJSON(dest *json.Stream) {\n\tdest.WriteObjectStart()\n\tif !orig.TraceId.IsEmpty() {\n\t\tdest.WriteObjectField(\"traceId\")"
+      },
+      {
+        "line": 182,
+        "text": "\tif !orig.TraceId.IsEmpty() {\n\t\tdest.WriteObjectField(\"traceId\")\n\t\torig.TraceId.MarshalJSON(dest)\n\t}"
+      },
+      {
+        "line": 184,
+        "text": "\t\torig.TraceId.MarshalJSON(dest)\n\t}\n\tif !orig.SpanId.IsEmpty() {\n\t\tdest.WriteObjectField(\"spanId\")"
+      },
+      {
+        "line": 186,
+        "text": "\tif !orig.SpanId.IsEmpty() {\n\t\tdest.WriteObjectField(\"spanId\")\n\t\torig.SpanId.MarshalJSON(dest)\n\t}"
+      },
+      {
+        "line": 188,
+        "text": "\t\torig.SpanId.MarshalJSON(dest)\n\t}\n\tif orig.TraceState != \"\" {\n\t\tdest.WriteObjectField(\"traceState\")"
+      },
+      {
+        "line": 194,
+        "text": "\tif !orig.ParentSpanId.IsEmpty() {\n\t\tdest.WriteObjectField(\"parentSpanId\")\n\t\torig.ParentSpanId.MarshalJSON(dest)\n\t}"
+      },
+      {
+        "line": 196,
+        "text": "\t\torig.ParentSpanId.MarshalJSON(dest)\n\t}\n\tif orig.Flags != uint32(0) {\n\t\tdest.WriteObjectField(\"flags\")"
+      },
+      {
+        "line": 222,
+        "text": "\t\torig.Attributes[0].MarshalJSON(dest)\n\t\tfor i := 1; i < len(orig.Attributes); i++ {\n\t\t\tdest.WriteMore()\n\t\t\torig.Attributes[i].MarshalJSON(dest)"
+      },
+      {
+        "line": 225,
+        "text": "\t\t\torig.Attributes[i].MarshalJSON(dest)\n\t\t}\n\t\tdest.WriteArrayEnd()\n\t}"
+      },
+      {
+        "line": 236,
+        "text": "\t\torig.Events[0].MarshalJSON(dest)\n\t\tfor i := 1; i < len(orig.Events); i++ {\n\t\t\tdest.WriteMore()\n\t\t\torig.Events[i].MarshalJSON(dest)"
+      },
+      {
+        "line": 239,
+        "text": "\t\t\torig.Events[i].MarshalJSON(dest)\n\t\t}\n\t\tdest.WriteArrayEnd()\n\t}"
+      },
+      {
+        "line": 250,
+        "text": "\t\torig.Links[0].MarshalJSON(dest)\n\t\tfor i := 1; i < len(orig.Links); i++ {\n\t\t\tdest.WriteMore()\n\t\t\torig.Links[i].MarshalJSON(dest)"
+      },
+      {
+        "line": 253,
+        "text": "\t\t\torig.Links[i].MarshalJSON(dest)\n\t\t}\n\t\tdest.WriteArrayEnd()\n\t}"
+      },
+      {
+        "line": 262,
+        "text": "\torig.Status.MarshalJSON(dest)\n\tdest.WriteObjectEnd()\n}\n"
+      }
+    ]
+  }
+]

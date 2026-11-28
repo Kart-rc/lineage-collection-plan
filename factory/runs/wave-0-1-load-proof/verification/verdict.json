@@ -1,0 +1,128 @@
+{
+  "artifacts": {
+    "review.md": "2914ce212521d2caaa83fbc2b10b2c406addbd6b3da81dece3fd86734ea024b5",
+    "source-hashes.json": "05a0d224e47320e37bda921a958c83b8dc2694803f60199d4aeb124105579379"
+  },
+  "authorization": {
+    "additional_repair_number": 3,
+    "candidate": 9,
+    "cumulative_cap": 9,
+    "deadline_utc": "2026-11-28T20:42:29.143137+00:00",
+    "remaining_authorized_source_repair_attempts": 0
+  },
+  "boundaries": {
+    "docker_lifecycle_or_image_pulls": false,
+    "full_workload": false,
+    "implementation_or_oracle_edits": false,
+    "private_holdout_access_or_authorship": false,
+    "production_access": false,
+    "remote_writes_or_messages": false,
+    "shared_service_mutation": false,
+    "temporary_test_capture_trees_retained": false
+  },
+  "candidate": 9,
+  "checks": [
+    {
+      "artifact": "pilot-tests.xml",
+      "duration_seconds": 0.8,
+      "errors": 0,
+      "failures": 0,
+      "id": "focused-pilot-regression",
+      "passed": 113,
+      "skipped": 0
+    },
+    {
+      "artifact": "traffic-boundary-results.json",
+      "cases": 16,
+      "id": "independent-traffic-boundaries",
+      "matched_expectation": 16,
+      "real_subprocess_execution_denied": true
+    },
+    {
+      "errors": 0,
+      "exit_code": 0,
+      "id": "spec-pack"
+    },
+    {
+      "exit_code": 0,
+      "id": "oracle-pins",
+      "matched": 8
+    },
+    {
+      "additional_source_entries_matching": 6,
+      "archive_matches": true,
+      "id": "reused-unchanged-candidate8-evidence",
+      "prior_overall_verdict_preserved": "CHANGES_REQUIRED",
+      "protected_original_entries_matching": 11,
+      "supporting_source_entries_matching": 13,
+      "unchanged_frozen_files": 6
+    }
+  ],
+  "claims": {
+    "actual_load_measured": false,
+    "full_in10_ia1_timings_measured": false,
+    "full_wave_complete": false,
+    "full_wp03_accepted": false,
+    "g2_approved": false,
+    "g4_approved": false,
+    "holdout_measured": false,
+    "reference_smoke_precision_measured": false,
+    "sustained_health_forwarding_measured": false,
+    "three_cold_starts": false
+  },
+  "open_finding_count": 0,
+  "open_findings": [],
+  "prior_findings": [
+    {
+      "closure": "Observed user counts must equal five at baseline and every sample; mismatch remains blocking after recovery.",
+      "evidence": "traffic-boundary-results.json",
+      "id": "V8-1",
+      "lines": [
+        490,
+        590,
+        606
+      ],
+      "source": "twin/pilot.py",
+      "status": "closed"
+    },
+    {
+      "closure": "Progress must remain evidenced throughout the bounded window; final-only completion, stale observation and long tail are unproven, not inferred inactive.",
+      "evidence": "traffic-boundary-results.json",
+      "id": "V8-2",
+      "lines": [
+        608,
+        614,
+        640,
+        642,
+        653
+      ],
+      "source": "twin/pilot.py",
+      "status": "closed"
+    }
+  ],
+  "readiness_scope": "Fresh hosted feasibility trial of the exact frozen source; no live acceptance is established",
+  "ready_for_hosted_trial": true,
+  "recorded_at": "2026-11-28T13:48:26.966271+00:00",
+  "remaining_acceptance_evidence": [
+    "Fresh hosted exact-28 healthy startup within 900 seconds",
+    "At least 600 seconds of verified five-user request activity and sustained health/forwarding",
+    "Exact nonempty service-edge precision at least 0.95 on the actual capture",
+    "Three qualifying cold starts bound to the final candidate",
+    "Applicable requirement-traced scenarios, change events, timings, replay and independent holdout evidence",
+    "Human G2/G4 gates"
+  ],
+  "schema_version": 1,
+  "source_identity": {
+    "archive_sha256": "b949c4c263037eebe5b966a98eb1e5679c98a76c0ef5b96cfdfbde86e35a5f6b",
+    "changed_since_candidate8": [
+      "tests/test_twin_pilot.py",
+      "twin/pilot.py"
+    ],
+    "final_freeze_unchanged": true,
+    "frozen_files_matching": 8,
+    "published_parent": "aabfe7dadc404bead9a88161545c33c49fa6d62d"
+  },
+  "stage": "WP-03 independent pre-hosted code and evidence verification",
+  "verdict": "READY_FOR_HOSTED_TRIAL",
+  "verifier": "verify9"
+}
