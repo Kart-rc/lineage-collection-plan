@@ -19,7 +19,7 @@ Nov 28, 2026 · For application teams and their leads. It explains how a flow ge
 - **Two levels:**
   - **Covered:** current, scored lineage, with PR reports and incident analysis.
   - **Certified:** accuracy measured against a signed golden graph, and a PR gate that may block. Most flows only need covered.
-- **Today:** the platform is being built in waves. The quick map (step 1) works now with the prototypes. The rest arrives wave by wave, as listed at the end.
+- **Today:** the platform is being built in waves. The quick map (step 1) works now with the prototypes. None of the service levels is live yet: each is marked in this guide with the wave that brings it, and [Service levels by wave](#service-levels-by-wave) lists them together.
 
 The interactive version of this guide, with a self-check of your flow, is [`site/lineage-onboarding-guide.html`](../site/lineage-onboarding-guide.html).
 
@@ -49,26 +49,26 @@ The interactive version of this guide, with a self-check of your flow, is [`site
 
 Most of these are enabled centrally; your part is making sure the signal exists.
 
-| Signal | What your flow needs | Used for |
-| --- | --- | --- |
-| OpenTelemetry traces | Every service emits spans with a `service.name` equal to its name in `.lineage.yaml` | Service-to-service edges at runtime (D7) |
-| Message spans | Producer and consumer spans name their topic (`messaging.destination.name`) | Kafka and queue hops, joined on the topic (D8) |
-| Database spans or warehouse query history | Statements in database client spans, or platform read access to Snowflake `ACCESS_HISTORY` or the Databricks lineage system tables | Column-level reads and writes at runtime (D27, D22) |
-| OpenLineage | Spark, dbt, Flink and Feast integrations, switched on by the platform | Jobs and their column lineage |
-| Gateway logs | Nothing; the platform reads them | Traffic entering the estate only |
-| Change events | Deploys, flag changes and merges reach the timeline; flags are read from code | Ranking the causes of an incident (D29) |
+| Signal | What your flow needs | Used for | Collected from |
+| --- | --- | --- | --- |
+| OpenTelemetry traces | Every service emits spans with a `service.name` equal to its name in `.lineage.yaml` | Service-to-service edges at runtime (D7) | Wave 1 (WP-19) |
+| Message spans | Producer and consumer spans name their topic (`messaging.destination.name`) | Kafka and queue hops, joined on the topic (D8) | Wave 1 (WP-19) |
+| Database spans or warehouse query history | Statements in database client spans, or platform read access to Snowflake `ACCESS_HISTORY` or the Databricks lineage system tables | Column-level reads and writes at runtime (D27, D22) | Wave 2 (WP-26): Postgres first, then Snowflake and Databricks |
+| OpenLineage | Spark, dbt, Flink and Feast integrations, switched on by the platform | Jobs and their column lineage | Wave 2 (WP-27) |
+| Gateway logs | Nothing; the platform reads them | Traffic entering the estate only | Wave 1 (WP-19) |
+| Change events | Deploys, flag changes and merges reach the timeline; flags are read from code | Ranking the causes of an incident (D29) | Wave 4 (WP-41) |
 
 Everything arrives on one topic in one format (evidence envelope v2). It goes through name matching and scoring, and lands in the graph of record (Neptune, ADR-002).
 
 ### Using the lineage
 
-| Where | What you see | Bar |
-| --- | --- | --- |
-| Your pull requests | An impact report: changed fields, their kind (renamed, retyped, removed…), the readers downstream with owner and tier, and a gate result | Within 5 minutes at p95 (IA-1). Warns first; blocks only tier 1 contract breaks (IA-5) |
-| `/impact` API and agent tool | "What breaks if I change this field?", before a pull request exists | IA-9 |
-| Alerts | A failing check arrives with the path upstream, the ranked causes and the blast radius | Within 2 minutes (IR-1) |
-| `/upstream`, `/diff`, `/explain` | Lineage at any past time, what changed between two times or commits, and the evidence behind any edge | IN-5, IN-6, XC-2 |
-| Owner queue | Edges seen only in code, only at runtime, or in disagreement, for an owner to confirm or dispute | Daily (WP-16) |
+| Where | What you see | Bar | From |
+| --- | --- | --- | --- |
+| Your pull requests | An impact report: changed fields, their kind (renamed, retyped, removed…), the readers downstream with owner and tier, and a gate result | Within 5 minutes at p95 (IA-1). Warns first; blocks only tier 1 contract breaks (IA-5) | Wave 3 (WP-33 reports, WP-34 blocking) |
+| `/impact` API and agent tool | "What breaks if I change this field?", before a pull request exists | IA-9 | Wave 3 (WP-31) |
+| Alerts | A failing check arrives with the path upstream, the ranked causes and the blast radius | Within 2 minutes at p95 (IR-1) | Wave 4 (WP-42) |
+| `/upstream`, `/diff`, `/explain` | Lineage at any past time, what changed between two times or commits, and the evidence behind any edge | IN-5, IN-6, XC-2 | Wave 1 (WP-12, WP-13, WP-14) |
+| Owner queue | Edges seen only in code, only at runtime, or in disagreement, for an owner to confirm or dispute | Daily (WP-16) | Wave 1 (WP-16) |
 
 ## Two levels: covered and certified
 
@@ -76,9 +76,9 @@ Everything arrives on one topic in one format (evidence envelope v2). It goes th
 | --- | --- | --- |
 | For | Most flows | Flows that move money, personal data or regulatory reporting |
 | Requires | Steps 0 to 4 | Steps 0 to 5 |
-| Accuracy | Scored per edge; tracked by sampled audits and the owner queue | Measured weekly against a signed golden graph: field-edge precision and recall at least 90% (BL-6) |
-| PR gate | Warns | May block tier 1 contract breaks, once the warn period shows at least 95% precision on the cases it would have blocked |
-| Incidents | Ranked causes from the first failing check | The same, with accuracy measured on change and incident replays |
+| Accuracy | Scored per edge; tracked by sampled audits and the owner queue | Measured weekly against a signed golden graph: field-edge precision and recall at least 90% (BL-6). Service and topic edges from wave 1, field edges from wave 2 |
+| PR gate | Warns (wave 3) | May block tier 1 contract breaks, once the warn period shows at least 95% precision on the cases it would have blocked (wave 3) |
+| Incidents | Ranked causes from the first failing check (wave 4) | The same, with accuracy measured on change and incident replays (wave 4) |
 
 ## Step by step
 
@@ -121,11 +121,11 @@ lineage-ci scan --stage merged --commit $SHA                                    
 ```
 
 - **You get:**
-  - the first full scan of the default branch within 1 hour (XC-7);
-  - a report on every later pull request within 5 minutes (IA-1).
-- **Guarantees:**
+  - from wave 1, the first full scan of the default branch within 1 hour (XC-7), and every later pull request and merge scanned into the graph;
+  - from wave 3, a report on every later pull request within 5 minutes (IA-1). In waves 1 and 2 the `impact` command posts nothing.
+- **Guarantees, from wave 1:**
   - A wrong `.lineage.yaml` never fails your build; the step names the field to fix (XC-7).
-  - If the platform is down, the step passes and says "lineage check unavailable" (IA-6).
+  - If the platform is down, the step passes and raises an alert; from wave 3 it also comments "lineage check unavailable" (IA-6).
   - Only changed units are re-read (IN-1).
 - **Done when:** the first scan's manifest lists a unit for every configured service, schema and project.
 
@@ -170,9 +170,9 @@ Owners confirm or dispute each one, and edges move from probable to confirmed or
 
 ### Step 6. Steady state
 
-- **Kept current:** merges re-scan only what changed, and new edges appear within 15 minutes at p95 (IN-10).
-- **History:** an edge with no runtime evidence for 30 days is marked dormant, not deleted (IN-8). Every version of every edge is kept, so the graph can be read as of any time (IN-4, IN-5).
-- **Incidents:** each records when bad data landed, when the alert fired, when the cause was identified and when it was fixed (IR-9).
+- **Kept current:** merges re-scan only what changed, and new edges appear within 15 minutes at p95 (IN-10, wave 1). From wave 3, a change upstream also re-scans the units that depend on it (WP-30).
+- **History:** an edge with no runtime evidence for 30 days is marked dormant, not deleted (IN-8). Every version of every edge is kept, so the graph can be read as of any time (IN-4, IN-5). Both from wave 1.
+- **Incidents:** each records when bad data landed, when the alert fired, when the cause was identified and when it was fixed (IR-9, wave 4).
 
 ## Who provides what
 
@@ -194,15 +194,35 @@ Owners confirm or dispute each one, and edges move from probable to confirmed or
 - **Nothing in your request path changes.** Collection is asynchronous and fails open (XC-3, IA-6).
 - **Code sent to a model leaves only through the approved endpoint** in the platform account (XC-6, D19), and only for units no rule can read.
 
+## Service levels by wave
+
+None of these is live today. Waves run in order and are not dated. A bar holds for teams once the work package that carries it has met its done-when in the twin and the wave has passed the release gate, G4, on a stage replay.
+
+| What you can count on | Bar | Requirement | From | Carried by |
+| --- | --- | --- | --- | --- |
+| What is stored | Metadata only: names, schemas, expressions, counts and times; never data values | XC-1 | Wave 1 | WP-11 |
+| Your build and your services | Never blocked or slowed: emission is asynchronous and droppable, and the CI step passes when the platform is down | XC-3, IA-6 | Wave 1 | WP-11, WP-18; the "unavailable" PR comment with WP-33 in wave 3 |
+| First full scan after onboarding a repository | Within 1 hour | XC-7 | Wave 1 | WP-18 |
+| A merge or run visible in the graph | Within 15 minutes at p95 | IN-10 | Wave 1 | WP-13; held again in wave 3 by WP-30 |
+| Service and topic edges | Precision at least 95%, recall at least 90% | BL-6 | Wave 1 | WP-19 |
+| Field edges from code | Precision and recall at least 90%, per extractor | BL-6 | Wave 2, one extractor at a time | Each extractor's done-when: SQL and dbt in WP-20, PyFlink and features in WP-22 and WP-25, Go in WP-23, C# in WP-24 |
+| Impact report on a pull request | Within 5 minutes at p95 | IA-1 | Wave 3 | WP-33 |
+| Consumers that actually broke, listed in the report | At least 80%, on visible and holdout change replays | IA-8 | Wave 3 | WP-33 |
+| Blocking tier 1 contract breaks | Only after the warn period shows at least 95% precision on what it would have blocked | IA-5 | Wave 3 | WP-34; the warn-period bar is in [`parameters.yaml`](../factory/parameters.yaml) |
+| Alert enriched with path, ranked causes and blast radius | Within 2 minutes at p95 | IR-1 | Wave 4 | WP-42 |
+| True cause of an incident | First at least 70% of the time, in the top three at least 90% | IR-5 | Wave 4 | WP-42 |
+
+Wave 0 is the platform's own groundwork (the twin, the golden graph, the corpora and the scoring harness) and gives teams nothing directly.
+
 ## What is available, and when
 
 | After | An onboarded flow gets |
 | --- | --- |
 | Today (prototypes) | The quick map (step 1), run by the platform team |
-| Wave 1 | Service-level lineage from traces; repository onboarding with the `lineage-ci` runner; owners and tiers; the owner queue |
+| Wave 1 | Service-level lineage from traces, topics and gateway logs; repository onboarding with the `lineage-ci` runner; owners and tiers; the owner queue; `/upstream`, `/diff` and `/explain` |
 | Wave 2 | Field-level lineage from code: protobuf and Avro, Go, C# with Entity Framework, SQL and dbt, PyFlink and Feast first; Kotlin and other languages follow |
-| Wave 3 | PR impact reports and the contract gate |
-| Wave 4 | Alerts with the upstream path and ranked causes; the check runner |
+| Wave 3 | PR impact reports, the `/impact` API and the contract gate |
+| Wave 4 | Alerts with the upstream path and ranked causes; the check runner; the change-event timeline |
 | Wave 5 | Search, a lineage UI, and projections into Unity Catalog and Snowflake Horizon |
 
 The first flow from your own estate to go through these steps is slice 2 (decision D22).
