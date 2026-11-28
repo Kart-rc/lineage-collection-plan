@@ -243,7 +243,7 @@ footer { margin-top: 52px; padding-top: 14px; border-top: 1px solid var(--line);
       <thead><tr><th>What</th><th>Bar</th><th>Requirement</th><th>Status</th></tr></thead>
       <tbody id="sl-body"></tbody>
     </table></div>
-    <p class="small muted">Waves run in order and are not dated. A bar holds once the work package that carries it meets its done-when in the twin and the wave passes the release gate (G4) on a stage replay. Wave 0 is the platform's own groundwork (the twin, the golden graph, the corpora and the scoring harness) and gives teams nothing directly.</p>
+    <p class="small muted">Waves run in order and are not dated. A bar holds once the release that contains its work package passes the release gate, G4 (G1 amendment 2): every metric at its bar, nothing that passed in the last approved release now failing, zero must-not-flow violations, stored values and blocked builds, and each timing measured against its bar. IA-8 and IR-5 count only once the holdout cases exist. Until slice 2 the gate replays the twin only, so it cannot catch a difference between the twin and production. Wave 0 is the platform's own groundwork (the twin, the golden graph, the corpora and the scoring harness) and gives teams nothing directly.</p>
   </section>
 
   <!-- TEMPLATES -->
@@ -318,7 +318,7 @@ lineage-ci scan --stage merged --commit $SHA</pre>
     </div>
   </section>
 
-  <footer>Source: <code>docs/10-onboarding-an-application-flow.md</code>, with the contracts in <code>factory/specs/build-collection/</code> and the decisions in doc 08 (D7, D8, D22, D27, D29, D39). The example flow is the OpenTelemetry Demo order flow, the platform's reference slice.</footer>
+  <footer>Source: <code>docs/10-onboarding-an-application-flow.md</code>, with the contracts in <code>factory/specs/build-collection/</code> and the decisions in doc 08 (D7, D8, D22, D27, D29, D39, D40). The example flow is the OpenTelemetry Demo order flow, the platform's reference slice.</footer>
 </div>
 
 <script>
@@ -446,7 +446,7 @@ lineage-ci scan --stage merged --commit $SHA</pre>
     ["Consumers that actually broke, listed in the report", "At least 80% on visible and holdout change replays", "IA-8", 3, "WP-33"],
     ["Blocking tier 1 contract breaks", "Only after the warn period shows at least 95% precision on what it would have blocked", "IA-5", 3, "WP-34"],
     ["Alert enriched with path, ranked causes and blast radius", "Within 2 minutes at p95", "IR-1", 4, "WP-42"],
-    ["True cause of an incident", "First at least 70% of the time, in the top three at least 90%", "IR-5", 4, "WP-42"]
+    ["True cause of an incident", "First at least 70% of the time, in the top three at least 90%, on visible and holdout incident replays", "IR-5", 4, "WP-42"]
   ];
   const SL_NOTE = [
     "A team can get the quick map, run by the platform team with the prototypes.",

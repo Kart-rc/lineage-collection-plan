@@ -1,9 +1,10 @@
 # Every number the build is judged by, in one place. Agents read this file; only people change it (protected path,
 # approved at gate G1). Requirement IDs refer to doc 06; decisions to doc 08.
 # Status: approved at gate G1, 28 November 2026 (factory/gates/G1-2026-11-28.md). Values marked "set at G1" were
-# undefined before this file.
+# undefined before this file. Version 1.1.0 adds release_gate, approved in G1 amendment 2 the same day
+# (factory/gates/G1-amendment-2-2026-11-28.md).
 
-version: 1.0.0
+version: 1.1.0
 
 evidence:
   # Set by the evidence library, never by a collector (doc 03, step 1). db_span is new (D27): a database client span.
@@ -76,6 +77,27 @@ factory:
   promotion: {consecutive_changes: 5, escaped_defects: 0, weekly_sample_findings: 0}
   start_levels: {wave_0: people_or_2, wave_1: 2, wave_2_and_later: "2 until wave 1 meets its holdout pass rate, then the level in the work package (D18)"}
   limits: {build_attempts: 6, wall_clock: 1 working day, cost: recorded per merged change, cap: none}   # D21
+
+release_gate:                  # G4, doc 06 station 8. Set in G1 amendment 2 (D40), 28 November 2026. The rules are in
+                               # constitution.md, "Release gate (G4)"; each record follows factory/gates/templates/G4-release.md
+  unit: release                # every release is gated; a wave is available to teams once the release holding its last work package passes
+  baseline: last_approved_release           # both scored against the oracle pinned by the latest G3 record
+  first_release: floor_only                 # nothing to compare against: every rule but "no lost case" applies; it becomes the baseline
+  replay:
+    until_slice_2: [recorded_twin_captures, recorded_corpora, fresh_twin_run]
+    from_slice_2: [one_day_of_production_evidence, recorded_twin_captures, recorded_corpora, fresh_twin_run]
+  accuracy:                    # on the recorded replays, which are deterministic (WP-04 must-hold)
+    floor: [parameters_yaml, work_package_done_when]   # every metric the release carries meets both
+    cases_lost_allowed: 0      # a lost case: a golden edge, change or incident the baseline passed and the release fails
+    waiver: named_case_with_reason_signed_by_approver   # case by case, in the record; never below the floor
+  timings:                     # on the fresh twin run; checked against the bar, not against the baseline, because timings vary run to run
+    requirements: [IA-1, IN-10, IR-1, XC-7]
+  hard_zero:                   # any count above 0 fails the release; no waiver
+    must_not_flow_violations: 0                         # the 5 must-not-flow rules (WP-23, WP-34)
+    payload_values_stored: 0                            # XC-1 (WP-26)
+    blocked_producers_or_merges_in_fault_scenarios: 0   # XC-3, IA-6 (WP-18, WP-53)
+  holdout_required_for: [IA-8, IR-5]   # declared held only with holdout evidence; until WP-02 delivers, the record says "visible only"
+  applies_from: release_holding_the_work_package       # each metric, timing and hard zero counts once its work package is in the release
 
 corpora:                       # WP-02; sizes so that IA-8 and IR-5 percentages mean something
   changes: {minimum: 20, holdout_share: 0.33, split_by: family}

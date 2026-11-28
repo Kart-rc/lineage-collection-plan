@@ -196,7 +196,13 @@ Owners confirm or dispute each one, and edges move from probable to confirmed or
 
 ## Service levels by wave
 
-None of these is live today. Waves run in order and are not dated. A bar holds for teams once the work package that carries it has met its done-when in the twin and the wave has passed the release gate, G4, on a stage replay.
+None of these is live today. Waves run in order and are not dated. A bar holds for teams once the release that contains the work package carrying it passes the release gate, G4. The rules for G4 were set in [G1 amendment 2](../factory/gates/G1-amendment-2-2026-11-28.md):
+- every metric at its bar;
+- nothing that passed in the last approved release now failing;
+- zero must-not-flow violations, stored values and blocked builds;
+- each timing measured against its bar.
+
+IA-8 and IR-5 are declared held only once the holdout corpora exist (WP-02). Until slice 2, the gate replays the twin only, so it cannot catch a difference between the twin and production.
 
 | What you can count on | Bar | Requirement | From | Carried by |
 | --- | --- | --- | --- | --- |
