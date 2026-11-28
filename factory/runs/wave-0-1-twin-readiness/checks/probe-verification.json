@@ -1,0 +1,103 @@
+{
+  "candidate": 5,
+  "fuzz": [
+    {
+      "command": "GOCACHE=/tmp/lineage-probe-go-cache GOTOOLCHAIN=local CGO_ENABLED=0 /tmp/lineage-go-sdk-go1.27.4/go/bin/go test -run=^$ -fuzz=FuzzDescribeNeverPanics -fuzztime=2s -parallel=2",
+      "executions": 62732,
+      "failures": 0,
+      "package_seconds": 2.662,
+      "status": "pass"
+    },
+    {
+      "command": "GOCACHE=/tmp/lineage-probe-go-cache GOTOOLCHAIN=local CGO_ENABLED=0 /tmp/lineage-go-sdk-go1.27.4/go/bin/go test -run=^$ -fuzz=FuzzAssignmentNeverPanics -fuzztime=2s -parallel=2",
+      "executions": 39950,
+      "failures": 0,
+      "package_seconds": 2.081,
+      "status": "pass"
+    }
+  ],
+  "limits": [
+    "Plaintext single-broker twin only; no Kafka coordinator discovery or SASL/TLS.",
+    "Readiness checks membership and assignment metadata, not consumer business logic.",
+    "Actual accounting/fraud-detection readiness, hosted pilot, three full cold starts and fresh-load observed-edge accuracy remain separate acceptance evidence.",
+    "No holdout, release gate or production approval claim."
+  ],
+  "real_kafka": {
+    "broker": "lineage-kafka:9092",
+    "check": "same-container-real-kafka",
+    "command": "docker run --rm --name lineage-readiness-probe-check --network lineage-twin_lineage --read-only --user 65534:65534 --cap-drop ALL --security-opt no-new-privileges --env PYTHONDONTWRITEBYTECODE=1 --mount type=bind,src=/tmp/lineage-healthcheck-probe,dst=/lineage-healthcheck,readonly --mount type=bind,src=/tmp/lineage-probe-integration.py,dst=/probe-test.py,readonly --entrypoint python lineage-platform:approved-contracts /probe-test.py",
+    "exact_fixture_deleted": true,
+    "fixture_scope": "unique lineage-readiness-probe-topic-* and lineage-readiness-probe-group-*; no factory groups",
+    "fixture_script_sha256": "958610032cfa4dd4b6c0777cd4bbf08a1ad7d88c4b9417533a730e3d41e16d70",
+    "image_id": "sha256:10559917bd66f7494fd104f6fbdae5e5835cc4b0c4dc0ade6dc9e3739fc0bfcd",
+    "method": "Separate authorized fixture consumer joins an empty synthetic topic/group; helper sends only DescribeGroups from the same container. Close fixture consumer, assert helper unready, delete exact group/topic.",
+    "network": "lineage-twin_lineage",
+    "ready_with_assignment": true,
+    "records_consumed": 0,
+    "records_produced": 0,
+    "status": "pass",
+    "temporary_container_removed": true,
+    "unready_after_consumer_close": true
+  },
+  "record_type": "candidate-readiness-probe-verification",
+  "recorded_at": "2026-11-28T06:52:23.270550+00:00",
+  "requirements_supported": [
+    "IN-10",
+    "IA-1"
+  ],
+  "setup_corrections": [
+    "Initial test command failed before compilation because of the working-directory path and read-only default Go cache; used module directory and /tmp cache.",
+    "Initial temporary-container fixture launch could not read the mode-600 script; set that exact script to 0644 and binary to 0755, then reran. No Kafka fixture existed during that failed launch."
+  ],
+  "source_corrective_repairs": 0,
+  "source_sha256": {
+    "twin/probe/README.md": "231036695798285bf84c3ea722c93570daa2793ef676e9c90728be42967d65ce",
+    "twin/probe/go.mod": "6c8ce5456f383bcf3bb45997afa100fdead3a0f202cee4832760bec95fcb3d3c",
+    "twin/probe/main.go": "f0f39dced106b45df2b35bbce4a84bd79b5fc9293997a4e30a572c06edce560b",
+    "twin/probe/main_test.go": "e53afc6386fca6a1771dee81b26a425c1b949aff7fc926ce62eee4aec8327c70"
+  },
+  "toolchain": {
+    "CGO_ENABLED": "0",
+    "GOCACHE": "/tmp/lineage-probe-go-cache",
+    "GOTOOLCHAIN": "local",
+    "module_dependencies": "standard library only",
+    "path": "/tmp/lineage-go-sdk-go1.27.4/go/bin/go",
+    "version": "go1.27.4"
+  },
+  "unit_tests": {
+    "command": "GOCACHE=/tmp/lineage-probe-go-cache GOTOOLCHAIN=local CGO_ENABLED=0 /tmp/lineage-go-sdk-go1.27.4/go/bin/go test -count=1 -v ./...",
+    "coverage": [
+      "exact HTTP GET path",
+      "strict 200",
+      "redirect refusal without following",
+      "HTTP body limit",
+      "truncated HTTP body",
+      "HTTP and Kafka deadlines",
+      "sanitized status output",
+      "same-connection local IP member requirement",
+      "stable consumer group and expected partition assignment",
+      "one DescribeGroups v0 request and no later requests",
+      "fragmented TCP response",
+      "Kafka frame/correlation/string/count bounds",
+      "all truncations of valid response and assignment fixtures",
+      "assignment versions 0-3",
+      "duplicate or negative partitions and duplicate topics rejected",
+      "null non-nullable fields rejected",
+      "opaque protocol metadata not interpreted"
+    ],
+    "exit_code": 0,
+    "fuzz_seed_cases": 4,
+    "package_seconds": 0.117,
+    "status": "pass",
+    "test_functions": 10,
+    "working_directory": "twin/probe"
+  },
+  "verification_binary": {
+    "command": "GOCACHE=/tmp/lineage-probe-go-cache GOTOOLCHAIN=local CGO_ENABLED=0 /tmp/lineage-go-sdk-go1.27.4/go/bin/go build -trimpath -ldflags='-s -w' -o /tmp/lineage-healthcheck-probe .",
+    "format": "ELF 64-bit x86-64 statically linked stripped executable",
+    "path": "/tmp/lineage-healthcheck-probe",
+    "role": "temporary verification binary; final parent artifact may use different build flags",
+    "sha256": "64ffa2f0d485387d56428aae2f094b53aeede2d4f7b183ab28ade9d0049fd9a5"
+  },
+  "work_package": "WP-03"
+}

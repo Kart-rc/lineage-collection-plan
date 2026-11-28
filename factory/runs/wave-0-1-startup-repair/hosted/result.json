@@ -1,0 +1,92 @@
+{
+  "candidate": 7,
+  "status": "FAIL",
+  "run_id": 46147235715,
+  "job_id": 140985869153,
+  "run_url": "https://github.com/Kart-rc/lineage-collection-plan/actions/runs/46147235715",
+  "pr_head": "aabfe7dadc404bead9a88161545c33c49fa6d62d",
+  "executed_merge_commit": "282433d4c933db13b57e9f9a557e65522607392e",
+  "source_hash_comparison": {
+    "twin/images.lock.json": {
+      "reviewed": "d2938f8d614c63cb867394355b5d8566216a630fca48ff88e776cbb84d4ce0b3",
+      "hosted": "d2938f8d614c63cb867394355b5d8566216a630fca48ff88e776cbb84d4ce0b3",
+      "matches": true
+    },
+    "twin/pilot.py": {
+      "reviewed": "5c36a0f9af8c90e31632c2a8d81754ec4580e4c1b93d6dfe8c5f387d7cedf220",
+      "hosted": "5c36a0f9af8c90e31632c2a8d81754ec4580e4c1b93d6dfe8c5f387d7cedf220",
+      "matches": true
+    },
+    "twin/probe-toolchain.json": {
+      "reviewed": "10337ce5fb839b4e92f4cdada9406e6ed61f944d9b2b23657cfdd9eb4cefe1b1",
+      "hosted": "10337ce5fb839b4e92f4cdada9406e6ed61f944d9b2b23657cfdd9eb4cefe1b1",
+      "matches": true
+    },
+    "twin/smoke.py": {
+      "reviewed": "116f71fa21bee1291468de5ed882f92c40bd6f5b7c1b1fb4015d15503411c299",
+      "hosted": "116f71fa21bee1291468de5ed882f92c40bd6f5b7c1b1fb4015d15503411c299",
+      "matches": true
+    },
+    "twin/start.py": {
+      "reviewed": "1a93b5bd42489a5d59ca1ed1afe98c8ecaba5f4cb419869aebd5e625dcdd4912",
+      "hosted": "1a93b5bd42489a5d59ca1ed1afe98c8ecaba5f4cb419869aebd5e625dcdd4912",
+      "matches": true
+    }
+  },
+  "probe_sha256": "29d64f078a501a3fac6b912f6554bb0d776b5f7d7e8a9f9fe1bb7a8bfb863433",
+  "artifact": {
+    "id": 15264836994,
+    "name": "full-reference-pilot-metadata",
+    "digest": "sha256:a2dd426b9611688ed22b6d584b2038869ba8870f62feb65a59b20325745437f5"
+  },
+  "startup_passed": true,
+  "startup_observed_seconds": 132.605541,
+  "load_seconds": 600.535933527,
+  "traffic_proof": true,
+  "request_count_delta": 582,
+  "failure_categories": [
+    "load_services_not_healthy",
+    "forwarding_proof_failed",
+    "smoke_failed"
+  ],
+  "collector_health": {
+    "available": true,
+    "category": "input_limit",
+    "sent": 0,
+    "status": "error",
+    "updated_at": 1795871488.892071
+  },
+  "traces_and_logs_bytes": 17731133,
+  "configured_collector_max_input_bytes": 16777216,
+  "smoke_status": "blocked",
+  "smoke_failure_categories": [
+    "invalid_otlp"
+  ],
+  "precision": null,
+  "offending_otlp_record_known": false,
+  "raw_artifacts_published": false,
+  "minimum_memory_available_bytes": 12009328640,
+  "minimum_docker_disk_free_bytes": 80252219392,
+  "owned_shutdown": {
+    "attempted": true,
+    "stopped": true
+  },
+  "claims": {
+    "full_in10_p95_measured": false,
+    "full_wp03_accepted": false,
+    "g4_approved": false,
+    "holdout_measured": false,
+    "three_cold_starts": false
+  },
+  "report_sha256": {
+    "pilot.json": "e99c8068bf43ead1f48608121689dd94b768d3a6635187f7602c4e2fb1d1d821",
+    "startup.json": "0a1c1a03b60227b98c96fda79495918ad6995dc695d1579b4a7149b1d131c711",
+    "smoke.json": "7beae603db1b46c24bdaf9f46201bafccca0d117508181f21867540a5c06f03c"
+  },
+  "limitations": [
+    "One cold start with prebuilt images; not three cold starts.",
+    "Collector reached input bound; sustained healthy forwarding was not established.",
+    "Structural validation blocked before precision scoring; this is not an observed precision failure.",
+    "Raw capture was not retained outside the disposable runner, so exact rejected record remains unknown."
+  ]
+}

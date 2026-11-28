@@ -1,0 +1,56 @@
+{
+  "candidate": 5,
+  "max_candidates": 6,
+  "source_repairs_by_verifier": false,
+  "findings": [
+    {
+      "id": "TR-1",
+      "severity": "P1",
+      "title": "Startup success can exceed the approved 900-second limit",
+      "probe": "startup-boundary-probe.py",
+      "observed": {
+        "exit_code": 0,
+        "status": "passed",
+        "elapsedSeconds": 901.0,
+        "timeoutSeconds": 1800
+      }
+    },
+    {
+      "id": "TR-2",
+      "severity": "P1",
+      "title": "The rendered configuration defines the expected set and permits 27-service success",
+      "probe": "startup-boundary-probe.py",
+      "observed": {
+        "exit_code": 0,
+        "status": "passed",
+        "expectedServices": 27,
+        "allContainersHealthy": true
+      }
+    },
+    {
+      "id": "TR-3",
+      "severity": "P1",
+      "title": "Waiting 600 seconds does not establish actual load activity",
+      "probe": "idle-load-probe.py",
+      "observed": {
+        "pilot_status": "passed",
+        "measured_wait_seconds": 600.0,
+        "load_activity_queries": 0,
+        "load_stats_measured": false
+      }
+    },
+    {
+      "id": "TR-4",
+      "severity": "P1",
+      "title": "Cleanup accepts a stale ownership/report pair from a previous invocation",
+      "probe": "stale-cleanup-probe.py",
+      "observed": {
+        "new_attempt_owned": false,
+        "new_attempt_status": "blocked",
+        "commands_before_failure": 0,
+        "new_attempt_run_id_differs": true,
+        "workflow_cleanup_would_accept_stale_pair": true
+      }
+    }
+  ]
+}

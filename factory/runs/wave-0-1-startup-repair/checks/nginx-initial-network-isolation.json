@@ -1,0 +1,66 @@
+[
+  {
+    "service": "image-provider",
+    "image": "ghcr.io/open-telemetry/demo@sha256:46d1a7e95109c0064122ca0bfb49cd05191fb90a6264b6be508e0d98f2c963f1",
+    "network": "none",
+    "template": "generated IPv4-only sandbox template",
+    "probes": [
+      {
+        "host": "localhost",
+        "exit_code": 1,
+        "category": "other_failure"
+      },
+      {
+        "host": "127.0.0.1",
+        "exit_code": 1,
+        "category": "other_failure"
+      },
+      {
+        "host": "[::1]",
+        "exit_code": 1,
+        "category": "other_failure"
+      }
+    ],
+    "launch_exit_code": 0,
+    "container": {
+      "Status": "running",
+      "Running": true,
+      "OOMKilled": false,
+      "ExitCode": 0
+    },
+    "localhost_resolves_ipv6": true,
+    "exact_container_removed": true
+  },
+  {
+    "service": "telemetry-docs",
+    "image": "ghcr.io/open-telemetry/demo@sha256:3f257a843222df2462d903fd57b12af5f31dc99a0f174b45136a4f3ba5c71203",
+    "network": "none",
+    "template": "generated IPv4-only sandbox template",
+    "probes": [
+      {
+        "host": "localhost",
+        "exit_code": 1,
+        "category": "other_failure"
+      },
+      {
+        "host": "127.0.0.1",
+        "exit_code": 1,
+        "category": "other_failure"
+      },
+      {
+        "host": "[::1]",
+        "exit_code": 1,
+        "category": "other_failure"
+      }
+    ],
+    "launch_exit_code": 0,
+    "container": {
+      "Status": "running",
+      "Running": true,
+      "OOMKilled": false,
+      "ExitCode": 0
+    },
+    "localhost_resolves_ipv6": true,
+    "exact_container_removed": true
+  }
+]

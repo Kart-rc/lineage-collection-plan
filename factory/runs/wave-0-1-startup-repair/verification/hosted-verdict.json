@@ -1,0 +1,179 @@
+{
+  "candidate": 7,
+  "ci_context": {
+    "note": "Three successful CI jobs support regression coverage; their overlapping counts were not summed and they do not override the failed full-reference pilot.",
+    "reported_unique_cases": 481,
+    "run_id": 46147235705,
+    "status": "success",
+    "unique_case_count_independently_recomputed": false
+  },
+  "claims": {
+    "actual_600_second_traffic_measured": true,
+    "forwarding_progress_measured": true,
+    "full_in10_p95_measured": false,
+    "full_wp03_accepted": false,
+    "g2_approved": false,
+    "g4_approved": false,
+    "holdout_measured": false,
+    "ia1_p95_measured": false,
+    "precision_floor_held": false,
+    "single_startup_readiness_measured": true,
+    "three_cold_starts": false,
+    "wave_0_1_complete": false
+  },
+  "evidence_integrity": {
+    "archive_sha256_matches_manifest": true,
+    "archive_source_files_matched_to_frozen_review": 5,
+    "changing_working_tree_source_used": false,
+    "demo_and_probe_identity_consistent": true,
+    "hosted_report_sha256_matches": 3,
+    "input_sha256": {
+      "artifacts/candidate7-source.tar.gz": "4b7f3ce72663aca0c54c1a8db8474b847702a2a304743b201cba9106a4c84c28",
+      "artifacts/manifest.json": "8947615dc7ffade93d261ee5338332345584379d76c46c4df5c1b4f88fb132cd",
+      "checks/github-ci.json": "9d468cb87a470be2e8d393d8d00588c9e83f2cdda525dbe5b53f66a55c068dc4",
+      "hosted/pilot.json": "e99c8068bf43ead1f48608121689dd94b768d3a6635187f7602c4e2fb1d1d821",
+      "hosted/result.json": "19e93bb59c2fb2a3e883c15721bdea10b4e650b4034554877de1690d45cac08f",
+      "hosted/smoke.json": "7beae603db1b46c24bdaf9f46201bafccca0d117508181f21867540a5c06f03c",
+      "hosted/startup.json": "0a1c1a03b60227b98c96fda79495918ad6995dc695d1579b4a7149b1d131c711",
+      "publication.json": "3f4ccb138d3c1fd452fc66a83f257a224b2ded71dd2d61c8f5c9d9f2ca1f08f2",
+      "verification/source-hashes.json": "33efd5ad6259858cdc5ef9a893895ed2845afd48dbd7554afddbf501cd00a558"
+    },
+    "internal_consistency": true,
+    "reported_source_hashes_matched_to_frozen_review": 5,
+    "worker_image_id_consistent": true
+  },
+  "goal_complete": false,
+  "limitations": [
+    "One measured container startup after image/probe preparation, excluding their preparation and full build time; not three accepted cold starts.",
+    "Health is sampled at 30-second intervals; no exact onset or continuous healthy interval is inferred.",
+    "The collector capacity diagnostic and smoke structural failure are separate observations; their causal relationship and exact rejected record remain unproven.",
+    "Only metadata and immutable archived sources were reviewed. No new tests, code fixes, infrastructure actions, remote actions or raw-capture access occurred."
+  ],
+  "measurements": {
+    "collector": {
+      "configured_max_input_bytes": 16777216,
+      "excess_bytes": 953917,
+      "last_health": {
+        "available": true,
+        "category": "input_limit",
+        "sent": 0,
+        "status": "error",
+        "updated_at": 1795871488.892071
+      },
+      "sent_field_scope": "last collector iteration, not total run throughput",
+      "traces_and_logs_bytes": 17731133
+    },
+    "forwarding": {
+      "baseline": {
+        "accepted_receipts": 10,
+        "graph_nodes": 10,
+        "graph_revisions": 6,
+        "graph_versions": 6,
+        "outbox_sent": 5,
+        "outbox_total": 6
+      },
+      "deltas": {
+        "accepted_receipts": 966,
+        "graph_nodes": 12,
+        "graph_revisions": 221,
+        "graph_versions": 1005,
+        "outbox_sent": 26,
+        "outbox_total": 25
+      },
+      "failure_semantics": "Counts grew, but frozen pilot requires count progress AND all load health samples healthy.",
+      "final": {
+        "accepted_receipts": 976,
+        "graph_nodes": 22,
+        "graph_revisions": 227,
+        "graph_versions": 1011,
+        "outbox_sent": 31,
+        "outbox_total": 31
+      },
+      "progress_observed": true,
+      "sustained_healthy_forwarding_proof": false
+    },
+    "load": {
+      "all_samples_exact_service_set": true,
+      "all_services_healthy_entire_window_established": false,
+      "duration_seconds": 600.535933527,
+      "first_unhealthy_sample_seconds": 600.00009,
+      "healthy_samples": 20,
+      "request_delta": 582,
+      "requests_after": 593,
+      "requests_before": 11,
+      "total_health_samples": 21,
+      "traffic_proof": true,
+      "unhealthy_services": [
+        "lineage-collector"
+      ],
+      "users_at_each_observation": 5
+    },
+    "resource_minimums": {
+      "docker_root_free_bytes": 80252219392,
+      "emergency_threshold_breached": false,
+      "memory_available_bytes": 12009328640
+    },
+    "shutdown": {
+      "attempted": true,
+      "stopped": true
+    },
+    "smoke": {
+      "exact_rejected_record_known": false,
+      "failure_categories": [
+        "invalid_otlp"
+      ],
+      "observed_precision_failure": false,
+      "precision": null,
+      "precision_measured": false,
+      "raw_capture_replayed": false,
+      "status": "blocked"
+    },
+    "startup": {
+      "exact_running_healthy_services": 28,
+      "externally_observed_seconds": 132.605541,
+      "full_build_time_measured": false,
+      "image_preparation_included": false,
+      "limit_seconds": 900,
+      "passed_single_readiness_trial": true,
+      "probe_preparation_included": false,
+      "starter_seconds": 132.522626,
+      "successful_initializer_exit_code": 0,
+      "three_of_three_established": false
+    }
+  },
+  "open_findings": [
+    {
+      "detail": "The final load sample reports lineage-collector running but unhealthy. Last collector health reports input_limit; measured trace/log input exceeds the configured 16 MiB bound by 953917 bytes. Sustained healthy collection/forwarding did not pass.",
+      "evidence": [
+        "hosted/pilot.json#/load/samples/20",
+        "hosted/pilot.json#/collector_health",
+        "hosted/pilot.json#/flow",
+        "hosted/result.json"
+      ],
+      "id": "H7-1",
+      "kind": "runtime_acceptance_failure"
+    },
+    {
+      "detail": "Smoke structural validation returns invalid_otlp before replay/precision scoring. Precision is null, and the exact rejected record is unknown because raw capture was not retained outside the runner.",
+      "evidence": [
+        "hosted/smoke.json",
+        "hosted/result.json#/limitations"
+      ],
+      "id": "H7-2",
+      "kind": "blocked_acceptance_measurement"
+    }
+  ],
+  "recorded_at": "2026-11-28T13:24:37.963714+00:00",
+  "run": {
+    "executed_merge_commit": "282433d4c933db13b57e9f9a557e65522607392e",
+    "github_run_id": 46147235715,
+    "job_id": 140985869153,
+    "merge_to_head_provenance": "GitHub metadata verified by root; local publication, CI and hosted records agree",
+    "pr_head": "aabfe7dadc404bead9a88161545c33c49fa6d62d",
+    "url": "https://github.com/Kart-rc/lineage-collection-plan/actions/runs/46147235715"
+  },
+  "schema_version": 1,
+  "stage": "hosted readiness and load feasibility evidence review",
+  "verdict": "FAIL",
+  "verifier": "verify7"
+}

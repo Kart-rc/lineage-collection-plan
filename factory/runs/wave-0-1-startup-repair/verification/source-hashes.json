@@ -1,0 +1,62 @@
+{
+  "archived_baseline_sha256": {
+    ".github/workflows/full-reference-pilot.yml": "fd98922a44843ca8b3578179366773f79aee91a5c82df944726c8ebbd2cefdf2",
+    "tests/test_twin_pilot.py": "c77acafa57096edea1306dffabaca755fc13e40271ce2b3baf8266f867b95555",
+    "tests/test_twin_smoke.py": "b46c358bf7f191b254fcdeb29142edfafde713191a0a6c2354d2a0ebd31921c4",
+    "tests/test_twin_startup.py": "6b6ad5738a3d167b464fc3bd05c628fdf45279a1399f88f01db93b3e5f4be409",
+    "twin/README.md": "41d58a616ecc8267f1bc49a56aa0fb7a9103526b22e873771eb28b39d4599c16",
+    "twin/pilot.py": "8d6cc91244b4cd0c358003abfea246f8a90f72f078bbe13cfdbe5631d96a0e13",
+    "twin/probe-toolchain.json": "10337ce5fb839b4e92f4cdada9406e6ed61f944d9b2b23657cfdd9eb4cefe1b1",
+    "twin/smoke.py": "116f71fa21bee1291468de5ed882f92c40bd6f5b7c1b1fb4015d15503411c299",
+    "twin/start.py": "096da1f674b101b376588b5f686628d4b3ed56c2094d6a5c2e6bd74b333f34bc"
+  },
+  "candidate": 7,
+  "identity_scope": "frozen working-tree source; local HEAD is not the published PR head",
+  "inputs_sha256": {
+    "factory/runs/wave-0-1-startup-repair/approval.json": "e303c10e6c0752d4bc298ba5cd0123ed508417f5c00b60ae2fea64fe376de19c",
+    "factory/runs/wave-0-1-startup-repair/checks/actual-config.json": "5199181a8ae8106e167d6b5860b049df56d57e432c16f8d71938a2e41a3824e7",
+    "factory/runs/wave-0-1-startup-repair/checks/nginx-reproduction.json": "4b3e7574a26f183f88444f8aed56baa84f1dea7911db526b66aff2a06f004805",
+    "factory/runs/wave-0-1-twin-readiness/artifacts/reviewed-source.tar.gz": "d1e6fd42797f5eab002f5f95c2579b1f23a45acab88807dff7b77e1ef13bad66",
+    "factory/runs/wave-0-1-twin-readiness/hosted/pilot.json": "544a23940101391823ae9c3231372339c2214b517c83257198aaa54c4d429dd9",
+    "factory/runs/wave-0-1-twin-readiness/hosted/result.json": "cd909c2db698a990a99dd4c863ae2319a75ac6dd0882619748c3178a04d48726",
+    "factory/runs/wave-0-1-twin-readiness/hosted/startup.json": "36cc77d86595e6c2464f3e3884f9856c9e2a454793daa30ec38f63e81ca333cb"
+  },
+  "local_head": "0df76476b2fdd29d38b8e63ccb1f9c1a02db66ca",
+  "published_baseline_head": "3a80d63a15a3fcf3226e4d1bcb7f3e02914941e3",
+  "recorded_at": "2026-11-28T12:56:42.783928+00:00",
+  "schema_version": 1,
+  "source_sha256": {
+    ".github/workflows/full-reference-pilot.yml": "fd98922a44843ca8b3578179366773f79aee91a5c82df944726c8ebbd2cefdf2",
+    "code/spec_pack.py": "f311ab8821d087df68ba626cd4296cfba2ed65398f9c1195cf3b4cb886f889d1",
+    "factory/constitution.md": "8e0e06187c1b92bbd6d6852ad85ab7a98e6a6288a7562ea9be934164c580e4cc",
+    "factory/parameters.yaml": "9c4753b3c61e2fec59b1aea3906e194068ca033f07d5d036dd4a7f7706f0f787",
+    "factory/work-packages/WP-03-twin-of-the-slice.md": "083d6be4234a7ed6e4773995f4056db85fd7ede2b238121cf36479462dd1a2f4",
+    "fixtures/otel-demo-3.1.0/run/sandbox.sh": "77f03516f33b2162292458e383a53f96140afcd5586200a34a71f54f4e9777e0",
+    "scripts/check_oracle.py": "ef1d49b58b3d4b89d2fec4ebdd2093ba08985ced4fc406380a4f0d01d9f3fe6d",
+    "src/lineage/collector.py": "d29329f656db88d51e64d965adefadc91a85b8b5fa9aa77f74f6beb54f4c3a7b",
+    "tests/test_twin_infrastructure.py": "ef54270b017cb1ca405a19566b0ff140c9b13ec3fd4cd4867662441f64a74fd5",
+    "tests/test_twin_pilot.py": "c77e728ca5a877e33dc08d50685d8d5d15c6b315043453c835ce5ce1dd482b46",
+    "tests/test_twin_smoke.py": "b46c358bf7f191b254fcdeb29142edfafde713191a0a6c2354d2a0ebd31921c4",
+    "tests/test_twin_startup.py": "b1e0b3c733ebe737a5d33754964eface44147848dab6758c193a360e5aa9b495",
+    "twin/README.md": "788c8f75920a6f21dd8649c4aeca7f24d9b59c6cf491e69c682b44e74a769be9",
+    "twin/collector.compose.yaml": "d99a1f7b7c7357bd33c9727167b029cbf84128a15af75ef702e4d382e37b64f3",
+    "twin/compose.yaml": "18bf4874e88582db83ee0fe511b1d2d1d58ba649280a243a5e5bdb5fa2412d27",
+    "twin/images.lock.json": "d2938f8d614c63cb867394355b5d8566216a630fca48ff88e776cbb84d4ce0b3",
+    "twin/pilot.py": "5c36a0f9af8c90e31632c2a8d81754ec4580e4c1b93d6dfe8c5f387d7cedf220",
+    "twin/probe-toolchain.json": "10337ce5fb839b4e92f4cdada9406e6ed61f944d9b2b23657cfdd9eb4cefe1b1",
+    "twin/smoke.py": "116f71fa21bee1291468de5ed882f92c40bd6f5b7c1b1fb4015d15503411c299",
+    "twin/start.py": "1a93b5bd42489a5d59ca1ed1afe98c8ecaba5f4cb419869aebd5e625dcdd4912",
+    "twin/worker.compose.yaml": "2e366b1f557bc5b391d9fe6f41601fe22056348d96af4d8428510e063a5879df"
+  },
+  "upstream": {
+    "clean": true,
+    "commit": "dedc0178918e260823323b8d95005a8cb924b007",
+    "sha256": {
+      "compose.full.yaml": "a9d53f12e95e5e9572c219da815ed3489b5d71e8690f81078e157161645d87f2",
+      "compose.yaml": "2d968d4a19e0d2634159c5c6bb4ee5079ae73ea9abb979e9dcd30b56e2a94633",
+      "src/image-provider/nginx.conf.template": "efcd9d8f528cf11464bc049767121ecff458bba96c6af95787e83ee5d8f0ee02",
+      "src/telemetry-docs/nginx.conf.template": "1ea1bc36c786ea293d071f622c930703a19aeb41a3e6442ba9786d4bd9d3f191"
+    }
+  },
+  "verifier": "verify7"
+}

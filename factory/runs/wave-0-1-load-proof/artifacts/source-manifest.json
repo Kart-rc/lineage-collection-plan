@@ -1,0 +1,19 @@
+{
+  "candidate": 9,
+  "parent_candidate": 8,
+  "published_parent_head": "aabfe7dadc404bead9a88161545c33c49fa6d62d",
+  "source_sha256": {
+    "twin/start.py": "2e615ae888ab08524fadd4e582e0918bbbe66d24f19c898f86090465746362c0",
+    "twin/collector.compose.yaml": "fc1f2da0db51222665338b3a4b25ed09c23f1534975c0bbf5d095ed8562e6d7f",
+    "tests/test_twin_startup.py": "deb6c1487d73ad9590e08af86da0b617ca97101c6b06cc25766beccd5d314cdb",
+    "twin/README.md": "c0e98fb0669f2e41dec7e022bd57034ea631a5ed7be4d9a207e5fbf45a39afe4",
+    "twin/smoke.py": "3ae0edb2177da6425c7201b02cc4636810dcebac296ff19fb427d7a295bfe860",
+    "tests/test_twin_smoke.py": "455f49a3ac53e2b0adad55ddea97791bf33f50cb39021de9ed91044482823277",
+    "twin/pilot.py": "b0aafae722d51286b38e662eea1b3c4b8b93a9fb5044c19db3db5553e8104c3e",
+    "tests/test_twin_pilot.py": "577ae7a1170fab2565f38e69a4595a0e7891bbaa1cc22c8e56dee73f36b70b67"
+  },
+  "changed_since_candidate8": [
+    "twin/pilot.py",
+    "tests/test_twin_pilot.py"
+  ]
+}

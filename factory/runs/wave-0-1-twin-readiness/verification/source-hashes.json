@@ -1,0 +1,32 @@
+{
+  "candidate": 6,
+  "maximum_candidates": 6,
+  "budget_reset": false,
+  "recorded_at_utc": "2026-11-28T07:12:11.833848+00:00",
+  "base_commit": "0df76476b2fdd29d38b8e63ccb1f9c1a02db66ca",
+  "files": {
+    ".github/workflows/full-reference-pilot.yml": "fd98922a44843ca8b3578179366773f79aee91a5c82df944726c8ebbd2cefdf2",
+    "factory/constitution.md": "8e0e06187c1b92bbd6d6852ad85ab7a98e6a6288a7562ea9be934164c580e4cc",
+    "factory/parameters.yaml": "9c4753b3c61e2fec59b1aea3906e194068ca033f07d5d036dd4a7f7706f0f787",
+    "factory/work-packages/WP-03-twin-of-the-slice.md": "083d6be4234a7ed6e4773995f4056db85fd7ede2b238121cf36479462dd1a2f4",
+    "factory/work-packages/WP-19-service-edge-builder-trace-walk-topic-joins-ingr.md": "c8780cc38720edf92bda019bdc8fbf65848c69df65bc630831817cfb55566888",
+    "tests/test_twin_pilot.py": "c77acafa57096edea1306dffabaca755fc13e40271ce2b3baf8266f867b95555",
+    "tests/test_twin_smoke.py": "b46c358bf7f191b254fcdeb29142edfafde713191a0a6c2354d2a0ebd31921c4",
+    "tests/test_twin_startup.py": "6b6ad5738a3d167b464fc3bd05c628fdf45279a1399f88f01db93b3e5f4be409",
+    "twin/README.md": "41d58a616ecc8267f1bc49a56aa0fb7a9103526b22e873771eb28b39d4599c16",
+    "twin/build-probe.sh": "efe6ece2753c846d29fe11b8bdf87954dd740a26523d83b1c59f6df38b5a635c",
+    "twin/collector.compose.yaml": "d99a1f7b7c7357bd33c9727167b029cbf84128a15af75ef702e4d382e37b64f3",
+    "twin/compose.yaml": "18bf4874e88582db83ee0fe511b1d2d1d58ba649280a243a5e5bdb5fa2412d27",
+    "twin/images.lock.json": "d2938f8d614c63cb867394355b5d8566216a630fca48ff88e776cbb84d4ce0b3",
+    "twin/pilot.py": "8d6cc91244b4cd0c358003abfea246f8a90f72f078bbe13cfdbe5631d96a0e13",
+    "twin/probe-toolchain.json": "10337ce5fb839b4e92f4cdada9406e6ed61f944d9b2b23657cfdd9eb4cefe1b1",
+    "twin/probe/README.md": "231036695798285bf84c3ea722c93570daa2793ef676e9c90728be42967d65ce",
+    "twin/probe/go.mod": "6c8ce5456f383bcf3bb45997afa100fdead3a0f202cee4832760bec95fcb3d3c",
+    "twin/probe/main.go": "f0f39dced106b45df2b35bbce4a84bd79b5fc9293997a4e30a572c06edce560b",
+    "twin/probe/main_test.go": "e53afc6386fca6a1771dee81b26a425c1b949aff7fc926ce62eee4aec8327c70",
+    "twin/smoke.py": "116f71fa21bee1291468de5ed882f92c40bd6f5b7c1b1fb4015d15503411c299",
+    "twin/start.py": "096da1f674b101b376588b5f686628d4b3ed56c2094d6a5c2e6bd74b333f34bc",
+    "twin/worker.Dockerfile": "afe7ec0ce25509000cd2e2e2ae3b6bee00ea371b49d468057213e83a3d8c908a",
+    "twin/worker.compose.yaml": "2e366b1f557bc5b391d9fe6f41601fe22056348d96af4d8428510e063a5879df"
+  }
+}

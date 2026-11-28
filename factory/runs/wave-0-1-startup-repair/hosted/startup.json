@@ -1,0 +1,194 @@
+{
+  "allContainersHealthy": true,
+  "allRunning": true,
+  "demoCommit": "dedc0178918e260823323b8d95005a8cb924b007",
+  "elapsedSeconds": 132.522626,
+  "exactServiceSet": true,
+  "expectedServiceNames": [
+    "accounting",
+    "ad",
+    "astronomy-db",
+    "cart",
+    "checkout",
+    "currency",
+    "email",
+    "flagd",
+    "flagd-ui",
+    "fraud-detection",
+    "frontend",
+    "frontend-proxy",
+    "image-provider",
+    "kafka",
+    "lineage-collector",
+    "lineage-kafka",
+    "lineage-neo4j",
+    "lineage-postgres",
+    "lineage-worker",
+    "load-generator",
+    "otel-collector",
+    "payment",
+    "product-catalog",
+    "quote",
+    "recommendation",
+    "shipping",
+    "telemetry-docs",
+    "valkey-cart"
+  ],
+  "expectedServices": 28,
+  "oneShotPrerequisites": [
+    {
+      "exitCode": 0,
+      "service": "lineage-topics",
+      "status": "completed"
+    }
+  ],
+  "phase": "complete",
+  "probeSha256": "29d64f078a501a3fac6b912f6554bb0d776b5f7d7e8a9f9fe1bb7a8bfb863433",
+  "scope": "full-demo",
+  "services": [
+    {
+      "health": "healthy",
+      "service": "accounting",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "ad",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "astronomy-db",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "cart",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "checkout",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "currency",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "email",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "flagd",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "flagd-ui",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "fraud-detection",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "frontend",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "frontend-proxy",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "image-provider",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "kafka",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "lineage-collector",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "lineage-kafka",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "lineage-neo4j",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "lineage-postgres",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "lineage-worker",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "load-generator",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "otel-collector",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "payment",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "product-catalog",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "quote",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "recommendation",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "shipping",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "telemetry-docs",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "service": "valkey-cart",
+      "state": "running"
+    }
+  ],
+  "status": "passed",
+  "storageDriver": "overlayfs",
+  "timeoutSeconds": 900,
+  "workerImageId": "sha256:1e66be47aee7d66fcec196c31bf6e958b467cdfa8b0e80b94fe41f61f08dbb7a"
+}

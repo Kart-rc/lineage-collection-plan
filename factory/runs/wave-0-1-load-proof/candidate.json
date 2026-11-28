@@ -1,0 +1,16 @@
+{
+  "candidate": 9,
+  "parent_candidate": 8,
+  "prior_published_head": "aabfe7dadc404bead9a88161545c33c49fa6d62d",
+  "approved_cumulative_attempt_limit": 9,
+  "approval_reference": "../wave-0-1-startup-repair/approval.json",
+  "repair_scope": "Configured five-user load verification and sustained traffic evidence",
+  "input_review_reference": "../wave-0-1-collector-capacity/verification/",
+  "input_candidate_archive": "../wave-0-1-collector-capacity/artifacts/review-candidate-source.tar.gz",
+  "input_candidate_archive_sha256": "7c9f996483e9d95d1cb1d74aa0cb16b97411d999b469d27219c53fabd0cde420",
+  "oracle_changes": false,
+  "local_full_workload_started": false,
+  "shared_infrastructure_mutated": false,
+  "tokens_used": null,
+  "token_usage_note": "Not exposed by execution tools"
+}

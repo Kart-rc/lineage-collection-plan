@@ -1,0 +1,14 @@
+{
+  "check": "Actual pinned flagd readiness from shared network namespace",
+  "endpoint": "http://127.0.0.1:8014/readyz",
+  "exit_code": 0,
+  "image": "lineage-platform:approved-contracts",
+  "probe_sha256": "29d64f078a501a3fac6b912f6554bb0d776b5f7d7e8a9f9fe1bb7a8bfb863433",
+  "container_user": "65534:65534",
+  "read_only_root": true,
+  "capabilities_dropped": "ALL",
+  "shared_infrastructure_mutated": false,
+  "observed_stdout": "ready",
+  "verified_exit_code": 0,
+  "rechecked_after_interrupted_output": true
+}

@@ -1,0 +1,34 @@
+{
+  "candidate": 9,
+  "cumulative_repair_limit": 9,
+  "immutable_candidate8_evidence_sha256": {
+    "review.md": "de8397e5f373921d2d42d6d3a19045f9719bdce68a18a8bd8fa08e7367afa5d6",
+    "traffic-boundary-probe.py": "489ab67dedef08779bae1610068c781e4150182dcfcc4c5ac89a185a7071bfcb",
+    "traffic-boundary-results.json": "a7646e23f7547a103f68302a044e9569cdc0c68bac6ba3c820622b6456e63829",
+    "verdict.json": "8bcdc0184a3d60e8c12d523ede61924c6683355cd1d4a7c42c89e5c1427cc451"
+  },
+  "infrastructure_actions_performed": false,
+  "new_cases": 14,
+  "policy": {
+    "expected_users": 5,
+    "missing_progress_classification": "load_progress_unproven",
+    "progress_window_seconds": 60,
+    "sample_interval_seconds": 30,
+    "throughput_or_latency_slo_added": false
+  },
+  "prior_results_preserved": true,
+  "raw_data_exported": false,
+  "scope": "five-user sustained load observation evidence",
+  "source_sha256": {
+    "tests/test_twin_pilot.py": "577ae7a1170fab2565f38e69a4595a0e7891bbaa1cc22c8e56dee73f36b70b67",
+    "twin/pilot.py": "b0aafae722d51286b38e662eea1b3c4b8b93a9fb5044c19db3db5553e8104c3e"
+  },
+  "tests_passed": 113,
+  "unchanged_gates": {
+    "health_forwarding_privacy_ownership_capacity": true,
+    "minimum_load_seconds": 600,
+    "smoke_precision": 0.95,
+    "startup_seconds": 900
+  },
+  "unchanged_independent_probe_reproduced_red_and_green": true
+}

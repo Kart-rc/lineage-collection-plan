@@ -1,0 +1,71 @@
+{
+  "actual_render": {
+    "metadata_sha256": "e69487af23afbf38d8227e8767716638e87ee913a9022acde82e39a1acc0b63d",
+    "operations": "Read pinned upstream, render Compose and validate configuration only; no Docker starts, pulls, resets, restarts or pruning.",
+    "status": "passed",
+    "upstream_checkout_unchanged": true
+  },
+  "calibration": {
+    "all_expected_results": true,
+    "attribution": "Per-case script hashes distinguish the original measurements from the single corrected valid-OTLP line-bound fixture.",
+    "cases": 8,
+    "holdout_used": false,
+    "line_boundary_correction_sha256": "4a288a0ca8390a0e19ce219ace1c346049bbe686f14f96349d661f8de26191bc",
+    "metadata_sha256": "f990e2eb3359d465e10b7de31d98e133e7610fc87737cc80b0326d7093e983c3",
+    "raw_capture_used": false,
+    "temporary_large_fixtures_removed": true
+  },
+  "candidate": 8,
+  "profile": {
+    "container_memory_bytes": 2147483648,
+    "limits": {
+      "max_acknowledged": 100000,
+      "max_events": 4096,
+      "max_input_bytes": 67108864,
+      "max_line_bytes": 1048576,
+      "max_memory_bytes": 1610612736,
+      "max_metadata_bytes": 8388608,
+      "max_sends_per_cycle": 128,
+      "parse_timeout": 30.0,
+      "send_timeout": 5.0
+    },
+    "name": "reference-ten-minute-v1",
+    "parent_headroom_bytes": 536870912
+  },
+  "scope_limits": [
+    "Full ten-minute reference twin profile; no hour acceptance claim.",
+    "Cgroup limit rendered locally but full runtime enforcement remains part of the fresh hosted candidate.",
+    "Capacity caps never relax precision, cold-start, service-health, capture-validity or release criteria.",
+    "Standalone Limits defaults unchanged; full-profile environment overrides may only tighten ceilings.",
+    "No collector parser, acknowledgement, prefix guard, producer path or protected oracle modifications."
+  ],
+  "source_sha256": {
+    "tests/test_twin_startup.py": "deb6c1487d73ad9590e08af86da0b617ca97101c6b06cc25766beccd5d314cdb",
+    "twin/README.md": "c0e98fb0669f2e41dec7e022bd57034ea631a5ed7be4d9a207e5fbf45a39afe4",
+    "twin/collector.compose.yaml": "fc1f2da0db51222665338b3a4b25ed09c23f1534975c0bbf5d095ed8562e6d7f",
+    "twin/start.py": "2e615ae888ab08524fadd4e582e0918bbbe66d24f19c898f86090465746362c0"
+  },
+  "status": "passed-local-calibration-and-scoped-regression",
+  "tests": [
+    {
+      "command": "PYTHONPATH=src /tmp/lineage-build-venv/bin/python -m pytest -q tests/test_twin_startup.py",
+      "passed": 69,
+      "seconds": 0.53
+    },
+    {
+      "command": "PYTHONPATH=src /tmp/lineage-build-venv/bin/python -m pytest -q tests/test_collector_bridge.py -k 'limit or bound or checkpoint or rewritten or changing_configured or destination or outage or partial_append'",
+      "deselected": 19,
+      "passed": 87,
+      "seconds": 5.53
+    },
+    {
+      "command": "PYTHONPATH=src /tmp/lineage-build-venv/bin/python -m pytest -q tests/test_twin_startup.py::test_reference_collector_profile_renders_all_measured_bounds",
+      "passed": 1,
+      "reason": "Final assertion includes parse + polling + send deadlines in the stricter 45-second health budget.",
+      "seconds": 0.19
+    }
+  ],
+  "unchanged_parser_sha256": "d29329f656db88d51e64d965adefadc91a85b8b5fa9aa77f74f6beb54f4c3a7b",
+  "unchanged_projection_sha256": "407539b95d6df71e96e1ddd59013acaf18c4ebea5b7bf22e28ef9a34dd35ddc3",
+  "work_package": "WP-03"
+}

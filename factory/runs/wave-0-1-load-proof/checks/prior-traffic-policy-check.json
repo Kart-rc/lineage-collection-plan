@@ -1,0 +1,16 @@
+{
+  "candidate_source": 7,
+  "purpose": "Check proposed observation window against preserved actual traffic metadata; not candidate 9 acceptance",
+  "source_sha256": "e99c8068bf43ead1f48608121689dd94b768d3a6635187f7602c4e2fb1d1d821",
+  "all_observed_user_counts_equal_five": true,
+  "observation_window_seconds": 60,
+  "maximum_observed_gap_since_progress_seconds": 30.538685985,
+  "unproven_sample_elapsed_seconds": [],
+  "original_trial_still_failed": true,
+  "original_failure_categories": [
+    "load_services_not_healthy",
+    "forwarding_proof_failed",
+    "smoke_failed"
+  ],
+  "raw_capture_accessed": false
+}

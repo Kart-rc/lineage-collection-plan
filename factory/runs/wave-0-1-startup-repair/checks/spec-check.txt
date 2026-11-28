@@ -1,0 +1,11 @@
+requirements 43: served 43, traced by a visible scenario 43
+work packages 40: done-when lines 107, all measurable: True
+visible scenarios 64 in 7 files
+golden nodes 56: 56 with an owner and a tier
+envelope v2 accepts 26 change events, 102 check results, 36 golden field edges, 20 golden flag edges, 8 golden flag-gated edges, 4 runtime database edges, 5 runtime service edges; rejects 7 of 7 invalid examples
+proposed, awaiting approval: G1-amendment-3-2026-11-28
+gates signed: G1-2026-11-28, G1-amendment-1-2026-11-28, G1-amendment-2-2026-11-28, G3-2026-11-28; open: none
+onboarding: 2 examples valid, 5 invalid files checked
+release gate: 3 hard zeros, 4 timed requirements, template with 11 required sections; G4 records: none yet
+OpenAPI 3.1 document validated
+0 errors

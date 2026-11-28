@@ -1,0 +1,44 @@
+[
+  {
+    "gap": "Sustained collector capacity",
+    "status": "Candidate 8 local capacity evidence; fresh workload validation pending",
+    "recommendation": "Validate the bounded ten-minute profile on a fresh hosted runner. For continuous operation, replace whole-capture rereads with bounded incremental parsing and a durable offset/checkpoint design, then repeat replay, truncation and delivery-failure tests.",
+    "acceptance": "All services healthy throughout actual load; forwarding counters grow; resource headroom and input growth measured.",
+    "approval_needed_now": false
+  },
+  {
+    "gap": "Reference scoring and reliability",
+    "status": "One successful startup; precision unscored in candidate 7",
+    "recommendation": "Validate canonical OTLP input on the real capture, measure exact service-edge precision at the existing 0.95 floor, and retain three successful cold-start trials against the frozen candidate.",
+    "acceptance": "3/3 startups at most 900 seconds; nonempty precision at least 0.95 after ten minutes of actual load.",
+    "approval_needed_now": false
+  },
+  {
+    "gap": "Independent holdout evidence",
+    "status": "No independently managed aggregate result available",
+    "recommendation": "Have an independent test owner maintain private unseen scenarios outside this builder repository. Run the candidate through the existing aggregate-only interface and return signed family pass rates, failure categories and candidate identity.",
+    "acceptance": "Required family thresholds pass with corpus custody and candidate binding established.",
+    "approval_needed_now": "An independent owner/job reference is required for this evidence; existing engineering work can continue."
+  },
+  {
+    "gap": "Original capture replay",
+    "status": "Historical raw sources unavailable",
+    "recommendation": "Recover the exact retained raw captures from their custodian. Fresh reference runs should be labeled as new evidence; if the originals cannot be recovered, prepare an explicit amendment to original-specific criteria.",
+    "acceptance": "Reproducible reports bound to actual source hashes, or a specific approved criterion amendment.",
+    "approval_needed_now": false
+  },
+  {
+    "gap": "End-to-end latency and downstream integration",
+    "status": "Full requirements not measured by ten-minute pilot",
+    "recommendation": "Complete the traced extractor, impact and feedback integrations, then measure required producer overhead and hour-long change/PR visibility scenarios with their existing percentile thresholds.",
+    "acceptance": "Applicable work-package scenarios and measured p95/p99 bounds pass without stub results.",
+    "approval_needed_now": false
+  },
+  {
+    "gap": "Formal merge/release gates",
+    "status": "Concrete draft PRs #8, #9 and #10 available; no release claimed",
+    "recommendation": "Review the exact protected contract amendment in #8 and implementation evidence in #9/#10. Record applicable G2/G4 decisions only against final commits and qualifying evidence.",
+    "acceptance": "Human gate records identify the precise candidate, oracle and report hashes.",
+    "approval_needed_now": "No new design decision for candidate 8; formal merge/release gates remain separate."
+  }
+]

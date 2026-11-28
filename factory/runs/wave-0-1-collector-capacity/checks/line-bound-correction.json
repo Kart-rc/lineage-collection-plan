@@ -1,0 +1,79 @@
+{
+  "cases": [
+    {
+      "case": "line-bound",
+      "category": "line_limit",
+      "diagnostics": {},
+      "elapsed_seconds": 0.203571,
+      "event_count": 0,
+      "expected": "line_limit",
+      "input_bytes": 1350092,
+      "inputs": {
+        "logs": {
+          "bytes": 301380,
+          "lines": 6,
+          "max_line_bytes": 50230,
+          "records": 384,
+          "sha256": "cff80ace2cfb4ec4d558b4e7663f6f685f2fab595615204fff77be2330e00f03"
+        },
+        "traces": {
+          "bytes": 1048712,
+          "lines": 1,
+          "max_line_bytes": 1048712,
+          "records": 0,
+          "sha256": "d7d7f9b0b97d6fa77c49f407786c452e2fdf8f8c4b88738589a7da1ae840b0c9"
+        }
+      },
+      "limits": {
+        "max_acknowledged": 100000,
+        "max_events": 4096,
+        "max_input_bytes": 67108864,
+        "max_line_bytes": 1048576,
+        "max_memory_bytes": 1610612736,
+        "max_metadata_bytes": 8388608,
+        "max_sends_per_cycle": 128,
+        "parse_timeout": 30.0,
+        "send_timeout": 5.0
+      },
+      "line_boundary_fixture_bytes": 1048712,
+      "log_trace_byte_ratio": 0.45381036274111214,
+      "matches_expected": true,
+      "metadata_bytes": 42,
+      "process_exit_code": 0,
+      "process_resource_usage": {
+        "peak_rss_bytes": 31748096,
+        "system_seconds": 0.044583,
+        "user_seconds": 0.12251999999999999
+      },
+      "raw_data_retained": false,
+      "sampled_process_memory_bytes": {
+        "VmHWM": 31748096,
+        "VmPeak": 58904576,
+        "VmRSS": 30892032,
+        "VmSize": 57851904
+      },
+      "status": "error",
+      "synthetic_window_minutes": 1,
+      "target_input_bytes": 1048576
+    }
+  ],
+  "collector_source_sha256": "d29329f656db88d51e64d965adefadc91a85b8b5fa9aa77f74f6beb54f4c3a7b",
+  "container_memory_proposal_bytes": 2147483648,
+  "kind": "synthetic-capacity-calibration",
+  "observed_candidate_7_input_bytes": 17731133,
+  "profile_proposal": {
+    "max_acknowledged": 100000,
+    "max_events": 4096,
+    "max_input_bytes": 67108864,
+    "max_line_bytes": 1048576,
+    "max_memory_bytes": 1610612736,
+    "max_metadata_bytes": 8388608,
+    "max_sends_per_cycle": 128,
+    "parse_timeout": 30.0,
+    "send_timeout": 5.0
+  },
+  "raw_fixture_retention": "temporary files removed after each case",
+  "script_sha256": "36a14b4b0c7a3a5717d9a37fd664539dce6f295a0c59fce00fd84abca649a310",
+  "service_edges_source_sha256": "407539b95d6df71e96e1ddd59013acaf18c4ebea5b7bf22e28ef9a34dd35ddc3",
+  "source_scope": "valid synthetic OTLP; no reference capture or holdout"
+}
