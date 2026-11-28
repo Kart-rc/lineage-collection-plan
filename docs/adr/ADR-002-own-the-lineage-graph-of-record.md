@@ -106,7 +106,9 @@ The trade-off we knowingly take: we pay engineers instead of a license, and we c
 | Parsers and runtime collectors | Adopt: SQLGlot, Flink planner, datacontract-cli, OpenLineage integrations, OTel | Don't write a SQL parser |
 | Anomaly detection | Keep or buy | Findings land as DQ facets on graph nodes |
 
-**Store sub-decision, deferred to week 1:** Neptune if edge semantics and traversal depth need full control; DataHub if a UI and search on day one matter more. Either way the graph writer is the only component that changes, so this stays a two-way door.
+**Store sub-decision, decided 27 November 2026: Neptune.** Each edge version is its own relationship with valid and recorded times; Aurora keeps the alias table and queues; Neo4j stands in locally over the same Bolt protocol and openCypher. See D12 and D23 in [doc 08](../08-build-decisions.md).
+
+**Original wording, deferred to week 1:** Neptune if edge semantics and traversal depth need full control; DataHub if a UI and search on day one matter more. Either way the graph writer is the only component that changes, so this stays a two-way door.
 
 ## 5. Rejected options and why
 

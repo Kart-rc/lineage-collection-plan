@@ -1,0 +1,1237 @@
+{
+ "events": [
+  {
+   "at": "2026-11-27T14:22:19+00:00",
+   "flag": "emitRawPii",
+   "from": "off",
+   "to": "on"
+  },
+  {
+   "at": "2026-11-27T14:24:10+00:00",
+   "flag": "emitRawPii",
+   "from": "on",
+   "to": "off"
+  },
+  {
+   "at": "2026-11-27T14:24:55+00:00",
+   "flag": "paymentFailure",
+   "from": "off",
+   "to": "50%"
+  },
+  {
+   "at": "2026-11-27T14:30:09+00:00",
+   "flag": "paymentFailure",
+   "from": "50%",
+   "to": "off"
+  }
+ ],
+ "checks": {
+  "orders-rate": {
+   "first_failure": "14:27:56",
+   "minutes_after_change": 3.0,
+   "passing_again": "14:32:56"
+  },
+  "fraud-detection-lag": {
+   "first_failure": null
+  },
+  "accounting-order-rate": {
+   "first_failure": "14:27:56",
+   "minutes_after_change": 3.0,
+   "passing_again": "14:32:56"
+  },
+  "checkout-errors": {
+   "first_failure": "14:26:56",
+   "minutes_after_change": 2.0,
+   "passing_again": "14:30:56"
+  },
+  "product-catalog-latency": {
+   "first_failure": null
+  }
+ },
+ "windows": [
+  {
+   "at": "14:15:56",
+   "check": "orders-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:15:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:15:56",
+   "check": "accounting-order-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:15:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 4,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:15:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 100,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:16:56",
+   "check": "orders-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:16:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:16:56",
+   "check": "accounting-order-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:16:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 4,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:16:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 103,
+    "p95": 50
+   },
+   "failed": false
+  },
+  {
+   "at": "14:17:56",
+   "check": "orders-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:17:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:17:56",
+   "check": "accounting-order-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:17:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 5,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:17:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 135,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:18:56",
+   "check": "orders-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:18:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:18:56",
+   "check": "accounting-order-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:18:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 10,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:18:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 152,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:19:56",
+   "check": "orders-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:19:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:19:56",
+   "check": "accounting-order-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:19:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 11,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:19:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 162,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:20:56",
+   "check": "orders-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:20:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:20:56",
+   "check": "accounting-order-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:20:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 7,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:20:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 162,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:21:56",
+   "check": "orders-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:21:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:21:56",
+   "check": "accounting-order-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:21:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 12,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:21:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 150,
+    "p95": 50
+   },
+   "failed": false
+  },
+  {
+   "at": "14:22:56",
+   "check": "orders-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:22:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:22:56",
+   "check": "accounting-order-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:22:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 13,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:22:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 132,
+    "p95": 50
+   },
+   "failed": false
+  },
+  {
+   "at": "14:23:56",
+   "check": "orders-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:23:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:23:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 9,
+    "per_min": 3.78,
+    "baseline_per_min": 2.3,
+    "rate_ratio": 1.64
+   },
+   "failed": false
+  },
+  {
+   "at": "14:23:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 5,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:23:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 105,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:24:56",
+   "check": "orders-rate",
+   "values": null,
+   "failed": null
+  },
+  {
+   "at": "14:24:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:24:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 8,
+    "per_min": 4.0,
+    "baseline_per_min": 2.6,
+    "rate_ratio": 1.54
+   },
+   "failed": false
+  },
+  {
+   "at": "14:24:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 2,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:24:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 89,
+    "p95": 50
+   },
+   "failed": false
+  },
+  {
+   "at": "14:25:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 3.33,
+    "baseline_per_min": 3.4,
+    "rate_ratio": 0.98
+   },
+   "failed": false
+  },
+  {
+   "at": "14:25:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:25:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 3.33,
+    "baseline_per_min": 3.4,
+    "rate_ratio": 0.98
+   },
+   "failed": false
+  },
+  {
+   "at": "14:25:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 3,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:25:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 108,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:26:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 2.83,
+    "baseline_per_min": 3.4,
+    "rate_ratio": 0.83
+   },
+   "failed": false
+  },
+  {
+   "at": "14:26:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:26:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 2.83,
+    "baseline_per_min": 3.4,
+    "rate_ratio": 0.83
+   },
+   "failed": false
+  },
+  {
+   "at": "14:26:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 6,
+    "errors": 3,
+    "error_share": 0.5
+   },
+   "failed": true
+  },
+  {
+   "at": "14:26:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 103,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:27:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 5,
+    "per_min": 1.4,
+    "baseline_per_min": 4.1,
+    "rate_ratio": 0.34
+   },
+   "failed": true
+  },
+  {
+   "at": "14:27:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:27:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 5,
+    "per_min": 1.4,
+    "baseline_per_min": 4.1,
+    "rate_ratio": 0.34
+   },
+   "failed": true
+  },
+  {
+   "at": "14:27:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 9,
+    "errors": 6,
+    "error_share": 0.667
+   },
+   "failed": true
+  },
+  {
+   "at": "14:27:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 105,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:28:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 1.5,
+    "baseline_per_min": 4.1,
+    "rate_ratio": 0.37
+   },
+   "failed": true
+  },
+  {
+   "at": "14:28:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:28:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 1.5,
+    "baseline_per_min": 4.1,
+    "rate_ratio": 0.37
+   },
+   "failed": true
+  },
+  {
+   "at": "14:28:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 9,
+    "errors": 5,
+    "error_share": 0.556
+   },
+   "failed": true
+  },
+  {
+   "at": "14:28:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 126,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:29:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 1.33,
+    "baseline_per_min": 3.7,
+    "rate_ratio": 0.36
+   },
+   "failed": true
+  },
+  {
+   "at": "14:29:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:29:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 1.33,
+    "baseline_per_min": 3.7,
+    "rate_ratio": 0.36
+   },
+   "failed": true
+  },
+  {
+   "at": "14:29:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 4,
+    "errors": 2,
+    "error_share": 0.5
+   },
+   "failed": true
+  },
+  {
+   "at": "14:29:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 95,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:30:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 1.5,
+    "baseline_per_min": 3.5,
+    "rate_ratio": 0.43
+   },
+   "failed": true
+  },
+  {
+   "at": "14:30:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:30:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 1.5,
+    "baseline_per_min": 3.5,
+    "rate_ratio": 0.43
+   },
+   "failed": true
+  },
+  {
+   "at": "14:30:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 2,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:30:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 83,
+    "p95": 50
+   },
+   "failed": false
+  },
+  {
+   "at": "14:31:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 1.33,
+    "baseline_per_min": 3.7,
+    "rate_ratio": 0.36
+   },
+   "failed": true
+  },
+  {
+   "at": "14:31:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:31:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 1.33,
+    "baseline_per_min": 3.7,
+    "rate_ratio": 0.36
+   },
+   "failed": true
+  },
+  {
+   "at": "14:31:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 4,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:31:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 100,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:32:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 2.5,
+    "baseline_per_min": 3.5,
+    "rate_ratio": 0.71
+   },
+   "failed": false
+  },
+  {
+   "at": "14:32:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:32:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 6,
+    "per_min": 2.5,
+    "baseline_per_min": 3.5,
+    "rate_ratio": 0.71
+   },
+   "failed": false
+  },
+  {
+   "at": "14:32:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 9,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:32:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 127,
+    "p95": 50
+   },
+   "failed": false
+  },
+  {
+   "at": "14:33:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 7,
+    "per_min": 2.29,
+    "baseline_per_min": 3.5,
+    "rate_ratio": 0.65
+   },
+   "failed": false
+  },
+  {
+   "at": "14:33:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:33:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 7,
+    "per_min": 2.29,
+    "baseline_per_min": 3.5,
+    "rate_ratio": 0.65
+   },
+   "failed": false
+  },
+  {
+   "at": "14:33:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 8,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:33:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 135,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:34:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 7,
+    "per_min": 2.71,
+    "baseline_per_min": 3.3,
+    "rate_ratio": 0.82
+   },
+   "failed": false
+  },
+  {
+   "at": "14:34:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:34:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 7,
+    "per_min": 2.71,
+    "baseline_per_min": 3.3,
+    "rate_ratio": 0.82
+   },
+   "failed": false
+  },
+  {
+   "at": "14:34:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 6,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:34:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 126,
+    "p95": 200
+   },
+   "failed": false
+  },
+  {
+   "at": "14:35:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 7,
+    "per_min": 3.14,
+    "baseline_per_min": 2.9,
+    "rate_ratio": 1.08
+   },
+   "failed": false
+  },
+  {
+   "at": "14:35:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:35:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 7,
+    "per_min": 3.14,
+    "baseline_per_min": 2.9,
+    "rate_ratio": 1.08
+   },
+   "failed": false
+  },
+  {
+   "at": "14:35:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 10,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:35:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 145,
+    "p95": 200
+   },
+   "failed": false
+  },
+  {
+   "at": "14:36:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 8,
+    "per_min": 3.25,
+    "baseline_per_min": 2.9,
+    "rate_ratio": 1.12
+   },
+   "failed": false
+  },
+  {
+   "at": "14:36:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:36:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 8,
+    "per_min": 3.25,
+    "baseline_per_min": 2.9,
+    "rate_ratio": 1.12
+   },
+   "failed": false
+  },
+  {
+   "at": "14:36:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 8,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:36:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 127,
+    "p95": 100
+   },
+   "failed": false
+  },
+  {
+   "at": "14:37:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 9,
+    "per_min": 3.67,
+    "baseline_per_min": 2.9,
+    "rate_ratio": 1.26
+   },
+   "failed": false
+  },
+  {
+   "at": "14:37:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:37:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 9,
+    "per_min": 3.67,
+    "baseline_per_min": 2.9,
+    "rate_ratio": 1.26
+   },
+   "failed": false
+  },
+  {
+   "at": "14:37:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 11,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:37:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 115,
+    "p95": 50
+   },
+   "failed": false
+  },
+  {
+   "at": "14:38:56",
+   "check": "orders-rate",
+   "values": {
+    "window_min": 9,
+    "per_min": 4.11,
+    "baseline_per_min": 2.4,
+    "rate_ratio": 1.71
+   },
+   "failed": false
+  },
+  {
+   "at": "14:38:56",
+   "check": "fraud-detection-lag",
+   "values": {
+    "value": 1.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:38:56",
+   "check": "accounting-order-rate",
+   "values": {
+    "window_min": 9,
+    "per_min": 4.11,
+    "baseline_per_min": 2.4,
+    "rate_ratio": 1.71
+   },
+   "failed": false
+  },
+  {
+   "at": "14:38:56",
+   "check": "checkout-errors",
+   "values": {
+    "calls": 12,
+    "errors": 0,
+    "error_share": 0.0
+   },
+   "failed": false
+  },
+  {
+   "at": "14:38:56",
+   "check": "product-catalog-latency",
+   "values": {
+    "calls": 148,
+    "p95": 50
+   },
+   "failed": false
+  }
+ ],
+ "narrowing": {
+  "from_check": "checkout-errors",
+  "node": "svc://otel-demo/checkout",
+  "at": "14:26:56",
+  "depends_on": [
+   "postgres://astronomy-db/astronomy_db.catalog.products",
+   "svc://otel-demo/cart",
+   "svc://otel-demo/currency",
+   "svc://otel-demo/email",
+   "svc://otel-demo/payment",
+   "svc://otel-demo/product-catalog",
+   "svc://otel-demo/quote",
+   "svc://otel-demo/shipping",
+   "valkey://valkey-cart/cart"
+  ],
+  "failing_calls": [
+   {
+    "client": "ad",
+    "server": "flagd",
+    "count": 1
+   },
+   {
+    "client": "checkout",
+    "server": "payment",
+    "count": 3
+   },
+   {
+    "client": "fraud-detection",
+    "server": "flagd",
+    "count": 1
+   },
+   {
+    "client": "frontend",
+    "server": "checkout",
+    "count": 3
+   },
+   {
+    "client": "frontend-proxy",
+    "server": "frontend",
+    "count": 3
+   },
+   {
+    "client": "load-generator",
+    "server": "frontend-proxy",
+    "count": 3
+   },
+   {
+    "client": "load-generator",
+    "server": "unknown",
+    "count": 13
+   },
+   {
+    "client": "recommendation",
+    "server": "flagd",
+    "count": 1
+   }
+  ],
+  "deepest_failing_callee": [
+   "svc://otel-demo/payment"
+  ],
+  "ranking": [
+   {
+    "rank": 1,
+    "flag": "paymentFailure",
+    "change": "off -> 50%",
+    "at": "2026-11-27T14:24:55+00:00",
+    "minutes_before": 2.0,
+    "why": "touches the failing callee",
+    "read_by": [
+     "svc://otel-demo/payment"
+    ]
+   },
+   {
+    "rank": 2,
+    "flag": "emitRawPii",
+    "change": "on -> off",
+    "at": "2026-11-27T14:24:10+00:00",
+    "minutes_before": 2.8,
+    "why": "touches the failing callee",
+    "read_by": [
+     "svc://otel-demo/checkout",
+     "svc://otel-demo/payment"
+    ]
+   },
+   {
+    "rank": 3,
+    "flag": "emitRawPii",
+    "change": "off -> on",
+    "at": "2026-11-27T14:22:19+00:00",
+    "minutes_before": 4.6,
+    "why": "touches the failing callee",
+    "read_by": [
+     "svc://otel-demo/checkout",
+     "svc://otel-demo/payment"
+    ]
+   }
+  ]
+ }
+}

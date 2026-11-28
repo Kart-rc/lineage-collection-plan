@@ -1,0 +1,25 @@
+{
+ "schemaVersion": "2",
+ "eventType": "EVIDENCE",
+ "eventTime": "2026-11-27T14:17:00Z",
+ "producer": "lineage-examples/otel_span@0.1.0",
+ "edge": {
+  "type": "CONSUMES",
+  "from": {
+   "namespace": "kafka://otel-demo",
+   "name": "orders"
+  },
+  "to": {
+   "namespace": "svc://otel-demo",
+   "name": "accounting"
+  }
+ },
+ "evidence": {
+  "source": "otel_span",
+  "weight": 0.9,
+  "runtime": true,
+  "observedAt": "2026-11-27T14:17:00Z",
+  "rawRef": "archive://otel_span/dt=2026-11-27/f8ce76f97cf0",
+  "replaces": "none"
+ }
+}

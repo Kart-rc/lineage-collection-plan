@@ -1,0 +1,18 @@
+version: 2
+sources:
+  - name: accounting
+    schema: accounting
+    description: Written by the accounting service from the orders topic (src/accounting/Consumer.cs at demo 3.1.0)
+    meta: {urn_prefix: "postgres://astronomy-db/astronomy_db.accounting", tier: 3, owner: team-finance-data}
+    tables:
+      - name: order
+        identifier: order
+        quoting: {identifier: true}       # "order" is a reserved word
+        columns: [{name: order_id}]
+      - name: orderitem
+        columns: [{name: order_id}, {name: product_id}, {name: quantity}, {name: item_cost_currency_code},
+                  {name: item_cost_units}, {name: item_cost_nanos}]
+      - name: shipping
+        columns: [{name: shipping_tracking_id}, {name: shipping_cost_currency_code}, {name: shipping_cost_units},
+                  {name: shipping_cost_nanos}, {name: street_address}, {name: city}, {name: state},
+                  {name: country}, {name: zip_code}, {name: order_id}]

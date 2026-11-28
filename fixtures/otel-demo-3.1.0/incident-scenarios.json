@@ -1,0 +1,158 @@
+{
+ "source": {
+  "repo": "https://github.com/open-telemetry/opentelemetry-demo",
+  "tag": "3.1.0",
+  "commit": "dedc017"
+ },
+ "incidents": [
+  {
+   "id": "I1",
+   "flag": "paymentFailure",
+   "variant": "50%",
+   "injected_at": "svc://otel-demo/payment",
+   "first_symptom": "checkout PlaceOrder errors",
+   "downstream_effect": "fewer messages on orders, fewer rows in accounting.order, fewer records consumed by fraud-detection",
+   "true_cause": "payment Charge failing",
+   "lineage_walk": "accounting.order row rate drops -> orders topic rate drops -> checkout errors -> payment",
+   "family": "dependency_failure",
+   "flag_urn": "flag://otel-demo/paymentFailure",
+   "flag_read_by": [
+    "svc://otel-demo/payment"
+   ]
+  },
+  {
+   "id": "I2",
+   "flag": "kafkaQueueProblems",
+   "variant": "on",
+   "injected_at": "svc://otel-demo/checkout and svc://otel-demo/fraud-detection",
+   "first_symptom": "consumer lag on group fraud-detection",
+   "downstream_effect": "checkout sends 100 extra copies of each order; accounting skips the duplicates on its primary key",
+   "true_cause": "producer overload plus a 1 second consumer delay",
+   "lineage_walk": "lag on orders/fraud-detection -> orders topic volume spike -> checkout producer",
+   "family": "consumer_lag",
+   "flag_urn": "flag://otel-demo/kafkaQueueProblems",
+   "flag_read_by": [
+    "svc://otel-demo/checkout",
+    "svc://otel-demo/fraud-detection"
+   ]
+  },
+  {
+   "id": "I3",
+   "flag": "productCatalogLockContention",
+   "variant": "on",
+   "injected_at": "postgres://astronomy-db/astronomy_db.catalog.products",
+   "first_symptom": "slow GetProduct calls",
+   "downstream_effect": "slow checkout and frontend pages; no data written wrongly",
+   "true_cause": "an ACCESS EXCLUSIVE lock on catalog.products",
+   "lineage_walk": "checkout latency -> product-catalog -> catalog.products",
+   "family": "storage_contention",
+   "flag_urn": "flag://otel-demo/productCatalogLockContention",
+   "flag_read_by": [
+    "svc://otel-demo/product-catalog"
+   ]
+  },
+  {
+   "id": "I4",
+   "flag": "paymentUnreachable",
+   "variant": "on",
+   "injected_at": "svc://otel-demo/checkout (calls a bad address)",
+   "first_symptom": "checkout PlaceOrder errors",
+   "downstream_effect": "no new orders anywhere downstream",
+   "true_cause": "checkout's payment address, not the payment service",
+   "lineage_walk": "orders topic silent -> checkout errors -> payment edge has no traffic",
+   "family": "unreachable_address",
+   "flag_urn": "flag://otel-demo/paymentUnreachable",
+   "flag_read_by": [
+    "svc://otel-demo/checkout"
+   ]
+  },
+  {
+   "id": "I5",
+   "family": "silent_failure",
+   "flag": "cartFailure",
+   "variant": "50%",
+   "injected_at": "svc://otel-demo/cart",
+   "first_symptom": "none of the checks registered before the run fires",
+   "downstream_effect": "EmptyCart fails half the time and checkout ignores the error (main.go:381), so carts are not emptied and later orders can carry stale items",
+   "true_cause": "cart EmptyCart failing",
+   "lineage_walk": "needs a check on items per order or on cart state; with none, lineage never starts",
+   "flag_urn": "flag://otel-demo/cartFailure",
+   "flag_read_by": [
+    "svc://otel-demo/cart"
+   ]
+  },
+  {
+   "id": "I6",
+   "family": "dependency_failure",
+   "flag": "productCatalogFailure",
+   "variant": "on (targeting rule, product OLJCESPC7Z)",
+   "injected_at": "svc://otel-demo/product-catalog",
+   "first_symptom": "checkout PlaceOrder errors for orders that contain the product",
+   "downstream_effect": "fewer orders on the topic and in accounting; product pages for that product fail",
+   "true_cause": "product-catalog GetProduct failing for one product",
+   "lineage_walk": "checkout errors -> checkout's failing calls to product-catalog -> the flag",
+   "flag_urn": "flag://otel-demo/productCatalogFailure",
+   "flag_read_by": [
+    "svc://otel-demo/product-catalog"
+   ]
+  },
+  {
+   "id": "I7",
+   "family": "consumer_outage",
+   "change": "service_stop",
+   "flag": null,
+   "variant": null,
+   "injected_at": "svc://otel-demo/accounting",
+   "first_symptom": "accounting insert rate drops; lag grows on the accounting consumer group",
+   "downstream_effect": "orders keep flowing on the topic; accounting tables fall behind and catch up on restart",
+   "true_cause": "accounting stopped",
+   "lineage_walk": "accounting.order insert rate -> accounting (the writer) -> its stop event"
+  },
+  {
+   "id": "I8",
+   "family": "latency_only",
+   "flag": "intlShippingSlowdown",
+   "variant": "10sec",
+   "injected_at": "svc://otel-demo/shipping",
+   "first_symptom": "checkout PlaceOrder p95 latency above 3 seconds",
+   "downstream_effect": "international orders take 10 seconds longer; no data is lost",
+   "true_cause": "shipping delays international quotes",
+   "lineage_walk": "checkout latency -> checkout's calls to shipping -> the flag",
+   "flag_urn": "flag://otel-demo/intlShippingSlowdown",
+   "flag_read_by": [
+    "svc://otel-demo/shipping"
+   ]
+  },
+  {
+   "id": "I9",
+   "family": "decoy_outside_lineage",
+   "flag": "paymentFailure",
+   "variant": "25%",
+   "decoy": "recommendationCacheFailure on, one minute earlier",
+   "injected_at": "svc://otel-demo/payment",
+   "first_symptom": "checkout PlaceOrder errors",
+   "downstream_effect": "fewer orders; the recommendation service degrades at the same time but is not on checkout's path",
+   "true_cause": "payment Charge failing",
+   "lineage_walk": "checkout errors -> payment; recommendationCacheFailure is outside checkout's lineage and must rank below",
+   "flag_urn": "flag://otel-demo/paymentFailure",
+   "flag_read_by": [
+    "svc://otel-demo/payment"
+   ]
+  },
+  {
+   "id": "I10",
+   "family": "volume_surge",
+   "flag": "loadGeneratorFloodHomepage",
+   "variant": "on",
+   "injected_at": "svc://otel-demo/load-generator",
+   "first_symptom": "whatever the extra home page traffic strains, if anything",
+   "downstream_effect": "a burst of home page requests through frontend-proxy and frontend",
+   "true_cause": "the load generator floods the home page",
+   "lineage_walk": "a cause that comes from callers, not from dependencies: the dependency walk cannot reach it",
+   "flag_urn": "flag://otel-demo/loadGeneratorFloodHomepage",
+   "flag_read_by": [
+    "svc://otel-demo/load-generator"
+   ]
+  }
+ ]
+}

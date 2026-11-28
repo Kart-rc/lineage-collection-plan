@@ -1,0 +1,244 @@
+{
+ "source": {
+  "repo": "https://github.com/open-telemetry/opentelemetry-demo",
+  "tag": "3.1.0",
+  "commit": "dedc017"
+ },
+ "changes": [
+  {
+   "id": "C1",
+   "commit": "133d089",
+   "date": "2022-11-21",
+   "title": "[protobuf] - encode zipcode as a string (#587)",
+   "change": "Address.zip_code retyped from int32 to string in pb/demo.proto",
+   "class": "BREAKING",
+   "why": "int32 and string are not wire-compatible in protobuf; every reader of the field must regenerate",
+   "elements": [
+    "api://otel-demo/checkout/PlaceOrder/request#address.zip_code",
+    "kafka://otel-demo/orders#shipping_address.zip_code"
+   ],
+   "readers_at_3_1_0": [
+    "accounting.shipping#zip_code",
+    "shipping (quote and ship-order)",
+    "frontend",
+    "load-generator"
+   ],
+   "expected_readers": [
+    "postgres://astronomy-db/astronomy_db.accounting.shipping#zip_code",
+    "svc://otel-demo/shipping",
+    "svc://otel-demo/frontend",
+    "svc://otel-demo/load-generator"
+   ],
+   "expected_gate": "block"
+  },
+  {
+   "id": "C2",
+   "commit": "8a28923",
+   "date": "2023-02-11",
+   "title": "rename proto package from hipstershop to oteldemo (#740)",
+   "change": "Protobuf package renamed; every generated client and type name changes",
+   "class": "BREAKING (build), wire-compatible",
+   "why": "field numbers and types are unchanged, so bytes on the topic still parse; code that names the type does not compile",
+   "elements": [
+    "kafka://otel-demo/orders"
+   ],
+   "readers_at_3_1_0": [
+    "every service"
+   ],
+   "expected_readers": [],
+   "expected_gate": "warn"
+  },
+  {
+   "id": "C3",
+   "commit": "42da57b",
+   "date": "2025-06-25",
+   "title": "store order to postgresql from accounting service (#2175)",
+   "change": "accounting starts writing orders to three new Postgres tables",
+   "class": "NON-BREAKING (new consumer and new datasets)",
+   "why": "nothing existing changes; lineage must discover 17 new field edges and three tables",
+   "elements": [
+    "postgres://astronomy-db/astronomy_db.public.order",
+    "postgres://astronomy-db/astronomy_db.public.orderitem",
+    "postgres://astronomy-db/astronomy_db.public.shipping"
+   ],
+   "readers_at_3_1_0": [],
+   "expected_readers": [],
+   "expected_gate": "pass"
+  },
+  {
+   "id": "C4",
+   "commit": "5f83ad1",
+   "date": "2025-11-07",
+   "title": "Add a Product Review service with GenAI-powered summaries (#2663)",
+   "change": "the three accounting tables move from the public schema to an accounting schema",
+   "class": "BREAKING for readers of the old names",
+   "why": "the dataset identity changes; old edges must close and new ones open, or history breaks",
+   "elements": [
+    "postgres://astronomy-db/astronomy_db.public.order",
+    "postgres://astronomy-db/astronomy_db.accounting.\"order\""
+   ],
+   "readers_at_3_1_0": [
+    "accounting"
+   ],
+   "expected_readers": [
+    "svc://otel-demo/accounting"
+   ],
+   "expected_gate": "warn"
+  },
+  {
+   "id": "C5",
+   "commit": "66a5b73",
+   "date": "2026-06-29",
+   "title": "[cleanup] Remove product reviews from frontend (#3568)",
+   "change": "the product review service and its proto messages are removed",
+   "class": "RETIREMENT",
+   "why": "a node and its edges must move to retired, not vanish",
+   "elements": [
+    "svc://otel-demo/product-reviews"
+   ],
+   "readers_at_3_1_0": [],
+   "expected_readers": [],
+   "expected_gate": "pass"
+  },
+  {
+   "id": "C6",
+   "commit": "c7b195f",
+   "date": "2026-10-12",
+   "title": "Rewrite the recommendation service in Spring Boot 4 (#3966)",
+   "change": "recommendation rewritten from Python to Java; it still calls product-catalog ListProducts",
+   "class": "NO LINEAGE CHANGE",
+   "why": "the edge must survive while its static evidence moves to a new file, language and extractor; a rescan that drops it is a defect",
+   "elements": [
+    "svc://otel-demo/recommendation -> svc://otel-demo/product-catalog"
+   ],
+   "readers_at_3_1_0": [],
+   "expected_readers": [],
+   "expected_gate": "pass"
+  },
+  {
+   "id": "C7",
+   "commit": "484dfd6",
+   "date": "2026-09-16",
+   "title": "feat: add PII emission flag and layered redaction (#3869)",
+   "trigger": "flag emitRawPii switched from off to on in the twin; no code changes",
+   "change": "checkout and payment copy card number, CVV and email into span attributes; the collector hashes the email, keeps the last four card digits and deletes the CVV",
+   "class": "RUNTIME LINEAGE CHANGE (no commit)",
+   "why": "lineage changes on a flag change event alone; five latent edges must turn active, the collector's three masking edges start carrying data, and the two must-not-flow rules on the collector output must still hold",
+   "elements": [
+    "flag://otel-demo/emitRawPii",
+    "otel://otel-demo/checkout/span#demo.payment.card_number",
+    "otel://otel-demo/otel-collector/traces#user.hash"
+   ],
+   "readers_at_3_1_0": [
+    "otel-collector"
+   ],
+   "expected_readers": [],
+   "expected_gate": "pass"
+  },
+  {
+   "id": "C8",
+   "commit": null,
+   "authored": true,
+   "base": "3.1.0 + dbt model",
+   "title": "Reformat fct_order_value.sql",
+   "change": "whitespace, keyword case and CTE alias names change; the logic does not",
+   "class": "NON-BREAKING",
+   "why": "normalized expressions are unchanged, so element edges and expression hashes must be identical",
+   "elements": [
+    "postgres://astronomy-db/astronomy_db.analytics_marts.fct_order_value"
+   ],
+   "expected_readers": [],
+   "expected_gate": "pass"
+  },
+  {
+   "id": "C9",
+   "commit": null,
+   "authored": true,
+   "base": "3.1.0",
+   "title": "Change the email service's confirmation template",
+   "change": "src/email (Ruby) changes how the confirmation is built; no rule set reads Ruby in wave 2",
+   "class": "UNKNOWN (treated as potentially breaking)",
+   "why": "a change in a unit the platform cannot parse is reported as unknown, never as safe",
+   "elements": [
+    "svc://otel-demo/email"
+   ],
+   "expected_readers": [],
+   "expected_gate": "warn"
+  },
+  {
+   "id": "C10",
+   "commit": null,
+   "authored": true,
+   "base": "3.1.0 + dbt model",
+   "title": "Rename OrderResult.shipping_tracking_id to tracking_id (D15)",
+   "change": "field 2 of OrderResult renamed in pb/demo.proto; only checkout is updated in the same change",
+   "class": "BREAKING for readers by name",
+   "why": "the field number is unchanged, so bytes still parse, but accounting reads the field by its generated name (Consumer.cs:118) and no longer compiles",
+   "elements": [
+    "kafka://otel-demo/orders#shipping_tracking_id"
+   ],
+   "expected_readers": [
+    "svc://otel-demo/accounting",
+    "postgres://astronomy-db/astronomy_db.accounting.shipping#shipping_tracking_id",
+    "postgres://astronomy-db/astronomy_db.analytics_staging.stg_shipping#shipping_tracking_id"
+   ],
+   "expected_gate": "block"
+  },
+  {
+   "id": "C11",
+   "commit": null,
+   "authored": true,
+   "base": "3.1.0 + dbt model",
+   "title": "Retype CartItem.quantity from int32 to int64 (D15)",
+   "change": "quantity retyped in pb/demo.proto",
+   "class": "BREAKING",
+   "why": "int32 and int64 differ on the wire for negative values and in generated code; every reader of quantity must regenerate",
+   "elements": [
+    "kafka://otel-demo/orders#items[].item.quantity"
+   ],
+   "expected_readers": [
+    "svc://otel-demo/accounting",
+    "postgres://astronomy-db/astronomy_db.accounting.orderitem#quantity",
+    "postgres://astronomy-db/astronomy_db.analytics_staging.stg_order_items#quantity",
+    "postgres://astronomy-db/astronomy_db.analytics_staging.stg_order_items#line_total",
+    "postgres://astronomy-db/astronomy_db.analytics_marts.fct_order_value#item_count",
+    "postgres://astronomy-db/astronomy_db.analytics_marts.fct_order_value#items_value",
+    "postgres://astronomy-db/astronomy_db.analytics_marts.fct_order_value#order_value",
+    "bi://finance/finance_orders_dashboard"
+   ],
+   "expected_gate": "block"
+  },
+  {
+   "id": "C12",
+   "commit": null,
+   "authored": true,
+   "base": "3.1.0 + dbt model",
+   "title": "Remove column state from accounting.shipping (D15)",
+   "change": "Consumer.cs stops writing state; the column is dropped",
+   "class": "BREAKING for stg_shipping only",
+   "why": "stg_shipping selects *, so its output loses state; nothing reads stg_shipping#state downstream",
+   "elements": [
+    "postgres://astronomy-db/astronomy_db.accounting.shipping#state"
+   ],
+   "expected_readers": [
+    "postgres://astronomy-db/astronomy_db.analytics_staging.stg_shipping#state"
+   ],
+   "expected_gate": "warn"
+  },
+  {
+   "id": "C13",
+   "commit": null,
+   "authored": true,
+   "base": "3.1.0",
+   "title": "Add OrderResult.promo_code as field 6 (D15)",
+   "change": "a new optional field with a new number",
+   "class": "NON-BREAKING",
+   "why": "a new field number is backward compatible; no reader breaks and the gate must pass",
+   "elements": [
+    "kafka://otel-demo/orders#promo_code"
+   ],
+   "expected_readers": [],
+   "expected_gate": "pass"
+  }
+ ]
+}

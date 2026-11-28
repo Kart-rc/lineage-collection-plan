@@ -1,0 +1,35 @@
+{
+ "schemaVersion": "2",
+ "eventType": "EVIDENCE",
+ "eventTime": "2026-11-27T12:00:00Z",
+ "producer": "lineage-examples/ci_static@0.1.0",
+ "edge": {
+  "type": "CONFIGURES",
+  "from": {
+   "namespace": "flag://otel-demo",
+   "name": "adFailure"
+  },
+  "to": {
+   "namespace": "svc://otel-demo",
+   "name": "ad"
+  }
+ },
+ "evidence": {
+  "source": "ci_static",
+  "weight": 0.6,
+  "runtime": false,
+  "observedAt": "2026-11-27T12:00:00Z",
+  "rawRef": "archive://ci_static/dt=2026-11-27/7218e765a414",
+  "replaces": "unit",
+  "location": {
+   "path": "src/ad/src/main/java/oteldemo/AdService.java",
+   "line": 164,
+   "text": "\"adFailure\""
+  }
+ },
+ "unit": {
+  "urn": "unit://git/opentelemetry-demo/src/ad/src/main/java/oteldemo/AdService.java",
+  "contentHash": "sha256:afcd330977c3052a36ab1d2c1bbc3fd176c847dceb156ba2df64f887cfb024a8",
+  "commit": "dedc017"
+ }
+}

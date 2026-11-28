@@ -1,0 +1,85 @@
+# Every number the build is judged by, in one place. Agents read this file; only people change it (protected path,
+# approved at gate G1). Requirement IDs refer to doc 06; decisions to doc 08.
+# Status: DRAFT for G1, 27 November 2026. Values marked "proposed" were undefined before this file.
+
+version: 0.1.0-draft
+
+evidence:
+  # Set by the evidence library, never by a collector (doc 03, step 1). db_span is new (D27): a database client span.
+  weights: {access_history: 0.95, openlineage: 0.95, gateway_log: 0.90, otel_span: 0.90, db_span: 0.90,
+            ci_static: 0.60, declared: 0.50, iam: 0.20, owner: 1.00}
+  runtime_sources: [access_history, openlineage, gateway_log, otel_span, db_span]
+  runtime_rollup: 1m            # runtime evidence is rolled up to one event per edge per minute (WP-19, WP-27)
+
+states:
+  confirmed: {min_confidence: 0.90, requires_runtime_source: true}
+  probable: {min_confidence: 0.60}
+  candidate: {below: 0.60}
+  verified: {rule: an owner confirmed the edge; overrides the score}
+  dormant: {after_days_without_runtime: 30}                   # IN-8
+  disputed: {rule: a "this is wrong" action drops the edge to candidate until an owner reviews it}   # IA-7
+  latent: {rule: an edge with a condition that is false; walked by must-not-flow checks; never counted as impact}  # D30
+
+incremental:
+  mass_close_hold:              # IN-2, proposed: hold the write and alert when one extraction would close
+    max_share_of_extractor_edges: 0.20     # more than 20% of that extractor's open edges
+    min_edges: 10                          # and at least 10 edges (so tiny extractors are not held on every change)
+  freshness_p95_minutes: 15     # IN-10: merge or run to edge visible
+
+impact:
+  pr_report_p95_minutes: 5      # IA-1
+  replay_consumer_recall: 0.80  # IA-8: share of consumers that actually broke that the report lists
+  gate:
+    initial_mode: warn          # block only after the warn period shows precision of blocked cases >= 0.95
+    block_when:                 # IA-5
+      tier: 1
+      edge_states: [confirmed, verified]
+      change_kinds: [removed, renamed, retyped]
+      unless: [version_bump, sign_off_from_reader_owners]
+    fail_open: true             # IA-6
+
+detect_resolve:
+  alert_enrichment_p95_minutes: 2          # IR-1
+  rank_first_share: 0.70                   # IR-5
+  rank_top3_share: 0.90                    # IR-5
+  incident_window: {before_first_failure_minutes: 60}   # IR-2: from the last passing check, at most 60 minutes back
+  score:                                   # IR-4, proposed: deterministic, every term shown with the candidate (D32)
+    formula: "0.50*lineage + 0.25*time + 0.15*direction + 0.10*failing_calls"
+    terms:
+      lineage: "1.0 if the change touches the deepest failing callee on the walked path; 0.6 if it touches another node the failing node depends on; 0.0 otherwise"
+      time: "exp(-minutes from the change to the first failure / 15); 0 for a change after the first failure"
+      direction: "1.0 for a flag moved away from its shipped default, a deploy, a stop or a merge; 0.3 for a flag returned to its default or a service started again"
+      failing_calls: "share of failing calls in the window on edges into the nodes the change touches, counting only nodes upstream of the failing check's own node (calls failing into that node are symptoms)"
+    tie_break: [later change first, then change id]
+
+checks:                        # D26; per-check thresholds live in fixtures/otel-demo-3.1.0/checks.yaml
+  evaluate_every: 1m
+  window: 2m
+  baseline: 10m
+  min_events_for_rate_checks: 20
+
+baseline_accuracy:             # BL-6 and per-hop thresholds used in work package done-when
+  field_edges: {precision: 0.90, recall: 0.90}
+  per_hop_default: {precision: 0.90, recall: 0.90}
+  deterministic_hops: {precision: 0.95, recall: 0.95}   # ORM mappings and protobuf descriptors: no excuse for misses
+  service_edges: {precision: 0.95, recall: 0.90, upstream_asserted_recall: 1.00}
+
+factory:
+  holdout_pass_rate:           # proposed, by work package family; a family below its rate cannot be promoted (doc 06, autonomy ladder)
+    core_semantics: 1.00       # merge, score, bitemporal, resolver: property-style; any failure blocks
+    extractors: 0.90
+    impact: 0.85
+    detect_resolve: 0.80
+    platform: 1.00             # IaC, gates, API contracts
+  visible_scenarios: all_pass
+  promotion: {consecutive_changes: 5, escaped_defects: 0, weekly_sample_findings: 0}
+  start_levels: {wave_0: people_or_2, wave_1: 2, wave_2_and_later: "2 until wave 1 meets its holdout pass rate, then the level in the work package (D18)"}
+  limits: {build_attempts: 6, wall_clock: 1 working day, cost: recorded per merged change, cap: none}   # D21
+
+corpora:                       # WP-02; sizes so that IA-8 and IR-5 percentages mean something
+  changes: {minimum: 20, holdout_share: 0.33, split_by: family}
+  incidents: {minimum: 20, holdout_share: 0.33, split_by: family}
+  change_families: [retype, rename, remove, add, schema_move, package_rename, rewrite_without_lineage_change,
+                    retirement, new_consumer, flag_gated_flow, formatting_only, opaque_unit]
+  incident_families: [dependency_failure, unreachable_address, consumer_lag, consumer_outage, storage_contention, silent_failure,
+                      latency_only, decoy_outside_lineage, volume_surge, two_changes_one_service]

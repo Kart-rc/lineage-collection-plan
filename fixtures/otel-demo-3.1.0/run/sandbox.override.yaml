@@ -1,0 +1,13 @@
+# Only for sandboxes without IPv6 or without permission to raise ulimit. Run sandbox.sh first.
+# Add it after capture.override.yaml: docker compose -f compose.yaml -f compose.full.yaml -f capture.override.yaml -f sandbox.override.yaml up -d
+services:
+  telemetry-docs:
+    volumes:
+      - ${SANDBOX_DIR:-./sandbox}/telemetry-docs.nginx.conf.template:/nginx.conf.template:ro
+  image-provider:
+    volumes:
+      - ${SANDBOX_DIR:-./sandbox}/image-provider.nginx.conf.template:/nginx.conf.template:ro
+  flagd-ui:
+    command: ["/app/bin/server"]     # the image's start script calls ulimit, which the sandbox refuses
+    volumes:
+      - ${SANDBOX_DIR:-./sandbox}/flagd-ui.runtime.exs:/app/releases/0.1.1/runtime.exs:ro

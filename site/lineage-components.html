@@ -41,6 +41,7 @@ code, .mono { font-family: var(--f-mono); }
 .traces .lbl { font-size: 13px; color: var(--muted); margin-right: 4px; }
 .chip { font: 500 13px var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 13px; cursor: pointer; }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.update { font-size: 13.5px; line-height: 1.5; border-left: 3px solid var(--warn); background: var(--warn-soft); padding: 8px 12px; border-radius: 0 6px 6px 0; max-width: 90ch; }
 .chip:focus-visible, .comp:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
 @media (max-width: 900px) { .main { grid-template-columns: 1fr; } }
@@ -92,6 +93,7 @@ code, .mono { font-family: var(--f-mono); }
     <div class="eyebrow">Card-payments slice · lineage collection</div>
     <h1>Lineage Collection Components</h1>
     <p>Twenty-six components in six layers. Signals already exist, collectors turn each signal into the same evidence event, one topic carries it all, the core turns evidence into trusted edges, the stores keep them, and the uses answer impact and root-cause questions. Click any component for what it takes in and puts out, or pick a trace to follow one real event through the chain.</p>
+    <p class="update"><b>Updated 27 November 2026.</b> Tested against a real system, the OpenTelemetry Demo, three components changed. Service edges now come from traces, because internal calls never pass the gateway; gateway logs cover only traffic entering the estate. Kafka hops are joined on the topic name. Access history reads Postgres statistics first, then Snowflake and Databricks. A check runner is added, and search and the catalog UI move to wave 5. A half-hour run of the demo confirmed the trace and topic edges and every accounting column, and showed that some lineage exists only while a feature flag is on. The full mapping, with a work package and a test for each component, is in <code>docs/09-component-build-sheet.md</code>.</p>
   </header>
 
   <div class="summary" aria-label="The three rules that hold it together">

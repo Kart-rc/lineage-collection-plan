@@ -1,0 +1,20 @@
+{
+ "schemaVersion": "2",
+ "eventType": "QUALITY_ASSERTION",
+ "eventTime": "2026-11-27T14:15:56Z",
+ "producer": "lineage-collectors/checks@0.1.0",
+ "assertion": {
+  "check": "fraud-detection-lag",
+  "node": "kafka://otel-demo/orders",
+  "result": "pass",
+  "window": {
+   "start": "2026-11-27T14:13:56Z",
+   "end": "2026-11-27T14:15:56Z"
+  },
+  "values": {
+   "value": 0.0
+  },
+  "rule": "value > 500",
+  "reader": "svc://otel-demo/fraud-detection"
+ }
+}

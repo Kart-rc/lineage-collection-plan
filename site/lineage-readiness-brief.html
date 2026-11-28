@@ -1,0 +1,939 @@
+<title>Ready to Build Lineage?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: a briefing that answers first. Prose at reading width; the system map, the run timeline and the inputs list at full width.
+   One switch sets the depth: leaders see the answer, the story and the asks; engineers also see evidence, paths and the build plan.
+   Tokens match the sibling pages in site/. */
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --sunk: #eceef2; --line: #d8dce3; --line-strong: #b9c0cb;
+  --ink: #16202c; --muted: #5a6575; --faint: #8a94a3;
+  --accent: #0b6e62; --accent-soft: #d9efeb;
+  --warn: #9a5400; --warn-soft: #fbead2;
+  --ok: #2b7a3a; --ok-soft: #dcefe0;
+  --bad: #b8322f; --bad-soft: #f7dedc;
+  --gate: #6a4fa0; --gate-soft: #ebe4f6;
+  --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --sunk: #1e252e; --line: #2c3540; --line-strong: #44505e;
+  --ink: #e6ebf1; --muted: #9aa6b4; --faint: #6f7b89;
+  --accent: #4fc2b1; --accent-soft: #163a36;
+  --warn: #f0a94b; --warn-soft: #3a2a12;
+  --ok: #6cc77e; --ok-soft: #1b3a23;
+  --bad: #f07a70; --bad-soft: #442120;
+  --gate: #b99ae0; --gate-soft: #2e2540; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --sunk: #1e252e; --line: #2c3540; --line-strong: #44505e;
+  --ink: #e6ebf1; --muted: #9aa6b4; --faint: #6f7b89;
+  --accent: #4fc2b1; --accent-soft: #163a36;
+  --warn: #f0a94b; --warn-soft: #3a2a12;
+  --ok: #6cc77e; --ok-soft: #1b3a23;
+  --bad: #f07a70; --bad-soft: #442120;
+  --gate: #b99ae0; --gate-soft: #2e2540; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 var(--f-body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 1140px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 72px; }
+h1, h2, h3, h4 { font-family: var(--f-display); margin: 0; line-height: 1.2; text-wrap: balance; }
+h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 700; letter-spacing: -0.015em; }
+h2 { font-size: clamp(22px, 3.2vw, 28px); font-weight: 600; letter-spacing: -0.005em; }
+h3 { font-size: 17.5px; font-weight: 600; }
+h4 { font-size: 15px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+a { color: var(--accent); text-underline-offset: 2px; }
+code, .mono { font-family: var(--f-mono); font-size: 0.9em; }
+code { background: var(--sunk); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.eyebrow { font: 500 12px/1.3 var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.muted { color: var(--muted); }
+.small { font-size: 13.5px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+ul.clean { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+
+/* audience */
+[data-aud="leaders"] .eng { display: none !important; }
+.eng-tag { font: 500 10.5px/1 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--gate); border: 1px solid var(--gate); border-radius: 3px; padding: 3px 5px 2px; vertical-align: 2px; margin-right: 6px; }
+
+/* header */
+.masthead { display: grid; gap: 14px; padding-bottom: 6px; }
+.lede { font-size: 18px; line-height: 1.55; max-width: 66ch; }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; background: var(--bg); border-bottom: 1px solid var(--line); margin-top: 22px; display: flex; align-items: center; gap: 12px 20px; flex-wrap: wrap; padding-block: 10px; }
+.switch { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; padding: 3px; background: var(--surface); gap: 3px; }
+.switch button { font: 600 13.5px var(--f-body); border: 0; background: transparent; color: var(--muted); padding: 7px 14px; border-radius: 6px; cursor: pointer; }
+.switch button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.switch-note { font-size: 13px; color: var(--muted); flex: 1 1 220px; min-width: 0; }
+.jump { display: flex; gap: 4px 14px; flex-wrap: wrap; font-size: 13.5px; }
+.jump a { color: var(--muted); text-decoration: none; }
+.jump a:hover { color: var(--accent); text-decoration: underline; }
+@media (max-width: 720px) { .switch-note, .jump { display: none; } .bar { padding-block: 8px; } }
+
+section { padding-top: 48px; display: grid; gap: 18px; scroll-margin-top: 70px; }
+.sec-head { display: grid; gap: 8px; }
+
+/* answer */
+.verdict { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 26px; }
+.verdict-word { font: 700 clamp(40px, 7vw, 64px)/1 var(--f-display); letter-spacing: -0.02em; }
+.verdict-word span { color: var(--accent); }
+.verdict-main { display: grid; gap: 14px; }
+.verdict-main p { font-size: 16.5px; }
+.lanes { display: grid; gap: 0; border-top: 2px solid var(--ink); }
+.lane { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.lane b { font: 600 13px/1.35 var(--f-display); }
+.lane .s-have b { color: var(--ok); }
+.lane p { font-size: 14.5px; line-height: 1.5; }
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.fact { padding: 14px 16px; border-right: 1px solid var(--line); display: grid; gap: 2px; align-content: start; }
+.fact:last-child { border-right: 0; }
+.fact strong { font: 600 26px/1.1 var(--f-display); font-variant-numeric: tabular-nums; }
+.fact span { font-size: 13px; color: var(--muted); line-height: 1.4; }
+@media (max-width: 860px) { .verdict { grid-template-columns: 1fr; } .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fact:nth-child(2) { border-right: 0; } .fact:nth-child(-n+2) { border-bottom: 1px solid var(--line); } }
+@media (max-width: 420px) { .lane { grid-template-columns: 1fr; gap: 2px; } }
+
+/* why */
+.why-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 860px) { .why-grid { grid-template-columns: 1fr; } }
+.whys { list-style: none; margin: 0; padding: 0; counter-reset: why; display: grid; }
+.whys li { counter-increment: why; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 14.5px; line-height: 1.5; }
+.whys li::before { content: counter(why); font: 600 13px/22px var(--f-mono); width: 24px; height: 24px; text-align: center; border-radius: 50%; background: var(--sunk); color: var(--muted); }
+.whys li.root::before { content: "→"; background: var(--accent); color: var(--bg); }
+.whys li.root { border-bottom: 0; font-weight: 500; }
+.whys em { font-style: normal; color: var(--muted); }
+.objectives { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.obj { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 12px 14px; display: grid; gap: 4px; align-content: start; }
+.obj .mono { color: var(--accent); font: 600 12.5px var(--f-body); letter-spacing: 0.02em; }
+.obj b { font: 600 15px var(--f-display); }
+.obj span { font-size: 13.5px; color: var(--muted); line-height: 1.45; }
+.options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.opt { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; background: var(--surface); }
+.opt.chosen { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.opt b { font: 600 15px var(--f-display); }
+.opt p { font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+.opt .tag { font: 500 11.5px var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase; }
+.opt.chosen .tag { color: var(--accent); }
+.opt .tag.no { color: var(--bad); }
+.opt .tag.maybe { color: var(--warn); }
+@media (max-width: 860px) { .options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .options, .objectives { grid-template-columns: 1fr; } }
+.ledger { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.ledger > div { padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+.ledger > div + div { border-left: 1px solid var(--line); }
+.ledger h4 { font-size: 14px; }
+.ledger li { font-size: 14px; line-height: 1.45; padding-left: 14px; position: relative; }
+.ledger li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 6px; height: 6px; border-radius: 50%; background: var(--line-strong); }
+.ledger .inaction li::before { background: var(--bad); }
+@media (max-width: 640px) { .ledger { grid-template-columns: 1fr; } .ledger > div + div { border-left: 0; border-top: 1px solid var(--line); } }
+
+/* use case map */
+.usecase { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-items: start; }
+.scen-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.scen-tabs button { font: 500 13.5px var(--f-body); border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 7px 13px; cursor: pointer; display: inline-flex; gap: 7px; align-items: center; }
+.scen-tabs button .mono { font: 600 11.5px var(--f-body); color: var(--muted); }
+.scen-tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.scen-tabs button[aria-selected="true"] .mono { color: var(--bg); opacity: 0.75; }
+.map-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 8px 8px; min-width: 0; }
+.map-scroll { overflow-x: auto; }
+.map-scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+.map-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted); padding: 6px 8px 2px; }
+.map-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.lg-line { width: 22px; height: 0; border-top: 2px solid var(--line-strong); display: inline-block; }
+.lg-line.hl { border-color: var(--accent); }
+.lg-line.warn { border-color: var(--warn); }
+.lg-line.bad { border-color: var(--bad); }
+.lg-line.gate { border-color: var(--gate); border-top-style: dashed; }
+
+svg .nd rect { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.2; transition: opacity .2s; }
+svg .nd.k-store rect { fill: var(--sunk); }
+svg .nd.k-topic rect { fill: var(--sunk); }
+svg .nd.k-ctl rect, svg .nd.k-sink rect { stroke-dasharray: 4 3; }
+svg .nd .lbl { font: 600 12.5px var(--f-body); fill: var(--ink); }
+svg .nd .sub { font: 400 10.5px var(--f-mono); fill: var(--muted); }
+svg .nd.r-path rect { stroke: var(--accent); stroke-width: 2; }
+svg .nd.r-warn rect { stroke: var(--warn); stroke-width: 2; fill: var(--warn-soft); }
+svg .nd.r-bad rect { stroke: var(--bad); stroke-width: 2; fill: var(--bad-soft); }
+svg .nd.r-gate rect { stroke: var(--gate); stroke-width: 2; fill: var(--gate-soft); }
+svg .nd.r-dim { opacity: 0.38; }
+svg .ed { fill: none; stroke: var(--line-strong); stroke-width: 1.5; transition: opacity .2s; }
+svg .ed.e-hl { stroke: var(--accent); stroke-width: 2.5; }
+svg .ed.e-warn { stroke: var(--warn); stroke-width: 2.5; }
+svg .ed.e-bad { stroke: var(--bad); stroke-width: 2.5; stroke-dasharray: 6 4; }
+svg .ed.e-gate { stroke: var(--gate); stroke-width: 2.5; stroke-dasharray: 6 4; }
+svg .ed.e-dim { opacity: 0.3; }
+svg .mk-n { fill: var(--line-strong); } svg .mk-hl { fill: var(--accent); } svg .mk-warn { fill: var(--warn); } svg .mk-bad { fill: var(--bad); } svg .mk-gate { fill: var(--gate); }
+svg .badge rect { stroke: none; }
+svg .badge text { font: 600 9.5px var(--f-mono); letter-spacing: 0.03em; }
+svg .badge.b-hl rect { fill: var(--accent); } svg .badge.b-warn rect { fill: var(--warn); } svg .badge.b-bad rect { fill: var(--bad); } svg .badge.b-gate rect { fill: var(--gate); }
+svg .badge text { fill: var(--bg); }
+svg .lane-lbl { font: 500 10.5px var(--f-mono); fill: var(--faint); letter-spacing: 0.06em; text-transform: uppercase; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 32px; align-items: start; min-width: 0; }
+.panel .p-main { display: grid; gap: 12px; align-content: start; min-width: 0; }
+[data-aud="leaders"] .panel { grid-template-columns: minmax(0, 1fr); }
+[data-aud="leaders"] .panel .p-main { max-width: 78ch; }
+@media (max-width: 860px) { .panel { grid-template-columns: minmax(0, 1fr); } }
+.panel .obj-tag { font: 600 12.5px var(--f-body); color: var(--accent); letter-spacing: 0.02em; }
+.panel h3 { font-size: 20px; }
+.panel .plain { font-size: 15.5px; line-height: 1.55; }
+.must { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 9px 12px; border-radius: 0 8px 8px 0; font-size: 14px; line-height: 1.5; }
+.must b { font-family: var(--f-display); }
+.panel .eng { display: grid; gap: 8px; align-content: start; min-width: 0; }
+@media (max-width: 860px) { .panel .eng { border-top: 1px solid var(--line); padding-top: 12px; } }
+.panel .eng li { font-size: 13.5px; line-height: 1.5; }
+.panel .status-line { font-size: 13px; color: var(--muted); }
+.panel .status-line b { color: var(--ink); font-weight: 600; }
+
+/* evidence */
+.results { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 900px) { .results { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .results { grid-template-columns: 1fr; } }
+.res { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 8px; align-content: start; }
+.res .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.res .mono { font: 600 12.5px var(--f-body); letter-spacing: 0.02em; color: var(--accent); }
+.res b { font: 600 15.5px var(--f-display); }
+.res p { font-size: 13.5px; line-height: 1.5; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font: 600 11.5px/1 var(--f-body); padding: 5px 8px; border-radius: 999px; white-space: nowrap; }
+.chip::before { font: 700 11px/1 var(--f-mono); }
+.c-have { background: var(--ok-soft); color: var(--ok); } .c-have::before { content: "✓"; }
+.c-part { background: var(--warn-soft); color: var(--warn); } .c-part::before { content: "◐"; }
+.c-not { background: var(--sunk); color: var(--muted); } .c-not::before { content: "○"; }
+.c-you { background: var(--gate-soft); color: var(--gate); } .c-you::before { content: "!"; }
+.c-proven { background: var(--ok-soft); color: var(--ok); } .c-proven::before { content: "✓"; }
+.c-ready { background: var(--sunk); color: var(--muted); } .c-ready::before { content: "○"; }
+.chart-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 10px; min-width: 0; }
+.chart-head { display: flex; justify-content: space-between; gap: 8px 20px; flex-wrap: wrap; align-items: baseline; }
+.chart-legend { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.chart-legend span { display: inline-flex; gap: 6px; align-items: center; }
+.sw { width: 14px; height: 14px; border-radius: 3px; display: inline-grid; place-items: center; font: 700 9px var(--f-mono); }
+.sw.ok { background: var(--ok-soft); color: var(--ok); }
+.sw.fail { background: var(--bad); color: var(--bg); }
+.sw.na { background: repeating-linear-gradient(135deg, var(--sunk) 0 3px, var(--surface) 3px 6px); border: 1px solid var(--line); }
+.sw.band-c7 { background: var(--gate-soft); border: 1px solid var(--gate); }
+.sw.band-i1 { background: var(--bad-soft); border: 1px solid var(--bad); }
+.chart-scroll { overflow-x: auto; position: relative; }
+.chart-scroll svg { display: block; width: 100%; min-width: 660px; height: auto; }
+svg .cl-row { font: 500 12px var(--f-body); fill: var(--ink); }
+svg .cl-sub { font: 400 10.5px var(--f-mono); fill: var(--muted); }
+svg .cl-tick { font: 400 10.5px var(--f-mono); fill: var(--muted); }
+svg .cl-grid { stroke: var(--line); stroke-width: 1; }
+svg .cell-ok { fill: var(--ok-soft); } svg .cell-fail { fill: var(--bad); } svg .cell-na { fill: url(#hatch); }
+svg .gl-ok { font: 700 10px var(--f-mono); fill: var(--ok); } svg .gl-fail { font: 700 10px var(--f-mono); fill: var(--bg); }
+svg .band-c7 { fill: var(--gate-soft); } svg .band-i1 { fill: var(--bad-soft); }
+svg .band-edge-c7 { stroke: var(--gate); stroke-width: 1.5; } svg .band-edge-i1 { stroke: var(--bad); stroke-width: 1.5; }
+svg .band-lbl { font: 600 11px var(--f-mono); }
+svg .band-lbl.c7 { fill: var(--gate); } svg .band-lbl.i1 { fill: var(--bad); }
+svg .hatch-a { fill: var(--sunk); } svg .hatch-b { stroke: var(--line); stroke-width: 2; }
+svg .cellhit { fill: transparent; cursor: default; }
+svg .cellhit:hover, svg .cellhit:focus { stroke: var(--ink); stroke-width: 1.5; outline: none; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12.5px; line-height: 1.4; padding: 7px 9px; border-radius: 6px; max-width: 240px; z-index: 3; box-shadow: 0 4px 14px rgb(0 0 0 / 0.18); }
+.tip b { font-weight: 600; }
+details.tbl summary { cursor: pointer; font-size: 13.5px; color: var(--accent); }
+.tbl-scroll { overflow-x: auto; margin-top: 8px; }
+table { border-collapse: collapse; font-size: 13px; width: 100%; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 12px var(--f-body); color: var(--muted); }
+td.num { font-variant-numeric: tabular-nums; font-family: var(--f-mono); font-size: 12px; }
+
+/* readiness */
+.ready-head { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
+.counts { display: flex; flex-wrap: wrap; gap: 8px; }
+.filter { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; padding: 3px; gap: 3px; background: var(--surface); flex-wrap: wrap; }
+.filter button { font: 500 13px var(--f-body); border: 0; background: transparent; color: var(--muted); padding: 6px 11px; border-radius: 6px; cursor: pointer; }
+.filter button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.inputs { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.in-group { padding: 10px 16px 4px; font: 500 12px var(--f-mono); letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); background: var(--sunk); border-top: 1px solid var(--line); }
+.in-group:first-child { border-top: 0; }
+.in-row { display: grid; grid-template-columns: minmax(0, 1.25fr) 112px minmax(0, 1.6fr) 120px; gap: 6px 16px; padding: 11px 16px; border-top: 1px solid var(--line); align-items: start; }
+.in-row .name { font-weight: 600; font-size: 14.5px; line-height: 1.35; }
+.in-row .detail { font-size: 13.5px; line-height: 1.5; color: var(--ink); }
+.in-row .detail .where { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.in-row .need { font: 500 12px/1.35 var(--f-mono); color: var(--muted); }
+.in-row .need.start { color: var(--ink); }
+@media (max-width: 760px) { .in-row { grid-template-columns: minmax(0, 1fr) auto; } .in-row .detail { grid-column: 1 / -1; } .in-row .need { grid-column: 1 / -1; } }
+.conclusion { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; font-size: 16px; line-height: 1.55; max-width: 74ch; }
+
+/* assumptions */
+.assume { display: grid; gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.as-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) 96px; gap: 6px 16px; padding: 12px 16px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.5; }
+.as-row:first-child { border-top: 0; background: var(--sunk); font: 600 12px var(--f-body); color: var(--muted); }
+.as-row b { font-weight: 600; font-size: 14px; }
+.as-row .when { font: 500 12px var(--f-mono); color: var(--muted); }
+@media (max-width: 760px) { .as-row { grid-template-columns: 1fr; } .as-row:first-child { display: none; } .as-row span[data-l]::before { content: attr(data-l) " "; font-weight: 600; color: var(--muted); } }
+
+/* build */
+.waves { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; border-top: 2px solid var(--ink); }
+.wave { padding: 12px 12px 12px 0; display: grid; gap: 6px; align-content: start; border-bottom: 1px solid var(--line); }
+.wave + .wave { padding-left: 12px; border-left: 1px solid var(--line); }
+.wave .wn { font: 600 12px var(--f-mono); color: var(--muted); }
+.wave.now .wn { color: var(--accent); }
+.wave b { font: 600 15px/1.25 var(--f-display); }
+.wave p { font-size: 13px; line-height: 1.45; }
+.wave .proves { font-size: 13px; color: var(--accent); font-weight: 500; }
+.wave .wp { font: 400 11.5px var(--f-mono); color: var(--muted); }
+@media (max-width: 980px) { .waves { grid-template-columns: repeat(3, minmax(0, 1fr)); } .wave:nth-child(4) { border-left: 0; padding-left: 0; } }
+@media (max-width: 560px) { .waves { grid-template-columns: 1fr; } .wave + .wave { border-left: 0; padding-left: 0; } }
+.factory { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.factory div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.5; display: grid; gap: 4px; }
+.factory b { font: 600 14.5px var(--f-display); }
+@media (max-width: 760px) { .factory { grid-template-columns: 1fr; } }
+.layers { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 980px) { .layers { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .layers { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.layer { display: grid; gap: 6px; align-content: start; }
+.layer h4 { font: 500 12px var(--f-mono); letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+.comp { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 13px; line-height: 1.35; display: grid; gap: 3px; }
+.comp.def { background: transparent; border-style: dashed; color: var(--muted); }
+.comp .st { font: 500 11px var(--f-mono); color: var(--ok); }
+.comp.def .st { color: var(--muted); }
+.paths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 24px; font-size: 13.5px; }
+.paths div { display: grid; gap: 1px; }
+@media (max-width: 640px) { .paths { grid-template-columns: 1fr; } }
+pre.cmd { background: var(--sunk); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font: 12.5px/1.6 var(--f-mono); margin: 0; }
+
+/* asks */
+.asks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 860px) { .asks { grid-template-columns: 1fr; } }
+.ask { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.ask .when { font: 500 12px var(--f-mono); color: var(--gate); }
+.ask b { font: 600 16.5px var(--f-display); }
+.ask p { font-size: 14px; line-height: 1.5; }
+.talk { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 12px; }
+.talk-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.talk-text { font-size: 15.5px; line-height: 1.65; max-width: 74ch; display: grid; gap: 10px; }
+.btn { font: 600 13px var(--f-body); border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap" id="top">
+  <header class="masthead">
+    <div class="eyebrow">Element-level lineage · readiness brief · 27 November 2026</div>
+    <h1>Ready to build lineage?</h1>
+    <p class="lede">The short answer is yes. We can start now. We tested the design on a real, running system instead of a slide. This page explains what it is, what we proved, what we still lack, and what we need from you.</p>
+  </header>
+
+  <div class="bar" role="region" aria-label="Audience">
+    <div class="switch" role="group" aria-label="Show this page for">
+      <button type="button" id="aud-leaders" data-aud="leaders" aria-pressed="true">Leader view</button>
+      <button type="button" id="aud-engineers" data-aud="engineers" aria-pressed="false">Engineer view</button>
+    </div>
+    <p class="switch-note" id="aud-note">Showing the answer, the story and the asks. Switch to Engineer view for evidence, file paths and the build plan.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#answer">Answer</a><a href="#why">Why</a><a href="#use-case">Use case</a><a href="#proof">Proof</a><a href="#inputs">Inputs</a><a href="#assumptions">Assumptions</a><a href="#build">Build</a><a href="#asks">Asks</a>
+    </nav>
+  </div>
+
+  <!-- ANSWER -->
+  <section id="answer" aria-labelledby="h-answer">
+    <div class="sec-head"><div class="eyebrow">The answer</div><h2 id="h-answer">Yes to start. Not yet to run on our own data.</h2></div>
+    <div class="verdict">
+      <div class="verdict-main">
+        <div class="verdict-word">Ready<span>.</span></div>
+        <p>We have what the build needs: a real multi-service system to build against, a verified truth to grade every build, 37 decisions, and for every work package acceptance criteria a harness can check.</p>
+        <p class="muted small">What we don't have yet belongs to later stages: our own data products, access to them, and the cloud stage environment. Each is scheduled, and none blocks the start. Three sign-offs do.</p>
+      </div>
+      <div class="lanes">
+        <div class="lane s-have"><b>Ready now</b><p>The reference system and its golden graph (89 citations checked against source), the twin, 37 decisions, and the spec pack: measurable done-when for all 39 work packages, interfaces as schemas, visible scenarios.</p></div>
+        <div class="lane"><b style="color:var(--gate)">Needs you</b><p>Approve the spec pack and accept the graph store record (gate G1). Sign the golden graph (gate G3). Have someone who does not build write the holdout cases.</p></div>
+        <div class="lane"><b class="muted">Comes later</b><p>Pick our second slice in wave 1. Then access to its code and warehouse, a Neptune stage instance, and model access for private repositories.</p></div>
+      </div>
+    </div>
+    <div class="facts" aria-label="Key facts">
+      <div class="fact"><strong>37</strong><span>decisions: 25 from evidence, 7 by you, 5 drafted for your G1 approval</span></div>
+      <div class="fact"><strong>39 / 39</strong><span>work packages with measurable done-when; 97 checks in all</span></div>
+      <div class="fact"><strong>18 / 18</strong><span>connections seen in the running system are in the golden graph</span></div>
+      <div class="fact"><strong>8 / 10</strong><span>injected incidents caught within 2 minutes, the true cause ranked first in all 8</span></div>
+    </div>
+  </section>
+
+  <!-- WHY -->
+  <section id="why" aria-labelledby="h-why">
+    <div class="sec-head"><div class="eyebrow">Why this exists</div><h2 id="h-why">Bad data takes too long to trace back to its cause</h2></div>
+    <div class="why-grid">
+      <div style="display:grid;gap:10px">
+        <h3>Asking &ldquo;why&rdquo; five times</h3>
+        <ol class="whys">
+          <li><span>Incidents with bad data take too long to detect and fix. <em>Why?</em></span></li>
+          <li><span>Nobody can see which upstream change touched the broken field. <em>Why?</em></span></li>
+          <li><span>Our lineage stops at tables and services. It does not follow individual fields. <em>Why?</em></span></li>
+          <li><span>Field-to-field logic lives in service code (Go, C#, Kotlin and others) and at runtime, where catalog tools don't look. <em>Why?</em></span></li>
+          <li><span>Those tools parse SQL and warehouse logs. No vendor covers service code, streams and warehouses at field level (vendor assessment, doc 05).</span></li>
+          <li class="root"><span>So we build collectors for code and runtime, and grade them against a system whose truth we already know.</span></li>
+        </ol>
+      </div>
+      <div style="display:grid;gap:10px">
+        <h3>What it must do</h3>
+        <div class="objectives">
+          <div class="obj"><span class="mono">O1 · Baseline</span><b>Map every field</b><span>Where each field comes from and where it goes, across services, topics and tables.</span></div>
+          <div class="obj"><span class="mono">O2 · Incremental</span><b>Stay current</b><span>Update the map when code, config or flags change, without a full rescan.</span></div>
+          <div class="obj"><span class="mono">O3 · Impact</span><b>Warn before merge</b><span>Show what a code change breaks downstream while it is still a pull request.</span></div>
+          <div class="obj"><span class="mono">O4 · Detect and resolve</span><b>Find the cause fast</b><span>From a failing check, walk upstream to the change that caused it.</span></div>
+        </div>
+      </div>
+    </div>
+    <h3>The options we weighed</h3>
+    <div class="options">
+      <div class="opt"><span class="tag no">Rejected</span><b>Buy one product</b><p>No product delivers field-level lineage through service code, streams and warehouses together.</p></div>
+      <div class="opt chosen"><span class="tag">Chosen</span><b>Build with an AI factory</b><p>Agents write the code, people approve at four gates, and a harness grades every change against known truth.</p></div>
+      <div class="opt"><span class="tag maybe">Running alongside</span><b>Trial two vendors</b><p>Point Foundational and Gable at the same public system for a week and score them on the same truth (D17).</p></div>
+      <div class="opt"><span class="tag no">Rejected</span><b>Do nothing</b><p>Keep tracing incidents by hand, service by service. The costs on the right keep accruing.</p></div>
+    </div>
+    <div class="ledger">
+      <div><h4>What acting costs</h4><ul class="clean">
+        <li>Your time at four gates: spec, change, oracle and release (D20).</li>
+        <li>Agent cost, tracked per merged change and reviewed weekly. There is no cap; time limits stop runaway runs (D21).</li>
+        <li>A Neptune and Kafka stage environment in AWS.</li>
+        <li>From slice 2 on, owners' time to answer reconciliation queues.</li>
+      </ul></div>
+      <div class="inaction"><h4>What not acting costs</h4><ul class="clean">
+        <li>Breaking field changes are found after merge. In the demo, retyping one field (C1) broke every reader of the zip code.</li>
+        <li>Sensitive-data paths are found by audit, not by design. One flag sent card numbers into telemetry with no code change (C7).</li>
+        <li>Incidents start from a symptom with no path to the cause. In the run, lineage walked 9 dependencies to the right service automatically.</li>
+        <li>A catalog bought later would still miss service code.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- USE CASE -->
+  <section id="use-case" aria-labelledby="h-use">
+    <div class="sec-head">
+      <div class="eyebrow">The real use case</div>
+      <h2 id="h-use">An online shop's order, from checkout to the finance tables</h2>
+      <p>The OpenTelemetry Demo is an open-source shop (Apache-2.0) maintained by the OpenTelemetry project. It runs a dozen services in ten languages. When a shopper checks out, the order passes through payment and shipping calls, a Kafka topic and two consumers, and lands in Postgres. That mirrors the shape of our estate, and its truth is in public code we can cite line by line. Pick a scenario to see what lineage has to answer.</p>
+    </div>
+    <div class="scen-tabs" role="tablist" aria-label="Scenarios" id="scen-tabs"></div>
+    <div class="usecase">
+      <div class="map-card">
+        <div class="map-scroll"><svg id="map" viewBox="0 0 960 560" role="img" aria-label="Order flow of the OpenTelemetry Demo: services, topic and tables"></svg></div>
+        <div class="map-legend" id="map-legend">
+          <span><i class="lg-line"></i>call or data flow</span>
+          <span><i class="lg-line hl"></i>path lineage must show</span>
+          <span><i class="lg-line warn"></i>affected by a change</span>
+          <span><i class="lg-line bad"></i>failure or forbidden</span>
+          <span><i class="lg-line gate"></i>exists only under a flag</span>
+        </div>
+      </div>
+      <aside class="panel" id="panel" aria-live="polite"></aside>
+    </div>
+    <p class="small muted">Not drawn, to keep the order path readable: the frontend's own calls to ad, cart, catalog and recommendation. Two frontend calls that only browsers trigger (to currency and shipping) are in the golden graph but were not exercised by the load generator.</p>
+  </section>
+
+  <!-- PROOF -->
+  <section id="proof" aria-labelledby="h-proof">
+    <div class="sec-head">
+      <div class="eyebrow">What we proved</div>
+      <h2 id="h-proof">We ran the shop twice and broke it ten different ways</h2>
+      <p>On 27 November the demo ran here twice with 23 containers and simulated shoppers. The first run (14:06 to 14:39 UTC) switched on a flag that changes where card data goes, then made payments fail half the time. The second (16:54 to 18:43 UTC) injected nine more incidents, from a stopped consumer to a decoy and a silent failure. The prototypes scored what lineage saw against the golden graph, with every threshold fixed before the runs.</p>
+    </div>
+    <div class="results">
+      <div class="res"><div class="top"><span class="mono">O1 · Baseline</span><span class="chip c-proven">Proven</span></div><b>Every connection we saw was expected</b><p>In both runs, 18 of 18 observed connections are in the golden graph, including all 13 the demo's own tests assert. Runtime confirmed all 17 finance columns the code says are written.</p></div>
+      <div class="res"><div class="top"><span class="mono">O2 · Incremental</span><span class="chip c-proven">One case</span></div><b>A flag changed lineage, and we saw it</b><p>13 seconds after the flag went on, masked card numbers appeared in telemetry. No CVV or raw email ever left. The edges stopped when the flag went off.</p></div>
+      <div class="res"><div class="top"><span class="mono">O3 · Impact</span><span class="chip c-ready">Not run yet</span></div><b>Real changes are ready to replay</b><p>Thirteen changes are prepared with their expected readers and gate result: six from the demo's history, the flag flip, and six written here. The impact engine itself is wave 3.</p></div>
+      <div class="res"><div class="top"><span class="mono">O4 · Detect and resolve</span><span class="chip c-part">8 of 10</span></div><b>Caught fast, right cause first</b><p>8 of 10 incidents were caught within 2 minutes, and the true cause ranked first in all 8. The two misses fired no check at all: a silent cart failure and a traffic flood. That puts IR-5 at 80% against a 90% bar.</p></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <h3>First run: five checks, minute by minute</h3>
+        <div class="chart-legend">
+          <span><i class="sw ok">✓</i>passing</span>
+          <span><i class="sw fail">✕</i>failing</span>
+          <span><i class="sw na"></i>not enough history yet</span>
+          <span><i class="sw band-c7"></i>C7: card data flag on</span>
+          <span><i class="sw band-i1"></i>I1: payments failing 50%</span>
+        </div>
+      </div>
+      <div class="chart-scroll" id="chart-wrap"><svg id="timeline" role="img" aria-label="Check results per minute from 14:15 to 14:39 UTC. Checkout errors fail from 14:26:56 to 14:29:56; order and accounting rates fail from 14:27:56 to 14:31:56; lag and latency never fail."></svg><div class="tip" id="tip" hidden></div></div>
+      <p class="small muted">Each cell is one evaluation of a check, covering the minute before the time on the axis. Hover a cell for its value. Rate checks show "not enough history" until they have a baseline that expects 20 orders, about 7 minutes at this traffic. Data: <code>fixtures/otel-demo-3.1.0/capture-2026-11-27/checks-run.json</code>.</p>
+      <details class="tbl eng"><summary>Show the values as a table</summary><div class="tbl-scroll"><table id="tl-table"></table></div></details>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head"><h3>Ten incidents, replayed</h3><span class="small muted">Thresholds fixed before the runs · score from <code>factory/parameters.yaml</code></span></div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>Incident</th><th>What we broke</th><th>First check to fail</th><th>Minutes</th><th>True cause</th></tr></thead>
+        <tbody>
+          <tr><td class="num">I1</td><td>Payments fail half the time</td><td>Checkout errors</td><td class="num">2.0</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I2</td><td>Orders topic flooded, consumers lag</td><td>Order rate, consumer lag</td><td class="num">0.8</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I3</td><td>Lock on the catalog table</td><td>Checkout errors</td><td class="num">1.8</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I4</td><td>Payment address unreachable</td><td>Checkout errors</td><td class="num">0.8</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I5</td><td>Carts silently not emptied</td><td>None</td><td class="num">–</td><td><span class="chip c-not">Not detected</span></td></tr>
+          <tr><td class="num">I6</td><td>One product cannot be read</td><td>Checkout errors</td><td class="num">1.6</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I7</td><td>Accounting consumer stopped</td><td>Accounting insert rate</td><td class="num">1.8</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I8</td><td>International shipping delayed</td><td>Checkout latency</td><td class="num">1.8</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I9</td><td>A decoy, then payments fail 25%</td><td>Checkout errors</td><td class="num">1.8</td><td><span class="chip c-have">Ranked 1st</span></td></tr>
+          <tr><td class="num">I10</td><td>Home page flooded with traffic</td><td>None</td><td class="num">–</td><td><span class="chip c-not">Not detected</span></td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted">The incidents ran about nine minutes apart. Lineage led straight to the cause in I1, I3 and I9; in the rest it narrowed the field to the right dependencies and time decided. The hidden test set therefore has to include changes made close together. Data: <code>fixtures/otel-demo-3.1.0/capture-2026-11-27/incident-replay.json</code>.</p>
+    </div>
+
+    <div class="eng" style="display:grid;gap:10px">
+      <h3><span class="eng-tag">Engineers</span>What else the run settled</h3>
+      <ul class="clean small">
+        <li><b>Kafka is joined on the topic, not on trace links.</b> The producer and consumer spans live in separate traces, as upstream warned. The topic offset (30) matched the 30 rows in <code>accounting."order"</code> at 14:17.</li>
+        <li><b>Envoy sees only the front door.</b> Checkout reaches its callees directly, by container IP (172.18.0.x). The resolver never treats an IP as an identity, and 3,103 IP references stayed unresolved on purpose (D31).</li>
+        <li><b>Database spans give column-level writes.</b> Accounting's batched EF Core insert splits into three tables and 17 columns with SQLGlot. Its shared login is never used for attribution (D27).</li>
+        <li><b>Runtime misses what code finds.</b> Six services read a feature flag but emit no span when they do. Three of them are behind incidents I2 to I4, so which service reads which flag comes from code (D29).</li>
+        <li><b>Fixed during the run:</b> one golden edge was missing (<code>frontend → currency</code>), and the SQL parser broke on quoted and batched statements. PyYAML read the key <code>on:</code> as <code>true</code>. Rate checks raised a false alarm at six events per window.</li>
+        <li><b>The second run taught five rules (D38).</b> One flag has a targeting rule, so changing its default injected nothing until it was flipped through the rule. A silent failure fires no check, so it counts as a miss and raises a coverage finding. A cause that comes from callers is out of the dependency walk's reach. The hidden test set needs changes made close together. The lock behind I3 is visible as a <code>LOCK TABLE</code> statement in database spans.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- INPUTS -->
+  <section id="inputs" aria-labelledby="h-inputs">
+    <div class="sec-head">
+      <div class="eyebrow">Do we have what we need?</div>
+      <h2 id="h-inputs">Twenty-four inputs a build like this needs, and where each one stands</h2>
+    </div>
+    <div class="ready-head">
+      <div class="counts" id="counts"></div>
+      <div class="filter" role="group" aria-label="Filter inputs">
+        <button type="button" id="f-all" data-f="all" aria-pressed="true">All</button>
+        <button type="button" id="f-start" data-f="start" aria-pressed="false">Needed to start</button>
+        <button type="button" id="f-later" data-f="later" aria-pressed="false">Needed later</button>
+      </div>
+    </div>
+    <div class="inputs" id="inputs-list"></div>
+    <p class="conclusion"><b>What this means:</b> of the 16 inputs needed to start, 11 are in hand. Two more, the holdout scenarios and the twin's lineage platform, are the first work of wave 0 itself. The last three are your sign-offs. Everything still missing is needed for slice 2, on our own data, and is scheduled for wave 1 onward.</p>
+  </section>
+
+  <!-- ASSUMPTIONS -->
+  <section id="assumptions" aria-labelledby="h-assume">
+    <div class="sec-head">
+      <div class="eyebrow">What we are assuming</div>
+      <h2 id="h-assume">Eight assumptions, and how each gets tested before it can hurt us</h2>
+    </div>
+    <div class="assume" id="assume"></div>
+  </section>
+
+  <!-- BUILD -->
+  <section id="build" aria-labelledby="h-build">
+    <div class="sec-head">
+      <div class="eyebrow">How it gets built</div>
+      <h2 id="h-build">Six waves, each proving one thing before the next starts</h2>
+    </div>
+    <div class="factory">
+      <div><b>Agents build</b>Agents work from a spec pack and write code, tests and fixtures. In waves 0 and 1 a person reads every change (autonomy level 2). Proven extractors then move to approval by exception (level 3).</div>
+      <div><b>A harness grades</b>Every change is scored against the golden graph, plus holdout scenarios the builders never see. Scores, not opinions, decide what merges.</div>
+      <div><b>People decide</b>You approve at four gates: G1 spec, G2 change, G3 oracle and G4 release. Domain owners join when slice 2 starts.</div>
+    </div>
+    <div class="waves" id="waves"></div>
+    <div class="eng" style="display:grid;gap:12px">
+      <h3><span class="eng-tag">Engineers</span>The 27 components on the reference slice</h3>
+      <div class="layers" id="layers"></div>
+      <h3 style="margin-top:6px"><span class="eng-tag">Engineers</span>Where things live</h3>
+      <div class="paths">
+        <div><code>docs/07-reference-slice-otel-demo.md</code><span class="muted small">The flow, the golden graph, changes, incidents, how to run the twin</span></div>
+        <div><code>docs/08-build-decisions.md</code><span class="muted small">D1 to D32 with evidence and "revisit if"</span></div>
+        <div><code>docs/09-component-build-sheet.md</code><span class="muted small">Each component: input, work package, test, status, and the run's evidence</span></div>
+        <div><code>docs/06-element-lineage-factory-spec.md</code><span class="muted small">The factory: principles, gates, 39 work packages</span></div>
+        <div><code>fixtures/otel-demo-3.1.0/</code><span class="muted small">Golden graph, replays, contracts, checks, aliases, run add-ons and run summaries</span></div>
+        <div><code>code/reference_slice.py · observed_edges.py · run_checks.py</code><span class="muted small">Oracle with citation checker; edge builder and scorer; check runner, incident replay and ranking</span></div>
+        <div><code>factory/</code><span class="muted small">The spec pack: constitution, parameters, requirements, interfaces, 39 work packages with done-when, visible scenarios</span></div>
+        <div><code>code/spec_pack.py</code><span class="muted small">Checks the spec pack and renders it; must report 0 errors before a work package starts</span></div>
+      </div>
+      <pre class="cmd">python3 code/spec_pack.py --check                                  # the spec pack is consistent
+python3 code/reference_slice.py --check &lt;demo checkout at 3.1.0&gt;      # 89 citations hold
+python3 code/observed_edges.py --selftest
+python3 code/observed_edges.py &lt;capture&gt; fixtures/otel-demo-3.1.0/golden-graph.json --aliases fixtures/otel-demo-3.1.0/aliases.json
+python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fixtures/otel-demo-3.1.0/capture-2026-11-27/change-events.jsonl</pre>
+    </div>
+  </section>
+
+  <!-- ASKS -->
+  <section id="asks" aria-labelledby="h-asks">
+    <div class="sec-head"><div class="eyebrow">What happens next</div><h2 id="h-asks">Three decisions, then wave 0 starts</h2></div>
+    <div class="asks">
+      <div class="ask"><span class="when">Before wave 0 · gate G1</span><b>Approve the spec pack</b><p>The constitution, parameters, 41 requirements, interfaces and done-when for 39 work packages in <code>factory/</code>, drafted on 27 November. ADR-002 (Neptune) goes with it; it is still marked Proposed.</p></div>
+      <div class="ask"><span class="when">During wave 0 · gate G3</span><b>Sign the golden graph, name the holdout authors</b><p>Sign the golden graph: 23 service edges, 36 field edges, 8 flag-gated and 20 flag edges on the demo, plus 35 for the dbt model. Name someone who does not build to write at least 7 changes and 7 incidents outside this repository.</p></div>
+      <div class="ask"><span class="when">During wave 1</span><b>Choose slice 2</b><p>One of our data products, ideally one that crosses a service, a stream and Snowflake or Databricks. Then arrange access to its repositories and warehouse.</p></div>
+    </div>
+    <div class="talk">
+      <div class="talk-head"><h3 id="talk-title">Say it in a minute: for leaders</h3><button type="button" class="btn" id="copy-talk">Copy text</button></div>
+      <div class="talk-text" id="talk-text"></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Sources: docs 05 to 09, ADR-002 and <code>fixtures/otel-demo-3.1.0/</code> in this repository. The reference system is the OpenTelemetry Demo at release 3.1.0 (Apache-2.0).</span>
+    <span>Run of 27 November 2026, 14:06 to 14:39 UTC. All numbers on this page come from that run or from the fixtures.</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  /* ---------------- audience ---------------- */
+  const NOTES = {
+    leaders: "Showing the answer, the story and the asks. Switch to Engineer view for evidence, file paths and the build plan.",
+    engineers: "Showing everything, with evidence, file paths, the components and the commands to rerun the proof."
+  };
+  const TALK = {
+    leaders: [
+      "We want to know, for any field in our data, where it comes from and where it goes. With that we can stop breaking changes before they merge, and find the cause of bad data in minutes instead of hours.",
+      "No product does this across service code, streams and warehouses, so we build it with an AI factory. Agents write the code, people approve at four gates, and every build is graded against a known truth.",
+      "As that truth we used a real open-source online shop: a dozen services in ten languages. We ran it, and every connection lineage saw was one we expected. It watched card data being masked correctly. We then broke the shop ten different ways: it caught eight within two minutes, each time with the right cause ranked first. The two it missed raised no alarm at all, and that is the next thing to fix.",
+      "We can start now. Every work package has acceptance criteria a machine can check. I need three things: approve the spec, sign the golden graph, and have someone outside the build write the hidden test cases. During the first wave we pick which of our own data products goes second."
+    ],
+    engineers: [
+      "The reference slice is the OpenTelemetry Demo at 3.1.0, specifically the order flow: frontend to checkout in Go, its gRPC and HTTP calls, the orders topic in Kafka, and accounting in C# writing three Postgres tables through EF Core. The golden graph has 23 service edges, 36 field edges, 8 flag-gated edges and 20 flag edges, and all 89 citations are verified against the source.",
+      "Collection follows the run's evidence. Service edges come from traces, because Envoy only sees ingress. Kafka is joined on the topic name, because producer and consumer spans live in separate traces. Columns come from database spans parsed with SQLGlot, and pg_stat_statements covers clients without spans. The resolver never aliases an IP.",
+      "The graph is Neptune over Bolt and openCypher, with Neo4j in the twin. Every edge version is bitemporal, and an edge that exists only under a flag carries a condition and a latent state, so must-not-flow checks see it before anyone flips the flag.",
+      "Every work package has measurable done-when lines in factory/work-packages, and code/spec_pack.py keeps the requirements, scenarios, interfaces and fixtures consistent. Wave 0 builds the harness, the holdout corpus and the twin's lineage platform. Agents work at level 2, so a person reads every change."
+    ]
+  };
+  let aud = "leaders";
+  function setAud(a, fromHash) {
+    if (!NOTES[a]) return;
+    aud = a;
+    document.documentElement.dataset.aud = a;
+    document.body.dataset.aud = a;
+    document.querySelectorAll(".switch button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.aud === a)));
+    document.getElementById("aud-note").textContent = NOTES[a];
+    document.getElementById("talk-title").textContent = a === "leaders" ? "Say it in a minute: for leaders" : "Say it in three minutes: for engineers";
+    document.getElementById("talk-text").innerHTML = TALK[a].map(p => `<p>${p}</p>`).join("");
+    try { localStorage.setItem("lineage-brief-aud", a); } catch (e) {}
+    if (!fromHash) { try { history.replaceState(null, "", "#" + a); } catch (e) { /* hash routing is optional */ } }
+  }
+  document.querySelectorAll(".switch button").forEach(b => b.addEventListener("click", () => setAud(b.dataset.aud)));
+  window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (NOTES[h]) setAud(h, true); });
+  let start = "leaders";
+  try { start = localStorage.getItem("lineage-brief-aud") || start; } catch (e) {}
+  const h0 = location.hash.slice(1); if (NOTES[h0]) start = h0;
+  setAud(start, true);
+
+  document.getElementById("copy-talk").addEventListener("click", ev => {
+    const text = TALK[aud].join("\n\n");
+    const btn = ev.currentTarget;
+    const done = () => { btn.textContent = "Copied"; setTimeout(() => btn.textContent = "Copy text", 1600); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById("talk-text")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = "Selected: press Ctrl+C"; setTimeout(() => btn.textContent = "Copy text", 2400); };
+    try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+  });
+
+  /* ---------------- the system map ---------------- */
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+  const NODES = {
+    lg: { l: "load generator", s: "Python · shoppers", x: 70, y: 200, k: "svc" },
+    proxy: { l: "frontend-proxy", s: "Envoy", x: 215, y: 200, k: "svc" },
+    fe: { l: "frontend", s: "TypeScript", x: 360, y: 200, k: "svc" },
+    co: { l: "checkout", s: "Go", x: 515, y: 200, k: "svc" },
+    cart: { l: "cart", s: "C#", x: 700, y: 50, k: "svc" },
+    pc: { l: "product-catalog", s: "Go", x: 700, y: 110, k: "svc" },
+    cur: { l: "currency", s: "C++", x: 700, y: 170, k: "svc" },
+    ship: { l: "shipping", s: "Rust", x: 700, y: 230, k: "svc" },
+    email: { l: "email", s: "Ruby", x: 700, y: 290, k: "svc" },
+    pay: { l: "payment", s: "Node.js", x: 700, y: 350, k: "svc" },
+    valkey: { l: "valkey-cart", s: "cache", x: 880, y: 50, k: "store" },
+    prod: { l: "catalog.products", s: "Postgres table", x: 880, y: 110, k: "store" },
+    quote: { l: "quote", s: "PHP", x: 880, y: 230, k: "svc" },
+    otel: { l: "telemetry export", s: "OTel collector", x: 880, y: 385, k: "sink" },
+    flagd: { l: "flagd", s: "feature flags", x: 360, y: 330, k: "ctl" },
+    orders: { l: "orders", s: "Kafka topic", x: 515, y: 470, k: "topic" },
+    acct: { l: "accounting", s: "C#", x: 700, y: 470, k: "svc" },
+    fraud: { l: "fraud-detection", s: "Kotlin", x: 700, y: 525, k: "svc" },
+    tables: { l: "accounting.*", s: "3 Postgres tables", x: 880, y: 470, k: "store" }
+  };
+  const EDGES = [
+    ["lg", "proxy"], ["proxy", "fe"], ["fe", "co"],
+    ["co", "cart"], ["co", "pc"], ["co", "cur"], ["co", "ship"], ["co", "email"], ["co", "pay"],
+    ["cart", "valkey"], ["pc", "prod"], ["ship", "quote"],
+    ["co", "orders"], ["orders", "acct"], ["orders", "fraud"], ["acct", "tables"],
+    ["flagd", "co", { opt: 1, d: "M380,310 C380,262 490,268 490,221" }], ["flagd", "pay", { opt: 1 }],
+    ["co", "otel", { opt: 1, d: "M560,220 C585,430 730,415 814,392" }], ["pay", "otel", { opt: 1 }]
+  ];
+  const HW = 66, HH = 20;
+  function geom(a, b) {
+    const A = NODES[a], B = NODES[b], dx = B.x - A.x, dy = B.y - A.y;
+    if (Math.abs(dx) >= 120) {
+      const sx = A.x + Math.sign(dx) * HW, ex = B.x - Math.sign(dx) * HW, c = (ex - sx) * 0.5;
+      return `M${sx},${A.y} C${sx + c},${A.y} ${ex - c},${B.y} ${ex},${B.y}`;
+    }
+    const sy = A.y + Math.sign(dy) * HH, ey = B.y - Math.sign(dy) * HH, c = (ey - sy) * 0.5;
+    return `M${A.x},${sy} C${A.x},${sy + c} ${B.x},${ey - c} ${B.x},${ey}`;
+  }
+  const svg = document.getElementById("map");
+  const defs = el("defs", {}, svg);
+  ["n", "hl", "warn", "bad", "gate"].forEach(k => {
+    const m = el("marker", { id: "mk-" + k, viewBox: "0 0 10 10", refX: "9", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse", markerUnits: "userSpaceOnUse" }, defs);
+    el("path", { d: "M0,1 L10,5 L0,9 z", class: "mk-" + k }, m);
+  });
+  el("text", { x: 20, y: 150, class: "lane-lbl" }, svg).textContent = "Request path";
+  el("text", { x: 20, y: 435, class: "lane-lbl" }, svg).textContent = "Order data path";
+  const gE = el("g", {}, svg), gN = el("g", {}, svg), gB = el("g", {}, svg);
+  const edgeEls = {};
+  EDGES.forEach(([a, b, o]) => {
+    const p = el("path", { d: (o && o.d) || geom(a, b), class: "ed", "marker-end": "url(#mk-n)" }, gE);
+    edgeEls[a + ">" + b] = { p, opt: !!(o && o.opt) };
+  });
+  const nodeEls = {};
+  Object.entries(NODES).forEach(([id, n]) => {
+    const g = el("g", { class: "nd k-" + n.k }, gN);
+    el("rect", { x: n.x - HW, y: n.y - HH, width: HW * 2, height: HH * 2, rx: n.k === "topic" ? 20 : 7 }, g);
+    el("text", { x: n.x, y: n.y - 2, "text-anchor": "middle", class: "lbl" }, g).textContent = n.l;
+    el("text", { x: n.x, y: n.y + 12, "text-anchor": "middle", class: "sub" }, g).textContent = n.s;
+    const t = el("title", {}, g); t.textContent = `${n.l} (${n.s})`;
+    nodeEls[id] = g;
+  });
+
+  const S = [
+    { id: "flow", tab: "The order path", obj: "The system", title: "What happens when a shopper checks out",
+      plain: "Simulated shoppers send requests through Envoy to the web frontend. Checkout, written in Go, calls six services: cart, catalog, currency, shipping, email and payment. It then publishes the order to a Kafka topic. Accounting, in C#, writes the order into three Postgres tables, and fraud detection reads the same topic.",
+      must: "Every arrow here, and every field that travels along it. The golden graph holds 23 service edges and 36 field edges, each cited to the line of code that makes it true.",
+      eng: ["Truth: <code>fixtures/otel-demo-3.1.0/golden-graph.json</code>. 13 of the service edges are asserted in live traces by the demo's own test suite (<code>test/telemetry/services.py</code>); the rest come from code and config.",
+            "Naming: <code>svc://otel-demo/checkout</code>, <code>api://otel-demo/checkout/PlaceOrder/request#address.zip_code</code>, <code>kafka://otel-demo/orders#items[].cost.units</code>, <code>postgres://astronomy-db/astronomy_db.accounting.shipping#zip_code</code>.",
+            "Run evidence: 18 of 18 observed service and topic edges are golden. The two golden edges not seen, <code>frontend → currency</code> and <code>frontend → shipping</code>, are browser-only."],
+      status: "<b>Proven on the twin.</b> Baseline precision 1.00, recall 0.90.",
+      edges: {}, nodes: {} },
+    { id: "field", tab: "Follow one field", code: "O1", obj: "O1 · Baseline", title: "The shipping zip code, from web form to finance table",
+      plain: "The zip code a shopper types travels through four hops and three languages: TypeScript, Go and C#. It ends up in a finance table. Today's tools can tell us the table exists, but not where this column came from.",
+      must: "zip_code in accounting.shipping comes from the address in the checkout request, through checkout and the orders topic. Nothing else writes it.",
+      eng: ["Checkout assembles the order: <code>PlaceOrder/request#address.zip_code → orders#shipping_address.zip_code</code>, at <code>src/checkout/main.go:387</code> <code>ShippingAddress: req.Address</code>.",
+            "Checkout publishes: <code>main.go:671</code> <code>Topic: kafka.Topic</code>. Accounting consumes: <code>src/accounting/Consumer.cs:46</code>.",
+            "Accounting writes the column: <code>Consumer.cs:126</code> <code>ZipCode = order.ShippingAddress.ZipCode</code>.",
+            "At runtime, accounting's database span carries the batched INSERT. SQLGlot reads all 10 <code>accounting.shipping</code> columns from it, <code>zip_code</code> included."],
+      status: "<b>Proven on the twin</b> for the columns. The field-level extractors (protobuf, Go, C# ORM) are wave 2.",
+      edges: { "fe>co": "hl", "co>orders": "hl", "orders>acct": "hl", "acct>tables": "hl" },
+      nodes: { fe: "path", co: "path", orders: "path", acct: "path", tables: "path" },
+      badges: [["fe", "address.zip_code", "hl"], ["orders", "shipping_address.zip_code", "hl"], ["tables", "zip_code", "hl"]] },
+    { id: "change", tab: "A breaking change", code: "C1", obj: "O3 · Impact", title: "Retyping zip_code from a number to text",
+      plain: "In 2022 the demo changed the zip code from a number to text in its shared message definition (commit 133d089). The old and new types are not compatible on the wire, so every reader of the field breaks. That is the moment lineage is worth most: while the change is still a pull request.",
+      must: "Breaking change. Four readers are affected: the accounting.shipping column, the shipping service, the frontend and the load generator. The contract gate blocks the merge.",
+      eng: ["Element diff: <code>Address.zip_code</code> int32 → string in <code>pb/demo.proto</code>. It affects <code>PlaceOrder/request#address.zip_code</code> and <code>orders#shipping_address.zip_code</code>.",
+            "Contract: <code>fixtures/otel-demo-3.1.0/contracts/orders.contract.yaml</code>, compatibility <code>BACKWARD_TRANSITIVE</code>. C1 must block; a field added with a new number must pass.",
+            "Replay set: C1 to C7 in <code>change-replay.json</code>. C2 (package rename) is breaking for builds but compatible on the wire, C4 (schema move) must close old edges and open new ones, and C6 (a rewrite in another language) must change no lineage."],
+      status: "<b>Prepared, not run.</b> The impact API, PR bot and contract gate are wave 3.",
+      edges: { "fe>co": "warn", "co>ship": "warn", "co>orders": "warn", "orders>acct": "warn", "acct>tables": "warn", "lg>proxy": "warn", "proxy>fe": "warn" },
+      nodes: { co: "warn", fe: "warn", lg: "warn", ship: "warn", orders: "warn", acct: "warn", tables: "warn" },
+      badges: [["co", "field retyped", "warn"], ["tables", "reader breaks", "bad"], ["ship", "reader", "warn"], ["fe", "reader", "warn"]] },
+    { id: "pii", tab: "Card data stays put", code: "Guardrail", obj: "Must-not-flow", title: "Card numbers go to payment, and nowhere else",
+      plain: "The card number is allowed one path: from the checkout request to the payment service, which logs only its last four digits. It must never reach the orders topic, the finance tables or telemetry in raw form. Lineage has to prove a negative: these paths do not exist.",
+      must: "Allowed: checkout → payment. Forbidden: card fields into the orders topic or the accounting tables, the CVV or a raw email into the telemetry export. Any path between them is a defect.",
+      eng: ["Pass-through: <code>src/checkout/main.go:583</code> <code>CreditCard: paymentInfo</code>. Masking in logs: <code>src/payment/charge.js:60</code> <code>number.substr(-4)</code>.",
+            "Five must-not-flow rules are in the golden graph. The contracts forbid <code>credit_card*</code> on the orders topic and in accounting.",
+            "The checks walk active and latent edges alike (D30), so a dangerous path is reported before a flag makes it live."],
+      status: "<b>Rules defined and held in the run.</b> The gate that enforces them is wave 3.",
+      edges: { "fe>co": "hl", "co>pay": "hl", "co>orders": "bad" },
+      nodes: { fe: "path", co: "path", pay: "path", orders: "bad", acct: "bad", tables: "bad" },
+      badges: [["pay", "only last 4 logged", "hl"], ["orders", "no card fields", "bad"], ["tables", "no card fields", "bad"]] },
+    { id: "flag", tab: "A flag changes lineage", code: "C7", obj: "O2 · Incremental", title: "One flag sends card data into telemetry, with no code change",
+      plain: "The demo has a flag called emitRawPii. When it is on, checkout and payment copy the card number, CVV and email into their trace data. The collector then hashes the email, masks the card to its last four digits and deletes the CVV. Lineage changed without a deploy, so a code scan alone would never see it.",
+      must: "While the flag is off, these edges are latent: known, stored, and visible to the guardrails. When the flag goes on, they become active within seconds. The CVV and the raw email still never leave the collector.",
+      eng: ["Five flag-gated edges: <code>main.go:315–317</code> (email, card number, CVV) and <code>charge.js:73–74</code> (card number, CVV). Three collector edges: <code>otelcol-config.yml:223</code> SHA-256 to <code>user.hash</code>, <code>:226</code> last four digits; <code>:222</code> deletes the CVV.",
+            "Run: the flag went on at 14:22:19, and the first masked values arrived at 14:22:32. It went off at 14:24:10; none of the 56 order spans after that carried them.",
+            "Model (D30): an edge carries a <code>condition</code> and a <code>latent</code> or <code>active</code> state. The flag change event moves the state; the next code scan does not."],
+      status: "<b>Proven on the twin.</b> The state model is in WP-12 and WP-13.",
+      edges: { "flagd>co": "gate", "flagd>pay": "gate", "co>otel": "gate", "pay>otel": "gate", "fe>co": "hl", "co>pay": "hl" },
+      nodes: { flagd: "gate", co: "gate", pay: "gate", otel: "gate" },
+      badges: [["flagd", "emitRawPii on", "gate"], ["otel", "masked on export", "gate"]] },
+    { id: "incident", tab: "An incident", code: "I1", obj: "O4 · Detect and resolve", title: "Payments start failing. Where do we look?",
+      plain: "We made half of all payments fail. Fewer orders reached the topic and fewer rows landed in the finance tables. Checkout started returning errors. Lineage starts from the first failing check and walks upstream, keeping only the paths where calls are failing. It stops at payment, then asks which recent change touched payment.",
+      must: "The cause is a change to payment: the paymentFailure flag, set to 50% at 14:24:55. Checkout errors and the falling order rates are symptoms downstream of it.",
+      eng: ["Detection: checkout errors failed at 14:26:56 (+2.0 min), and the order and accounting insert rates at 14:27:56 (+3.0 min). Recovery came at 14:30:56 and 14:32:56; the flag went off at 14:30:09.",
+            "Narrowing (D32): the walk from <code>svc://otel-demo/checkout</code> covered 9 dependencies. Failing calls were <code>checkout → payment</code> ×3, so payment is the deepest failing callee.",
+            "Ranking: 1. <code>paymentFailure</code> off → 50%, 2.0 min before. 2. <code>emitRawPii</code> on → off, 2.8 min before. Payment reads both flags, so only time separated them; the holdout incidents will test whether that is enough.",
+            "Prototype: <code>code/run_checks.py</code>. Data: <code>capture-2026-11-27/checks-run.json</code>."],
+      status: "<b>Replayed in the twin:</b> I1 to I10, 8 of 10 caught within 2 minutes with the true cause first. The two misses fired no check.",
+      edges: { "co>pay": "bad", "co>orders": "bad", "orders>acct": "bad", "acct>tables": "bad", "fe>co": "bad", "flagd>pay": "gate" },
+      nodes: { pay: "bad", co: "bad", orders: "warn", tables: "warn", acct: "warn", flagd: "gate" },
+      badges: [["pay", "cause", "bad"], ["co", "errors +2.0 min", "bad"], ["tables", "insert rate falls", "warn"], ["orders", "rate falls", "warn"], ["flagd", "paymentFailure 50%", "gate"]] }
+  ];
+  const tabs = document.getElementById("scen-tabs");
+  S.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.id = "tab-" + s.id; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", "false");
+    b.innerHTML = (s.code ? `<span class="mono">${s.code}</span>` : "") + s.tab;
+    b.addEventListener("click", () => show(i));
+    tabs.appendChild(b);
+  });
+  function badge(id, text, role) {
+    const n = NODES[id], w = Math.max(40, text.length * 6 + 12), x = n.x - HW + 4, y = n.y - HH - 9;
+    const g = el("g", { class: "badge b-" + role }, gB);
+    el("rect", { x, y, width: w, height: 15, rx: 4 }, g);
+    el("text", { x: x + w / 2, y: y + 11, "text-anchor": "middle" }, g).textContent = text;
+  }
+  function show(i) {
+    const s = S[i], active = Object.keys(s.nodes).length > 0;
+    document.querySelectorAll("#scen-tabs button").forEach((b, j) => b.setAttribute("aria-selected", String(i === j)));
+    Object.entries(edgeEls).forEach(([k, { p, opt }]) => {
+      const role = s.edges[k];
+      p.hidden = opt && !role;
+      p.setAttribute("class", "ed" + (role ? " e-" + role : (active ? " e-dim" : "")));
+      p.setAttribute("marker-end", `url(#mk-${role || "n"})`);
+    });
+    Object.entries(nodeEls).forEach(([id, g]) => {
+      const role = s.nodes[id];
+      let cls = "nd k-" + NODES[id].k;
+      if (role) cls += " r-" + role; else if (active) cls += " r-dim";
+      g.setAttribute("class", cls);
+    });
+    while (gB.firstChild) gB.removeChild(gB.firstChild);
+    (s.badges || []).forEach(b => badge(...b));
+    document.getElementById("panel").innerHTML = `<div class="p-main">
+      <span class="obj-tag">${s.obj}</span>
+      <h3>${s.title}</h3>
+      <p class="plain">${s.plain}</p>
+      <div class="must"><b>What lineage must say.</b> ${s.must}</div>
+      <p class="status-line">${s.status}</p></div>
+      <div class="eng"><h4><span class="eng-tag">Engineers</span>Evidence</h4><ul class="clean">${s.eng.map(x => `<li>${x}</li>`).join("")}</ul></div>`;
+  }
+  show(0);
+
+  /* ---------------- run timeline ---------------- */
+  const ROWS = [
+    ["Checkout errors", "share of failed orders"],
+    ["Orders published", "rate vs baseline"],
+    ["Accounting inserts", "rate vs baseline"],
+    ["Fraud-detection lag", "messages behind"],
+    ["Catalog latency", "p95, milliseconds"]
+  ];
+  const FMT = [v => `error share ${v}`, v => `rate ratio ${v}`, v => `rate ratio ${v}`, v => `lag ${v} messages`, v => `p95 ${v} ms`];
+  const RUN = [["14:15",[["o",0.0],["n",null],["n",null],["o",0.0],["o",100]]],["14:16",[["o",0.0],["n",null],["n",null],["o",1.0],["o",50]]],["14:17",[["o",0.0],["n",null],["n",null],["o",1.0],["o",100]]],["14:18",[["o",0.0],["n",null],["n",null],["o",1.0],["o",100]]],["14:19",[["o",0.0],["n",null],["n",null],["o",1.0],["o",100]]],["14:20",[["o",0.0],["n",null],["n",null],["o",1.0],["o",100]]],["14:21",[["o",0.0],["n",null],["n",null],["o",1.0],["o",50]]],["14:22",[["o",0.0],["n",null],["n",null],["o",1.0],["o",50]]],["14:23",[["o",0.0],["n",null],["o",1.64],["o",0.0],["o",100]]],["14:24",[["o",0.0],["n",null],["o",1.54],["o",0.0],["o",50]]],["14:25",[["o",0.0],["o",0.98],["o",0.98],["o",1.0],["o",100]]],["14:26",[["f",0.5],["o",0.83],["o",0.83],["o",1.0],["o",100]]],["14:27",[["f",0.667],["f",0.34],["f",0.34],["o",0.0],["o",100]]],["14:28",[["f",0.556],["f",0.37],["f",0.37],["o",0.0],["o",100]]],["14:29",[["f",0.5],["f",0.36],["f",0.36],["o",0.0],["o",100]]],["14:30",[["o",0.0],["f",0.43],["f",0.43],["o",0.0],["o",50]]],["14:31",[["o",0.0],["f",0.36],["f",0.36],["o",0.0],["o",100]]],["14:32",[["o",0.0],["o",0.71],["o",0.71],["o",0.0],["o",50]]],["14:33",[["o",0.0],["o",0.65],["o",0.65],["o",0.0],["o",100]]],["14:34",[["o",0.0],["o",0.82],["o",0.82],["o",1.0],["o",200]]],["14:35",[["o",0.0],["o",1.08],["o",1.08],["o",1.0],["o",200]]],["14:36",[["o",0.0],["o",1.12],["o",1.12],["o",1.0],["o",100]]],["14:37",[["o",0.0],["o",1.26],["o",1.26],["o",1.0],["o",50]]],["14:38",[["o",0.0],["o",1.71],["o",1.71],["o",1.0],["o",50]]]];
+  const sec = hms => { const [h, m, s] = hms.split(":").map(Number); return h * 3600 + m * 60 + (s || 0); };
+  const T0 = sec("14:14:56");          // start of the first evaluated minute
+  const L = 176, CW = 26, RH = 30, TOP = 34, n = RUN.length;
+  const W = L + n * CW + 12, H = TOP + ROWS.length * RH + 34;
+  const xs = t => L + (t - T0) / 60 * CW;
+  const tl = document.getElementById("timeline");
+  tl.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const td = el("defs", {}, tl);
+  const pat = el("pattern", { id: "hatch", width: "6", height: "6", patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, td);
+  el("rect", { width: "6", height: "6", class: "hatch-a" }, pat);
+  el("line", { x1: "0", y1: "0", x2: "0", y2: "6", class: "hatch-b" }, pat);
+  const bands = [["c7", "14:22:19", "14:24:10", "C7"], ["i1", "14:24:55", "14:30:09", "I1 · payments failing 50%"]];
+  bands.forEach(([k, a, b, label]) => {
+    const x1 = xs(sec(a)), x2 = xs(sec(b));
+    el("rect", { x: x1, y: TOP - 6, width: x2 - x1, height: ROWS.length * RH + 8, class: "band-" + k }, tl);
+    el("line", { x1, x2: x1, y1: TOP - 18, y2: TOP + ROWS.length * RH + 2, class: "band-edge-" + k }, tl);
+    el("text", { x: x1 + 4, y: TOP - 10, class: "band-lbl " + k }, tl).textContent = label;
+  });
+  ROWS.forEach(([name, sub], r) => {
+    const y = TOP + r * RH;
+    el("text", { x: 0, y: y + 13, class: "cl-row" }, tl).textContent = name;
+    el("text", { x: 0, y: y + 25, class: "cl-sub" }, tl).textContent = sub;
+  });
+  const tip = document.getElementById("tip"), wrap = document.getElementById("chart-wrap");
+  RUN.forEach(([hm, cells], i) => {
+    const tEnd = sec(hm + ":56"), x = xs(tEnd - 60);
+    cells.forEach(([st, v], r) => {
+      const y = TOP + r * RH + 2, w = CW - 2, h = RH - 6;
+      el("rect", { x: x + 1, y, width: w, height: h, rx: 3, class: st === "o" ? "cell-ok" : st === "f" ? "cell-fail" : "cell-na" }, tl);
+      if (st !== "n") el("text", { x: x + 1 + w / 2, y: y + h / 2 + 4, "text-anchor": "middle", class: st === "o" ? "gl-ok" : "gl-fail" }, tl).textContent = st === "o" ? "✓" : "✕";
+      const hit = el("rect", { x: x + 1, y, width: w, height: h, rx: 3, class: "cellhit", tabindex: "0" }, tl);
+      const label = `${hm}:56 · ${ROWS[r][0]} · ${st === "o" ? "passing" : st === "f" ? "FAILING" : "not enough history yet"}${v !== null && st !== "n" ? " · " + FMT[r](v) : ""}`;
+      hit.setAttribute("aria-label", label);
+      const showTip = () => {
+        tip.innerHTML = `<b>${hm}:56 UTC · ${ROWS[r][0]}</b><br>${st === "o" ? "Passing" : st === "f" ? "Failing" : "Not enough history yet"}${v !== null && st !== "n" ? "<br>" + FMT[r](v) : ""}`;
+        tip.hidden = false;
+        const box = hit.getBoundingClientRect(), wb = wrap.getBoundingClientRect();
+        let left = box.left - wb.left + wrap.scrollLeft + box.width / 2 - 110;
+        left = Math.max(wrap.scrollLeft + 4, Math.min(left, wrap.scrollLeft + wb.width - 244));
+        tip.style.left = left + "px";
+        tip.style.top = (box.bottom - wb.top + 6) + "px";
+      };
+      hit.addEventListener("mouseenter", showTip); hit.addEventListener("focus", showTip);
+      hit.addEventListener("mouseleave", () => tip.hidden = true); hit.addEventListener("blur", () => tip.hidden = true);
+    });
+  });
+  ["14:15:00", "14:20:00", "14:25:00", "14:30:00", "14:35:00"].forEach(t => {
+    const x = xs(sec(t)), yb = TOP + ROWS.length * RH;
+    el("line", { x1: x, x2: x, y1: yb, y2: yb + 6, class: "cl-grid" }, tl);
+    el("text", { x, y: yb + 20, "text-anchor": "middle", class: "cl-tick" }, tl).textContent = t.slice(0, 5);
+  });
+  el("line", { x1: L, x2: L + n * CW, y1: TOP + ROWS.length * RH, y2: TOP + ROWS.length * RH, class: "cl-grid" }, tl);
+  const tt = document.getElementById("tl-table");
+  tt.innerHTML = `<thead><tr><th>Time (UTC)</th>${ROWS.map(r => `<th>${r[0]}<br><span class="muted">${r[1]}</span></th>`).join("")}</tr></thead><tbody>` +
+    RUN.map(([hm, cells]) => `<tr><td class="num">${hm}:56</td>${cells.map(([st, v]) => `<td class="num">${st === "n" ? "–" : (st === "f" ? "✕ " : "✓ ") + v}</td>`).join("")}</tr>`).join("") + "</tbody>";
+
+  /* ---------------- inputs ---------------- */
+  const INPUTS = [
+    ["What to build", "Objectives and scope", "have", "Four objectives, the vendor gap, the phased plan.", "docs 01, 05, 06", "start"],
+    ["What to build", "Build method", "have", "AI factory with 39 work packages, four gates, autonomy level 2 then 3.", "doc 06", "start"],
+    ["What to build", "Architecture decisions", "have", "32 decisions: 25 from evidence, 7 by you, each with a \"revisit if\".", "doc 08", "start"],
+    ["What to build", "Component breakdown", "have", "25 of 27 components with an input, a work package and a test. Search and catalog UI wait for wave 5.", "doc 09", "start"],
+    ["What to build", "Acceptance criteria per work package", "have", "Done-when for all 39 work packages, 97 lines, each with a number or a named sign-off; checked by code/spec_pack.py. A draft awaiting G1.", "factory/work-packages/", "start"],
+    ["What to build", "Interface contracts", "have", "Envelope v2 and lineage.changes as JSON Schema, the four queries as OpenAPI 3.1. Every golden edge and run event validates.", "factory/specs/*/interfaces/", "start"],
+    ["What to build", "Spec pack approval", "you", "The constitution, parameters, requirements, interfaces and work packages wait for your G1 approval.", "factory/README.md", "start"],
+    ["What to test against", "A real multi-service system", "have", "OpenTelemetry Demo 3.1.0, a dozen services in ten languages, pinned and cited.", "doc 07", "start"],
+    ["What to test against", "The truth (golden graph)", "part", "Built and verified: 89 citations hold. It waits for your sign-off at G3.", "fixtures/otel-demo-3.1.0/golden-graph.json", "start"],
+    ["What to test against", "Real changes to replay", "have", "13 visible: C1 to C6 from git history, C7 from the run, C8 to C13 authored, each with expected readers and gate result. The holdout adds at least 7 more.", "change-replay.json", "start"],
+    ["What to test against", "Visible scenarios", "have", "Given/When/Then for every requirement, tagged with the requirement IDs they trace.", "factory/specs/*/scenarios/visible/", "start"],
+    ["What to test against", "Real incidents to replay", "part", "10 visible incidents run in the twin across nine families: 8 caught with the true cause first. The holdout adds at least 7 more, including changes made close together.", "incident-scenarios.json, capture-2026-11-27/incident-replay.json", "later"],
+    ["What to test against", "Holdout scenarios", "not", "Custody rules written. People who do not build write at least 7 changes and 7 incidents outside this repository; D15's four examples are public, so they became visible cases.", "factory/oracle/holdout/README.md, WP-02", "start"],
+    ["What to test against", "Downstream hops", "part", "The thin dbt model is written, with 35 hand-written golden edges. The stream, feature store and model (complement repo) are chosen in D2 and not yet run.", "fixtures/otel-demo-3.1.0/dbt/, wave 2", "later"],
+    ["How it runs", "Twin of the system", "have", "Runs in this sandbox with the capture add-on and a two-file override.", "fixtures/otel-demo-3.1.0/run/", "start"],
+    ["How it runs", "Lineage platform in the twin", "not", "Kafka for evidence, Neo4j for the graph and Postgres for aliases (D23). Specified, built in WP-03.", "wave 0, WP-03", "start"],
+    ["How it runs", "Neptune stage instance", "not", "Your choice (D12). Needs an AWS account and instance for WP-13's tests.", "wave 1", "later"],
+    ["How it runs", "Model access for private code", "not", "Bedrock in the platform account (D19). It is not needed while agents read public code.", "slice 2", "later"],
+    ["Who decides", "Approver for the gates", "have", "You, for G1 to G4, until domain teams join (D20).", "doc 08", "start"],
+    ["Who decides", "Graph store record", "you", "ADR-002 names Neptune but is still Proposed. Accept it at G1.", "docs/adr/ADR-002", "start"],
+    ["Who decides", "Owners and tiers", "part", "Tiers are the demo's own; owners are illustrative. Real owners come with slice 2.", "catalog.yaml", "later"],
+    ["Our estate", "Slice 2 data product", "you", "Which of our products goes second, ideally one crossing a service, a stream and a warehouse.", "pick in wave 1", "later"],
+    ["Our estate", "Access to our code and warehouses", "not", "Repositories, plus Snowflake ACCESS_HISTORY and the Databricks lineage tables, for slice 2's collectors.", "slice 2", "later"],
+    ["Our estate", "Our telemetry and volumes", "not", "Whether our services emit traces, and how big the graph gets. Sizes Neptune and tells us where to fall back to code.", "slice 2, Phase 0", "later"]
+  ];
+  const LABEL = { have: "Have", part: "Partly", not: "Not yet", you: "Your call" };
+  const NEED = { start: "Needed to start", later: "Needed later" };
+  let filter = "all";
+  function renderInputs() {
+    const list = document.getElementById("inputs-list"); list.innerHTML = "";
+    let group = null;
+    INPUTS.filter(r => filter === "all" || r[5] === filter).forEach(([g, name, st, detail, where, need]) => {
+      if (g !== group) { group = g; const h = document.createElement("div"); h.className = "in-group"; h.textContent = g; list.appendChild(h); }
+      const row = document.createElement("div"); row.className = "in-row";
+      row.innerHTML = `<div class="name">${name}</div><div><span class="chip c-${st}">${LABEL[st]}</span></div><div class="detail">${detail}<span class="where">${where}</span></div><div class="need ${need}">${NEED[need]}</div>`;
+      list.appendChild(row);
+    });
+    const counts = {}; INPUTS.filter(r => filter === "all" || r[5] === filter).forEach(r => counts[r[2]] = (counts[r[2]] || 0) + 1);
+    document.getElementById("counts").innerHTML = ["have", "part", "not", "you"].filter(k => counts[k]).map(k => `<span class="chip c-${k}">${counts[k]} ${LABEL[k].toLowerCase()}</span>`).join("");
+  }
+  document.querySelectorAll(".filter button").forEach(b => b.addEventListener("click", () => {
+    filter = b.dataset.f;
+    document.querySelectorAll(".filter button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    renderInputs();
+  }));
+  renderInputs();
+
+  /* ---------------- assumptions ---------------- */
+  const ASSUME = [
+    ["Our services look like the demo: gRPC and HTTP calls, Kafka, Postgres through an ORM.", "The extractor order is wrong for us, and wave 2 builds the less useful ones first.", "Inventory the slice 2 product before wave 2 starts.", "wave 1"],
+    ["Our services emit traces with service names.", "Service edges must come from code and mesh logs only, at lower confidence.", "Run a telemetry inventory in Phase 0 for slice 2.", "slice 2"],
+    ["Neptune's openCypher subset can hold versioned edges with a condition and a state.", "The data model or the store changes, and ADR-002 is revisited.", "Run WP-13's property tests against a stage Neptune.", "wave 1"],
+    ["Time order is enough to separate two changes on the same service during root-cause analysis.", "Ranking picks the wrong change when two land close together. In the runs, time decided 5 of the 8 detected incidents.", "Holdout incidents with changes made close together on different dependencies.", "wave 4"],
+    ["The twin's traffic, about three orders a minute, is enough to tune the checks.", "Thresholds misfire on our volumes.", "Re-baseline every check on slice 2's real traffic.", "slice 2"],
+    ["Agents can build extractors to spec at level 2, with a person reading each change.", "Waves take longer and cost more than planned.", "Track the holdout pass rate and cost per merged change, weekly.", "waves 0–1"],
+    ["Owners act on the reconciliation queue.", "The graph drifts from reality, and trust falls.", "Measure queue age from slice 2 onboarding.", "slice 2"],
+    ["The checks catch the failures that matter.", "Lineage never starts. In the runs, a silent cart failure and a traffic flood fired no check.", "Add data-quality checks such as items per order, validated on a fresh run, and keep silent failures in the corpus.", "wave 4"]
+  ];
+  document.getElementById("assume").innerHTML = `<div class="as-row"><span>We assume</span><span>If that is wrong</span><span>How we find out</span><span>When</span></div>` +
+    ASSUME.map(([a, w, h, t]) => `<div class="as-row"><b>${a}</b><span data-l="If wrong:">${w}</span><span data-l="Test:">${h}</span><span class="when" data-l="When:">${t}</span></div>`).join("");
+
+  /* ---------------- waves and components ---------------- */
+  const WAVES = [
+    ["Wave 0", "Oracle and twin", "WP-00 to WP-04", "Spec pack, signed golden graph, replay corpora with a hidden holdout, the twin's lineage platform, the scoring harness.", "Any build can be graded automatically", true],
+    ["Wave 1", "Core", "WP-10 to WP-17, WP-19", "Evidence format, merger and scorer, the Neptune writer, resolver, reconciler, owners, and service edges from traces. Pick slice 2.", "Service-level lineage on the twin"],
+    ["Wave 2", "Extractors", "WP-20 to WP-29", "Protobuf, the Go assembly, the C# ORM, Postgres runtime, PyFlink, Feast and dbt.", "Field lineage across every hop"],
+    ["Wave 3", "Incremental and impact", "WP-30 to WP-34", "Lineage diff, PR bot and contract gate.", "Changes C1 to C7 are called correctly"],
+    ["Wave 4", "Detect and resolve", "WP-39 to WP-44", "Check runner, change timeline, root-cause ranking, remediation, time-to-detect and time-to-resolve.", "Incidents I1 to I4 are found fast"],
+    ["Wave 5", "Projections", "WP-50 to WP-53", "Search, lineage UI, and projections to Snowflake Horizon and Unity Catalog.", "Lineage where people already look"]
+  ];
+  document.getElementById("waves").innerHTML = WAVES.map(([n, t, wp, d, p, now]) =>
+    `<div class="wave${now ? " now" : ""}"><span class="wn">${n}${now ? " · starts now" : ""}</span><b>${t}</b><p>${d}</p><span class="proves">Proves: ${p}</span><span class="wp eng">${wp}</span></div>`).join("");
+  const LAYERS = [
+    ["Signals", ["Gateway and mesh logs", "Registries", "Source code and PRs", "Running jobs and services", "Warehouse query history", "Change and quality events"]],
+    ["Collectors", ["Service edge builder", "Registry crawlers", "CI scanners", "Runtime normalizer", "Access history puller", "Evidence library"]],
+    ["Bus", ["lineage.evidence topic", "Raw archive"]],
+    ["Core", ["Identity resolver", "Edge merger", "Confidence scorer", "Daily reconciler", "Versioned graph writer"]],
+    ["Stores", ["Lineage graph (Neptune)", "Alias table and queues", "Search index|d"]],
+    ["Uses", ["Impact API and PR bot", "Contract gate", "DQ alerts and RCA", "Check runner", "Lineage UI and catalog|d"]]
+  ];
+  document.getElementById("layers").innerHTML = LAYERS.map(([name, items]) =>
+    `<div class="layer"><h4>${name}</h4>${items.map(x => { const [label, d] = x.split("|"); return `<div class="comp${d ? " def" : ""}"><span>${label}</span><span class="st">${d ? "Deferred to wave 5" : "Ready"}</span></div>`; }).join("")}</div>`).join("");
+})();
+</script>
