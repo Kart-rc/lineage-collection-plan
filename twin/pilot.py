@@ -29,6 +29,8 @@ PROJECT = start.PROJECT
 STARTUP_LIMIT = 900
 LOAD_MINIMUM = 600
 SAMPLE_INTERVAL = 30
+LOAD_USERS = 5
+LOAD_PROGRESS_WINDOW = 2 * SAMPLE_INTERVAL
 GIB = 1024 ** 3
 DISK_STOP_BYTES = GIB
 MEMORY_STOP_BYTES = 256 * 1024 ** 2
@@ -460,7 +462,10 @@ def run_pilot(demo, state, output, *, worker_image="lineage-platform:pilot", run
                          "emergency_memory_available_bytes": MEMORY_STOP_BYTES,
                          "score_timeout_seconds": 180, "score_memory_limit_mb": 8192, "max_raw_bytes": 4 * GIB},
               "identities": {}, "resources": {"initial": None, "samples": []}, "startup": None,
-              "load": {"samples": [], "all_healthy": False, "traffic": {"holds": False, "samples": []}},
+              "load": {"samples": [], "all_healthy": False, "traffic": {"holds": False, "samples": [],
+                       "policy": {"expected_users": LOAD_USERS, "sample_interval_seconds": SAMPLE_INTERVAL,
+                                  "progress_window_seconds": LOAD_PROGRESS_WINDOW,
+                                  "evidence": "aggregate_request_count_increase"}}},
               "run_window": None, "flow": {"holds": False},
               "shutdown": {"attempted": False, "stopped": False}, "capture": None, "smoke": None,
               "collector_health": {"available": False, "reason": "not_owned"},
@@ -485,8 +490,10 @@ def run_pilot(demo, state, output, *, worker_image="lineage-platform:pilot", run
     def traffic():
         try:
             value = locust_proof(run, state)
-            if value["state"] != "running" or value["user_count"] < 1:
+            if value["state"] != "running":
                 fail("load_generator_inactive")
+            if value["user_count"] != LOAD_USERS:
+                fail("load_user_count_mismatch")
             return value
         except Exception:
             fail("load_generator_probe_unavailable")
@@ -580,9 +587,11 @@ def run_pilot(demo, state, output, *, worker_image="lineage-platform:pilot", run
         load_started, load_at = clock.monotonic(), clock.utc()
         next_sample = load_started
         all_healthy = True
-        all_active = baseline_traffic.get("state") == "running" and baseline_traffic.get("user_count", 0) > 0
+        all_active = baseline_traffic.get("state") == "running" and baseline_traffic.get("user_count") == LOAD_USERS
         previous_requests = baseline_traffic.get("num_requests")
         counters_monotonic = True
+        last_progress_at = max_no_progress_interval = 0.0
+        progress_proven = True
         try:
             while True:
                 elapsed = clock.monotonic() - load_started
@@ -592,9 +601,21 @@ def run_pilot(demo, state, output, *, worker_image="lineage-platform:pilot", run
                 if not observed["all_healthy"]:
                     fail("load_services_not_healthy")
                 current_traffic = traffic()
-                report["load"]["traffic"]["samples"].append({"elapsed_seconds": clock.monotonic() - load_started, **current_traffic})
-                all_active = all_active and current_traffic.get("state") == "running" and current_traffic.get("user_count", 0) > 0
+                sample_at = clock.monotonic() - load_started
+                report["load"]["traffic"]["samples"].append({"elapsed_seconds": sample_at, **current_traffic})
+                all_active = all_active and current_traffic.get("state") == "running" and current_traffic.get("user_count") == LOAD_USERS
                 current_requests = current_traffic.get("num_requests")
+                progressed = current_requests is not None and previous_requests is not None and current_requests > previous_requests
+                interval = sample_at - last_progress_at
+                max_no_progress_interval = max(max_no_progress_interval, interval)
+                # A flat completion count may mean requests are still in flight.
+                # Withhold the activity claim when this observation is too old;
+                # later progress cannot repair an earlier unproven interval.
+                if interval > LOAD_PROGRESS_WINDOW or (interval >= LOAD_PROGRESS_WINDOW and not progressed):
+                    progress_proven = False
+                    fail("load_progress_unproven")
+                if progressed:
+                    last_progress_at = sample_at
                 if current_requests is not None:
                     if previous_requests is not None and current_requests < previous_requests:
                         counters_monotonic = False
@@ -616,14 +637,20 @@ def run_pilot(demo, state, output, *, worker_image="lineage-platform:pilot", run
         finally:
             report["run_window"] = {"started_at": load_at, "ended_at": clock.utc(), "duration_seconds": clock.monotonic() - load_started}
             report["load"]["all_healthy"] = all_healthy
+            tail = report["run_window"]["duration_seconds"] - last_progress_at
+            max_no_progress_interval = max(max_no_progress_interval, tail)
+            progress_proven = progress_proven and tail < LOAD_PROGRESS_WINDOW
             initial_requests = baseline_traffic.get("num_requests")
             increased = initial_requests is not None and previous_requests is not None and previous_requests > initial_requests
+            progress_proven = progress_proven and increased
             report["load"]["traffic"].update(all_active=all_active, counters_monotonic=counters_monotonic,
                                                   request_count_increased=increased,
                                                   request_count_delta=previous_requests - initial_requests if initial_requests is not None and previous_requests is not None else None,
-                                                  holds=completed_window and all_active and counters_monotonic and increased)
-            if not increased:
-                fail("load_requests_not_increasing")
+                                                  max_no_progress_interval_seconds=max_no_progress_interval,
+                                                  progress_proven=progress_proven,
+                                                  holds=completed_window and all_active and counters_monotonic and progress_proven)
+            if not progress_proven:
+                fail("load_progress_unproven")
         try:
             final = report["flow"]["final"] = flow_proof(run, state)
             baseline = report["flow"].get("baseline", {})

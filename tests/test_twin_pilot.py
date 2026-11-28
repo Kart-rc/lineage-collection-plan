@@ -317,8 +317,8 @@ def test_precision_report_rechecks_exact_counts_instead_of_trusting_pass():
                              "precision": {"hit": 18, "observed": 19, "expected": 20, "bar": 0.95, "holds": True}})
 
 
-@pytest.mark.parametrize("mode,category", [("idle", "load_generator_inactive"), ("no_users", "load_generator_inactive"),
-                                          ("no_progress", "load_requests_not_increasing"), ("reset", "load_request_counter_reset"),
+@pytest.mark.parametrize("mode,category", [("idle", "load_generator_inactive"), ("no_users", "load_user_count_mismatch"),
+                                          ("no_progress", "load_progress_unproven"), ("reset", "load_request_counter_reset"),
                                           ("unavailable", "load_generator_probe_unavailable")])
 def test_actual_load_requires_active_users_and_monotonic_increasing_requests(trial, mode, category):
     kwargs, commands, clock, _, _, _ = trial
@@ -674,3 +674,89 @@ def test_malformed_capacity_profile_rejects_startup_summary_without_leaking_raw_
     assert report["status"] == "blocked" and report["first_failure"] == "startup_report_invalid"
     assert commands.stopped and not score_calls
     assert SECRET not in (kwargs["output"] / "pilot.json").read_text()
+
+
+@pytest.mark.parametrize("users", [1, 4, 6])
+@pytest.mark.parametrize("observation", [1, 10])
+def test_load_requires_exactly_five_users_at_baseline_and_throughout(trial, users, observation):
+    kwargs, commands, _, _, _, _ = trial
+    commands.locust_mutation = lambda value, count: value.update(user_count=users) if count == observation else None
+    report = pilot.run_pilot(**kwargs)
+    assert report["status"] == "blocked" and report["first_failure"] == "load_user_count_mismatch"
+    assert not report["load"]["traffic"]["holds"] and not report["load"]["traffic"]["all_active"]
+    assert report["run_window"]["duration_seconds"] == 600 and commands.stopped
+
+
+@pytest.mark.parametrize("mode", ["flat", "final_burst", "long_inflight", "flat_tail"])
+def test_prolonged_flat_request_counts_are_unproven_not_inactive(trial, mode):
+    kwargs, commands, _, _, _, _ = trial
+
+    def mutate(value, count):
+        if mode == "flat":
+            value["num_requests"] = 100
+        elif mode == "final_burst":
+            value["num_requests"] = 100 + int(count == 22)
+        elif mode == "long_inflight":
+            # A completion every 90s cannot establish the 60s evidence window.
+            value["num_requests"] = 100 + max(0, count - 2) // 3
+        else:
+            value["num_requests"] = 100 + min(count, 20)
+
+    commands.locust_mutation = mutate
+    report = pilot.run_pilot(**kwargs)
+    traffic = report["load"]["traffic"]
+    assert report["status"] == "blocked" and report["first_failure"] == "load_progress_unproven"
+    assert "load_generator_inactive" not in report["failure_categories"]
+    assert not traffic["holds"] and not traffic["progress_proven"]
+    assert traffic["max_no_progress_interval_seconds"] >= 60
+    assert report["run_window"]["duration_seconds"] == 600 and commands.stopped
+
+
+@pytest.mark.parametrize("mode,max_interval", [("steady", 30), ("short_flat", 60)])
+def test_observed_progress_within_each_bounded_window_passes(trial, mode, max_interval):
+    kwargs, commands, _, _, _, _ = trial
+    if mode == "short_flat":
+        commands.locust_mutation = lambda value, count: value.update(num_requests=100 + max(0, count - 2) // 2)
+    report = pilot.run_pilot(**kwargs)
+    traffic = report["load"]["traffic"]
+    assert report["status"] == "passed" and traffic["holds"] and traffic["progress_proven"]
+    assert traffic["policy"] == {"expected_users": 5, "sample_interval_seconds": 30,
+                                  "progress_window_seconds": 60, "evidence": "aggregate_request_count_increase"}
+    assert traffic["max_no_progress_interval_seconds"] == max_interval
+    assert report["run_window"]["duration_seconds"] == 600
+    if mode == "short_flat":
+        assert traffic["baseline"]["num_requests"] == traffic["samples"][0]["num_requests"]
+
+
+def test_delayed_progress_probe_cannot_hide_an_excessive_actual_time_gap(trial):
+    kwargs, commands, clock, _, _, _ = trial
+
+    def delay(value, count):
+        if count == 4:
+            clock.seconds += 31
+
+    commands.locust_mutation = delay
+    report = pilot.run_pilot(**kwargs)
+    traffic = report["load"]["traffic"]
+    assert report["status"] == "blocked" and report["first_failure"] == "load_progress_unproven"
+    assert traffic["max_no_progress_interval_seconds"] == 61
+    assert traffic["request_count_increased"] and not traffic["progress_proven"]
+
+
+def test_resource_probe_delay_cannot_hide_unproven_window_tail(trial):
+    kwargs, commands, clock, _, _, _ = trial
+    commands.locust_mutation = lambda value, count: value.update(num_requests=100 + max(0, count - 2) // 2)
+    memory_probe = kwargs["memory_probe"]
+    calls = 0
+
+    def delayed_memory():
+        nonlocal calls
+        calls += 1
+        if calls == 21:  # Resource sample at570s, after last progress at540s.
+            clock.seconds += 31
+        return memory_probe()
+
+    report = pilot.run_pilot(**{**kwargs, "memory_probe": delayed_memory})
+    assert report["first_failure"] == "load_progress_unproven" and report["status"] == "blocked"
+    assert report["run_window"]["duration_seconds"] == 601
+    assert report["load"]["traffic"]["max_no_progress_interval_seconds"] == 61
