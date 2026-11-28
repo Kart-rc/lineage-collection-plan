@@ -1,0 +1,56 @@
+services:
+  lineage-collector:
+    image: lineage-platform:local
+    profiles: [collector]
+    entrypoint: [python, -m, lineage.collector]
+    command:
+      - --capture-dir
+      - /capture
+      - --changes
+      - /changes/events.jsonl
+      - --state
+      - /collector-state
+      - --broker
+      - lineage-kafka:9092
+      - --topic
+      - lineage.evidence
+      - --poll-interval
+      - "5"
+      - --max-input-bytes
+      - "${LINEAGE_COLLECTOR_MAX_INPUT_BYTES:-16777216}"
+      - --max-events
+      - "${LINEAGE_COLLECTOR_MAX_EVENTS:-4096}"
+    # Match the local capture owner without making raw files world-readable.
+    user: "${LINEAGE_COLLECTOR_UID:?}:${LINEAGE_COLLECTOR_GID:?}"
+    networks: [lineage]
+    volumes:
+      - type: bind
+        source: ${LINEAGE_CAPTURE_DIR:?}
+        target: /capture
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${LINEAGE_CHANGES_FILE:?}
+        target: /changes/events.jsonl
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${LINEAGE_COLLECTOR_STATE_DIR:?}
+        target: /collector-state
+        bind: {create_host_path: false}
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    mem_limit: 512m
+    pids_limit: 64
+    restart: on-failure:3
+    depends_on:
+      lineage-topics: {condition: service_completed_successfully}
+      lineage-worker: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -m, lineage.collector, --state, /collector-state, --health]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

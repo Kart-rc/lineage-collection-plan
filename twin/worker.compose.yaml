@@ -1,0 +1,51 @@
+services:
+  lineage-topics:
+    image: apache/kafka@sha256:4ceccc577f03f51f6af8dbfda55194d0d892f4fa7913ffbded567ce3895622ed
+    networks: [lineage]
+    entrypoint: [/bin/sh, -ec]
+    command:
+      - |
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server lineage-kafka:9092 --create --if-not-exists --topic lineage.evidence --partitions 1 --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server lineage-kafka:9092 --create --if-not-exists --topic lineage.changes --partitions 1 --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server lineage-kafka:9092 --create --if-not-exists --topic lineage.unit-snapshots --partitions 1 --replication-factor 1
+    depends_on:
+      lineage-kafka: {condition: service_healthy}
+  lineage-worker:
+    image: lineage-platform:local
+    build:
+      context: ${LINEAGE_PROJECT_ROOT:?Set LINEAGE_PROJECT_ROOT to the repository checkout}
+      dockerfile: twin/worker.Dockerfile
+    command:
+      - --archive
+      - /archive
+      - --broker
+      - lineage-kafka:9092
+      - --bolt-url
+      - bolt://lineage-neo4j:7687
+      - --snapshot-root
+      - /snapshot-archive
+      - --snapshots-topic
+      - lineage.unit-snapshots
+    environment:
+      LINEAGE_DB_USER: neo4j
+      LINEAGE_DB_PASSWORD: lineage-local-only
+    networks: [lineage]
+    volumes:
+      - lineage-archive:/archive
+      - lineage-snapshot-archive:/snapshot-archive
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    restart: on-failure:3
+    depends_on:
+      lineage-kafka: {condition: service_healthy}
+      lineage-neo4j: {condition: service_healthy}
+      lineage-topics: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, python, -c, "import sqlite3; c=sqlite3.connect('file:/archive/index.sqlite3?mode=ro', uri=True); c.execute('SELECT count(*) FROM receipts').fetchone()"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+volumes:
+  lineage-snapshot-archive: {}

@@ -1,0 +1,59 @@
+{
+  "workPackage": "WP-03",
+  "status": "partial-blocked",
+  "demoCommit": "dedc0178918e260823323b8d95005a8cb924b007",
+  "docker": "29.9.2",
+  "compose": "2.40.3",
+  "storageDriver": "vfs",
+  "filesystemBytes": 33770192896,
+  "usedBytesAfterRecovery": 24380203008,
+  "availableBytesAfterRecovery": 7655227392,
+  "imageVisibleBytesApprox": 3503000000,
+  "capacityFinding": "Docker vfs copies filesystem layers; visible image sizes substantially understate filesystem usage. Full pinned demo pull exhausted the filesystem before frontend, payment and load-generator completed.",
+  "cleanup": {
+    "scope": "only unused task-pulled images, no prune or volume removal",
+    "removedTags": [
+      "ghcr.io/open-telemetry/demo:3.1.0-fraud-detection",
+      "ghcr.io/open-telemetry/demo:3.1.0-ad",
+      "ghcr.io/open-telemetry/demo:3.1.0-kafka",
+      "ghcr.io/open-telemetry/demo:3.1.0-accounting"
+    ]
+  },
+  "platform": {
+    "neo4j": "healthy; live write/read/delete passed",
+    "kafka": "healthy; isolated topic envelope roundtrip passed",
+    "postgres": "healthy; aliases and reconciliation_queue verified",
+    "archive": "named volume reserved; worker mount/pipeline still required",
+    "coldStartElapsedSeconds": null
+  },
+  "tests": {
+    "command": "LINEAGE_TWIN_LIVE=1 /tmp/lineage-build-venv/bin/python -m pytest tests/test_twin_faults.py tests/test_twin_infrastructure.py -q",
+    "passed": 14,
+    "elapsedSeconds": 5.68
+  },
+  "liveFaultChecks": {
+    "service": "pinned flagd v0.16.0",
+    "api": "OFREP v1",
+    "targetedBranchChanged": true,
+    "nonTargetBranchUnchanged": true,
+    "restoredOff": true,
+    "serviceStopStartLogged": true,
+    "envelopeSchema": "factory/specs/evidence/interfaces/envelope-v2.schema.json"
+  },
+  "repairCycles": [
+    "Recovered exhausted vfs filesystem by removing four exact unused task-pulled demo images and added capacity preflight.",
+    "Made generated PostgreSQL init bind readable by container user; applied schema after first init had already created database.",
+    "Corrected live flag probe from OFREP v0 (404) to installed flagd OFREP v1."
+  ],
+  "gatesNotHeld": [
+    "3 of 3 full-demo cold starts within 15 minutes",
+    "all full-demo containers healthy",
+    "10-minute observed service-edge precision >= 0.95",
+    "complete live pipeline with archive worker",
+    "S-IN-11, S-BC-03, S-IA-07 live timing evidence",
+    "holdout evidence"
+  ],
+  "rawSyntheticPayloadsCommitted": false,
+  "upstreamCheckoutModified": false,
+  "productionOrAwsUsed": false
+}
