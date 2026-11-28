@@ -1,0 +1,90 @@
+{
+  "authorization": {
+    "approval_file": "factory/runs/wave-0-1-startup-repair/approval.json",
+    "candidate": 7,
+    "cumulative_cap": 9,
+    "prior_attempts_retained": 6
+  },
+  "boundaries": {
+    "docker_starts_pulls_builds_restarts": false,
+    "full_workload_executed": false,
+    "implementation_edits": false,
+    "raw_capture_or_process_logs_read_or_exposed": false,
+    "remote_mutations": false
+  },
+  "candidate": 7,
+  "check_note": "An initial combined comparison command stopped when the deliberately narrow source archive lacked factory/constitution.md. This was a verifier harness assumption, not a candidate failure. Rechecked archive members against the archive and constitutional/oracle files against local Git HEAD plus the approved G3 pins.",
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 /tmp/lineage-build-venv/bin/python -B -m pytest -q -p no:cacheprovider -m 'not integration' tests/test_twin_startup.py tests/test_twin_pilot.py tests/test_twin_smoke.py tests/test_twin_infrastructure.py",
+      "deselected": 3,
+      "duration_seconds": 2.92,
+      "exit_code": 0,
+      "id": "focused-deterministic-suite",
+      "passed": 116,
+      "scope": "fake infrastructure and synthetic local files; three live infrastructure checks deliberately excluded"
+    },
+    {
+      "exit_code": 0,
+      "id": "upstream-semantic-cross-check",
+      "result": "Pinned clean upstream independently provides 23 demo services plus 5 lineage services. Applying add_readiness to the real upstream YAML changes only the two Nginx healthcheck hosts; command, path, start period, timeout, interval and retries are preserved. Sandbox transformation retains IPv4 listeners."
+    },
+    {
+      "exit_code": 0,
+      "id": "workflow-cleanup-adversarial",
+      "passed": 6,
+      "result": "Executed the actual workflow cleanup Python with subprocess fully mocked. Current matching token authorizes scoped down; stale pair, marker mismatch, report mismatch, unowned report and absent invocation token do not."
+    },
+    {
+      "command": "/tmp/lineage-build-venv/bin/python -B code/spec_pack.py --check",
+      "errors": 0,
+      "exit_code": 0,
+      "id": "spec-pack"
+    },
+    {
+      "command": "/tmp/lineage-build-venv/bin/python -B scripts/check_oracle.py",
+      "exit_code": 0,
+      "id": "oracle-pins",
+      "matched_pins": 8
+    },
+    {
+      "exit_code": 0,
+      "id": "baseline-and-threshold-integrity",
+      "result": "39-file prior reviewed archive SHA verified. Only start.py, pilot.py, their two test files and twin/README.md differ among archived files. Smoke scorer and hosted workflow unchanged from archive. Constitution, parameters, golden graph, golden dbt, checks and reference oracle source unchanged from local Git HEAD."
+    }
+  ],
+  "claims": {
+    "actual_load_measured": false,
+    "full_wp03_accepted": false,
+    "g2_approved": false,
+    "g4_approved": false,
+    "holdout_measured": false,
+    "smoke_precision_measured": false,
+    "three_cold_starts": false
+  },
+  "evidence_files": [
+    "review.md",
+    "source-hashes.json"
+  ],
+  "goal_complete": false,
+  "open_findings": [],
+  "ready_for_hosted_trial": true,
+  "recorded_at": "2026-11-28T12:56:42.783928+00:00",
+  "residual_risks": [
+    {
+      "category": "runtime_evidence_pending",
+      "detail": "No candidate-7 full workload was started by this verifier. Exactly 28 healthy services plus successful initializer within 900 seconds still need fresh hosted evidence.",
+      "id": "R1"
+    },
+    {
+      "category": "acceptance_pending",
+      "detail": "At least 600 seconds of actual load and exact service-edge precision >= 0.95 remain unmeasured for candidate 7. Full WP-03 also requires 3/3 qualifying cold starts and its remaining scenario/gate obligations.",
+      "id": "R2"
+    }
+  ],
+  "run_id": "wave-0-1-startup-repair",
+  "schema_version": 1,
+  "stage": "WP-03 pre-hosted independent source and deterministic verification",
+  "verdict": "PASS_WITH_RISK",
+  "verifier": "verify7"
+}

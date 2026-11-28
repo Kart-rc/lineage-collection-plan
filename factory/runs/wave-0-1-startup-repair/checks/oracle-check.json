@@ -1,0 +1,53 @@
+{
+  "gate_record": "factory/gates/G3-2026-11-28.md",
+  "files": [
+    {
+      "path": "fixtures/otel-demo-3.1.0/golden-graph.json",
+      "sha256": "1100c74e39e9d071dda1449f03e6d81a917b21ba9ba37a27dd0054b58c9d700c",
+      "recorded_pin": "1100c74e39e9d071",
+      "matches": true
+    },
+    {
+      "path": "fixtures/otel-demo-3.1.0/dbt/golden-dbt.json",
+      "sha256": "d4fbfd304e33448008b1e436f72ddd67c0465bde3164e85db644d0fc3641d425",
+      "recorded_pin": "d4fbfd304e334480",
+      "matches": true
+    },
+    {
+      "path": "fixtures/otel-demo-3.1.0/change-replay.json",
+      "sha256": "86fb55b7477576d6c61a97d8fe23cbd7b472be559995fe707711350f80a68273",
+      "recorded_pin": "86fb55b7477576d6",
+      "matches": true
+    },
+    {
+      "path": "fixtures/otel-demo-3.1.0/incident-scenarios.json",
+      "sha256": "ee7fb9bd0450273dc99366836825b38fc6f1d28ed95ca71256beec990b1fc323",
+      "recorded_pin": "ee7fb9bd0450273d",
+      "matches": true
+    },
+    {
+      "path": "fixtures/otel-demo-3.1.0/checks.yaml",
+      "sha256": "1df2b883bee9973d0d26dd94c397acfe3683f89d722f464c682eb069c4955831",
+      "recorded_pin": "1df2b883bee9973d",
+      "matches": true
+    },
+    {
+      "path": "fixtures/otel-demo-3.1.0/contracts/accounting.contract.yaml",
+      "sha256": "785ce0bc5922e4c3ea9241ec27a74f2a428d89a56611881e8f3158652b5c388c",
+      "recorded_pin": "785ce0bc5922e4c3",
+      "matches": true
+    },
+    {
+      "path": "fixtures/otel-demo-3.1.0/contracts/orders.contract.yaml",
+      "sha256": "5e8c56cc6fc21f550552d32c800ea57cc40cb13c422be53051e85e861dd657de",
+      "recorded_pin": "5e8c56cc6fc21f55",
+      "matches": true
+    },
+    {
+      "path": "code/reference_slice.py",
+      "sha256": "0ad1a90153e402cc4687c026d645e979eb323966fca905bbc7a9a5c4e0f331ee",
+      "recorded_pin": "0ad1a90153e402cc",
+      "matches": true
+    }
+  ]
+}

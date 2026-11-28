@@ -1,0 +1,39 @@
+{
+  "candidate": 7,
+  "default_service_count": 28,
+  "exact_inventory": true,
+  "all_have_healthchecks": true,
+  "nginx_healthchecks": {
+    "image-provider": {
+      "test": [
+        "CMD",
+        "wget",
+        "--quiet",
+        "--tries=1",
+        "--spider",
+        "http://127.0.0.1:8081/status"
+      ],
+      "timeout": "5s",
+      "interval": "5s",
+      "retries": 20,
+      "start_period": "10s"
+    },
+    "telemetry-docs": {
+      "test": [
+        "CMD",
+        "wget",
+        "--quiet",
+        "--tries=1",
+        "--spider",
+        "http://127.0.0.1:8000/"
+      ],
+      "timeout": "5s",
+      "interval": "5s",
+      "retries": 20,
+      "start_period": "10s"
+    }
+  },
+  "upstream_clean": true,
+  "source_sha256": "1a93b5bd42489a5d59ca1ed1afe98c8ecaba5f4cb419869aebd5e625dcdd4912",
+  "no_containers_started": true
+}

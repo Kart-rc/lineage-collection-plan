@@ -1,0 +1,18 @@
+{
+  "candidate": 7,
+  "cumulative_limit": 9,
+  "source_repair": "Nginx health destinations match IPv4-only sandbox listeners",
+  "reference_input_unchanged": true,
+  "protected_oracles_matched": 8,
+  "spec_errors": 0,
+  "startup_tests_passed": 53,
+  "integration_deselected": 3,
+  "regression_failed_before_fix": true,
+  "actual_pinned_images_reproduced": 2,
+  "shared_infrastructure_changed": false,
+  "hosted_retest": "pending",
+  "tokens_used": null,
+  "pilot_tests_passed": 50,
+  "new_pilot_diagnostic_cases": 16,
+  "focused_unique_cases": 103
+}

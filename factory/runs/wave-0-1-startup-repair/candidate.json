@@ -1,0 +1,20 @@
+{
+  "candidate": 7,
+  "parent_candidate": 6,
+  "prior_published_head": "3a80d63a15a3fcf3226e4d1bcb7f3e02914941e3",
+  "requirements": [
+    "WP-03",
+    "IN-10",
+    "IA-1"
+  ],
+  "approved_cumulative_attempt_limit": 9,
+  "repair_scope": "Generated Nginx IPv4 health targets; bounded metadata collector diagnostic",
+  "regression_before_fix": "checks/regression-before-fix.txt",
+  "reproduction": "checks/nginx-reproduction.json",
+  "root_cause_confirmed_in_pinned_images": true,
+  "local_full_workload_started": false,
+  "shared_infrastructure_mutated": false,
+  "oracle_changes": false,
+  "tokens_used": null,
+  "token_usage_note": "Not exposed by execution tools"
+}

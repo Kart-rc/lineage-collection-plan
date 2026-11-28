@@ -1,0 +1,10 @@
+{
+  "approval": "approved",
+  "scope": "Up to3 additional startup/collector repair attempts and1 additional working day",
+  "prior_attempts": 6,
+  "cumulative_maximum_attempts": 9,
+  "recorded_at": "2026-11-28T12:42:29.143137+00:00",
+  "timebox_hours": 8,
+  "timebox_ends_at": "2026-11-28T20:42:29.143137+00:00",
+  "protected_merge_or_gate_approval": false
+}

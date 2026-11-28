@@ -1,0 +1,20 @@
+[
+  {
+    "service": "image-provider",
+    "image": "ghcr.io/open-telemetry/demo@sha256:46d1a7e95109c0064122ca0bfb49cd05191fb90a6264b6be508e0d98f2c963f1",
+    "exit_code": 0,
+    "seconds": 6.0,
+    "free_before": 3849539584,
+    "free_after": 3410743296,
+    "planning_vfs_bytes": 1071164778
+  },
+  {
+    "service": "telemetry-docs",
+    "image": "ghcr.io/open-telemetry/demo@sha256:3f257a843222df2462d903fd57b12af5f31dc99a0f174b45136a4f3ba5c71203",
+    "exit_code": 0,
+    "seconds": 5.0,
+    "free_before": 3410743296,
+    "free_after": 2931843072,
+    "planning_vfs_bytes": 1124702526
+  }
+]
