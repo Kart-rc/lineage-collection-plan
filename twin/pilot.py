@@ -12,6 +12,7 @@ from pathlib import Path
 import platform
 import re
 import signal
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -87,6 +88,12 @@ signal.alarm(0)
 print(json.dumps(result,sort_keys=True))
 """
 FLOW_FIELDS = ("accepted_receipts", "outbox_total", "outbox_sent", "graph_revisions", "graph_nodes", "graph_versions")
+COLLECTOR_CATEGORIES = frozenset({
+    "sending", "complete", "more_pending", "delivery_pending", "delivery_unavailable", "state_limit",
+    "checkpoint_unavailable", "parse_unavailable", "parse_timeout", "metadata_limit", "source_changed",
+    "input_limit", "line_limit", "input_invalid", "change_type_rejected", "input_missing", "event_limit",
+    "static_protocol_rejected", "invalid_configuration", "not_started", "stale", "state_unavailable",
+})
 FLOW_SCRIPT = """
 import json, os, sqlite3
 from neo4j import GraphDatabase, Query
@@ -307,6 +314,47 @@ def flow_proof(run, state):
     return {key: integer(value[key]) for key in FLOW_FIELDS}
 
 
+def collector_health(state):
+    """Read the last collector health only; never expose source guards or paths."""
+    path = Path(state).absolute() / "collector/progress.sqlite"
+    try:
+        if path.is_symlink() or path.parent.is_symlink():
+            return {"available": False, "reason": "invalid_state"}
+        if not path.is_file():
+            return {"available": False, "reason": "missing_state"}
+        deadline = time.monotonic() + 0.5
+        connection = sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=0.2)
+        try:
+            connection.setlimit(sqlite3.SQLITE_LIMIT_LENGTH, 4096)
+            connection.set_progress_handler(lambda: time.monotonic() >= deadline, 1000)
+            connection.execute("PRAGMA query_only=ON")
+            connection.execute("PRAGMA trusted_schema=OFF")
+            row = connection.execute("SELECT value FROM health WHERE id=1 LIMIT 1").fetchone()
+        finally:
+            connection.close()
+        if not row:
+            return {"available": False, "reason": "missing_health"}
+        if not isinstance(row[0], str) or len(row[0].encode("utf-8")) > 4096:
+            return {"available": False, "reason": "invalid_record"}
+        value = json.loads(row[0], parse_constant=lambda _: (_ for _ in ()).throw(ValueError()))
+        if not isinstance(value, dict) or value.get("status") not in {"ok", "error"} or value.get("category") not in COLLECTOR_CATEGORIES:
+            raise ValueError()
+        updated = finite(value["updated_at"])
+        if updated > 253402300799:
+            raise ValueError()
+        result = {"available": True, "status": value["status"], "category": value["category"], "updated_at": updated}
+        for key in ("sent", "pending", "input_bytes", "partial_lines"):
+            if key in value:
+                result[key] = integer(value[key])
+        return result
+    except sqlite3.DataError:
+        return {"available": False, "reason": "record_too_large"}
+    except (ValueError, TypeError, KeyError, UnicodeError):
+        return {"available": False, "reason": "invalid_record"}
+    except Exception:
+        return {"available": False, "reason": "read_unavailable"}
+
+
 def locust_proof(run, state):
     value = json.loads(checked(run, compose(state) + ["exec", "-T", "load-generator", "python", "-c", LOCUST_SCRIPT], timeout=10))
     if value.get("available") is not True or value.get("state") not in LOCUST_STATES:
@@ -381,6 +429,7 @@ def run_pilot(demo, state, output, *, worker_image="lineage-platform:pilot", run
               "load": {"samples": [], "all_healthy": False, "traffic": {"holds": False, "samples": []}},
               "run_window": None, "flow": {"holds": False},
               "shutdown": {"attempted": False, "stopped": False}, "capture": None, "smoke": None,
+              "collector_health": {"available": False, "reason": "not_owned"},
               "claims": {"full_wp03_accepted": False, "three_cold_starts": False, "holdout_measured": False,
                          "full_in10_p95_measured": False, "g4_approved": False}}
     owned = False
@@ -572,6 +621,8 @@ def run_pilot(demo, state, output, *, worker_image="lineage-platform:pilot", run
                 report["shutdown"]["stopped"] = True
             except Exception:
                 fail("shutdown_failed")
+            report["collector_health"] = collector_health(state) if report["shutdown"]["stopped"] else {
+                "available": False, "reason": "shutdown_incomplete"}
         try:
             report["capture"] = raw_summary(stats(state / "capture", max_capture_bytes=4 * GIB, max_line_bytes=128 * 1024 ** 2))
         except Exception:

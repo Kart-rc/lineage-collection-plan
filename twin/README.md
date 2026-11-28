@@ -51,6 +51,12 @@ read-only Kafka DescribeGroups requests: their group must be Stable, with an
 local IP. Those checks neither consume messages nor join/modify consumer groups.
 The helper is mounted read-only at `/lineage-healthcheck`.
 
+Image-provider and telemetry-docs retain their upstream HTTP health commands and
+retry limits, with `127.0.0.1` replacing `localhost`. The sandbox removes their
+IPv6 listeners, and the pinned images' wget selects IPv6 loopback for localhost
+without falling back to IPv4. Isolated checks of both actual images reproduced
+connection refusal for localhost and successful HTTP health checks for IPv4.
+
 The bridge starts against precreated empty mode-0600 capture files inside the
 mode-0700 capture directory. Empty-input readiness proves startup only; the smoke
 run must separately demonstrate fresh telemetry and graph/archive progress.

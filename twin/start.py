@@ -75,6 +75,12 @@ def compose_args(state: Path):
 
 
 def add_readiness(config, state):
+    # The sandbox mounts IPv4-only Nginx templates; the pinned wget resolves
+    # localhost to ::1 without retrying IPv4. Keep the HTTP checks and limits.
+    for name in ("image-provider", "telemetry-docs"):
+        health = config["services"][name]["healthcheck"]
+        health["test"] = [argument.replace("http://localhost:", "http://127.0.0.1:")
+                          for argument in health["test"]]
     config["services"]["cart"]["healthcheck"] = {
         "test": ["CMD", "/bin/grpc_health_probe", "-addr=:7070"],
         "interval": "5s", "timeout": "6s", "start_period": "10s", "retries": 180,

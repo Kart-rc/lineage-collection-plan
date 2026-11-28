@@ -490,3 +490,87 @@ def test_candidate6_starter_failure_categories_are_retained(trial):
     report = pilot.run_pilot(**kwargs)
     assert report["startup"]["category"] == "invalid_timeout"
     assert report["startup"]["phase"] == "validate" and report["startup"]["timeoutSeconds"] is None
+
+
+def collector_database(state, value):
+    import sqlite3
+    folder = state / "collector"
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / "progress.sqlite"
+    with sqlite3.connect(path) as database:
+        database.execute("CREATE TABLE health (id INTEGER PRIMARY KEY, value TEXT NOT NULL)")
+        database.execute("INSERT INTO health VALUES (1, ?)", (json.dumps(value),))
+    return path
+
+
+def test_collector_diagnostic_is_read_only_bounded_and_discards_new_fields(tmp_path, monkeypatch):
+    value = {"status": "error", "category": "input_limit", "updated_at": 1795867200.25,
+             "sent": 3, "pending": 4, "input_bytes": 100, "partial_lines": 1, "new_field": SECRET}
+    path = collector_database(tmp_path, value)
+    before = path.read_bytes()
+    original, calls = pilot.sqlite3.connect, []
+
+    def read_only(database_uri, **kwargs):
+        assert database_uri == path.as_uri() + "?mode=ro" and kwargs == {"uri": True, "timeout": 0.2}
+        calls.append(database_uri)
+        connection = original(database_uri, **kwargs)
+        with pytest.raises(pilot.sqlite3.OperationalError):
+            connection.execute("UPDATE health SET value='changed'")
+        return connection
+
+    monkeypatch.setattr(pilot.sqlite3, "connect", read_only)
+    assert pilot.collector_health(tmp_path) == {"available": True, **{key: item for key, item in value.items() if key != "new_field"}}
+    assert path.read_bytes() == before and len(calls) == 1
+
+
+@pytest.mark.parametrize("field,value", [("status", SECRET), ("category", SECRET), ("sent", True), ("pending", -1),
+                                        ("input_bytes", 2 ** 63), ("partial_lines", 1.5), ("updated_at", float("nan")),
+                                        ("updated_at", 1e100), ("updated_at", SECRET)])
+def test_collector_diagnostic_rejects_malicious_values(tmp_path, field, value):
+    collector_database(tmp_path, {"status": "ok", "category": "complete", "updated_at": 1795867200, field: value})
+    result = pilot.collector_health(tmp_path)
+    assert result == {"available": False, "reason": "invalid_record"}
+    assert SECRET not in json.dumps(result)
+
+
+def test_collector_diagnostic_missing_and_oversized_state(tmp_path):
+    assert pilot.collector_health(tmp_path) == {"available": False, "reason": "missing_state"}
+    collector_database(tmp_path, {"status": "ok", "category": "complete", "updated_at": 1, "raw": SECRET * 4096})
+    assert pilot.collector_health(tmp_path) == {"available": False, "reason": "record_too_large"}
+
+
+@pytest.mark.parametrize("existing", ["container", "volume", "state"])
+def test_no_collector_diagnostic_read_when_trial_does_not_own_project(trial, monkeypatch, existing):
+    kwargs, commands, _, _, _, _ = trial
+    if existing == "container":
+        commands.preexisting_container = True
+    elif existing == "volume":
+        commands.preexisting_volume = True
+    else:
+        collector_database(kwargs["state"], {"status": "ok", "category": "complete", "updated_at": 1})
+    monkeypatch.setattr(pilot, "collector_health", lambda state: pytest.fail("read unowned collector state"))
+    report = pilot.run_pilot(**kwargs)
+    assert report["collector_health"] == {"available": False, "reason": "not_owned"}
+
+
+@pytest.mark.parametrize("startup_fails", [False, True])
+def test_collector_health_is_after_shutdown_before_parse_and_cannot_change_outcome(trial, monkeypatch, startup_fails):
+    kwargs, commands, _, _, _, _ = trial
+    commands.start_code = 1 if startup_fails else 0
+    reads = []
+
+    def diagnostic(state):
+        assert commands.stopped
+        reads.append(state)
+        return {"available": True, "status": "error", "category": "input_limit", "updated_at": 1}
+
+    original_score = kwargs["score"]
+
+    def score(*args, **options):
+        assert reads == [kwargs["state"]]
+        return original_score(*args, **options)
+
+    monkeypatch.setattr(pilot, "collector_health", diagnostic)
+    report = pilot.run_pilot(**{**kwargs, "score": score})
+    assert reads == [kwargs["state"]] and report["collector_health"]["category"] == "input_limit"
+    assert report["status"] == ("blocked" if startup_fails else "passed")

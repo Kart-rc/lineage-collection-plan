@@ -263,6 +263,11 @@ def test_generated_readiness_and_pipeline_are_real_and_isolated(tmp_path, monkey
                  "service": {"pipelines": {"metrics": {"receivers": ["docker_stats", "host_metrics", "otlp"]}}}}
     (demo / "src/otel-collector/otelcol-config.yml").write_text(yaml.safe_dump(collector))
     upstream = {"services": {name: {"image": "pinned-image:1", "volumes": [], "container_name": name} for name in DEMO_NAMES}}
+    for name, address in (("image-provider", "8081/status"), ("telemetry-docs", "8000/")):
+        upstream["services"][name]["healthcheck"] = {
+            "test": ["CMD", "wget", "--quiet", "--tries=1", "--spider", f"http://localhost:{address}"],
+            "timeout": "5s", "interval": "5s", "retries": 20, "start_period": "10s",
+        }
 
     def command(args, **kwargs):
         if args[0] == "git":
@@ -283,6 +288,12 @@ def test_generated_readiness_and_pipeline_are_real_and_isolated(tmp_path, monkey
     assert set(config["services"]) == set(start.FULL_SERVICES) | {"lineage-topics"}
     cart = config["services"]["cart"]["healthcheck"]["test"]
     assert cart == ["CMD", "/bin/grpc_health_probe", "-addr=:7070"]
+    for name, address in (("image-provider", "8081/status"), ("telemetry-docs", "8000/")):
+        # The sandbox removes IPv6 listeners. Preserve the real HTTP check and
+        # its limits while avoiding localhost's IPv6-first resolution.
+        expected = dict(upstream["services"][name]["healthcheck"])
+        expected["test"] = ["CMD", "wget", "--quiet", "--tries=1", "--spider", f"http://127.0.0.1:{address}"]
+        assert config["services"][name]["healthcheck"] == expected
     for name, url in (("flagd", "http://127.0.0.1:8014/readyz"), ("otel-collector", "http://127.0.0.1:13133/")):
         assert config["services"][name]["healthcheck"]["test"] == ["CMD", "/lineage-healthcheck", "http", "--url", url]
     for name in ("accounting", "fraud-detection"):
