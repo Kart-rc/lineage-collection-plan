@@ -1,19 +1,66 @@
 # Local reference twin (WP-03)
 
 The starter renders the pinned OpenTelemetry Demo 3.1.0 full profile, its capture
-add-on, and a separate lineage Kafka, Neo4j Community and PostgreSQL. The source
-checkout is read only. All 26 images are locked by digest in `images.lock.json`;
+add-on, and a separate lineage Kafka, Neo4j Community and PostgreSQL. Full startup
+also includes the existing runtime worker and capture bridge. The source
+checkout is read only. The 26 demo/platform images are locked by digest in `images.lock.json`;
 the three manifest-only resolutions for frontend, payment and load-generator
 are Linux AMD64. The pinned source commit is
 `dedc0178918e260823323b8d95005a8cb924b007`.
 
 Use a Python environment with this project's dependencies and Docker Compose
-2.40 or newer. Obtain the demo checkout at the pinned commit, then run from the
+2.40 or newer. Obtain the demo checkout at the pinned commit, build the current
+worker image as `lineage-platform:local`, and build the static Linux probe from
+`twin/probe` into ignored `twin/.state/bin/lineage-healthcheck`. Then run from the
 repository root:
 
 ```sh
 python3 twin/start.py up --demo /tmp/lineage-reference-otel-demo
 ```
+
+Full startup has one monotonic 900-second deadline. `--timeout` may shorten it;
+the CLI and Python entrypoint reject nonpositive, nonfinite or above-900 values.
+The deadline covers preparation, image inspection/pulls, infrastructure startup,
+topic setup, all remaining services, and final readiness inspection. It first
+starts the three lineage infrastructure services, runs the topic initializer with
+`compose run --rm`, then starts the demo, worker and bridge. All **28** expected
+long-running services must be present exactly once, running and healthy before
+the deadline. Their identities are fixed for the pinned reference slice, independent
+of the rendered configuration; missing or additional definitions also fail startup.
+The completed initializer is recorded separately as a successful
+prerequisite; it is never counted as a healthy container. `--worker-image` can
+select a different already-built local candidate. The starter records and uses
+its immutable Docker image ID and never implicitly builds or pulls that image.
+
+`startup.json` in the selected ignored state directory records success or failure,
+the phase, elapsed time, expected service identities, health results, probe SHA-256
+and worker image ID. Late, missing, duplicate, stopped or unhealthy services produce
+a nonzero exit. Failures after state initialization are reported using controlled
+categories; raw subprocess output and exceptions are not printed or stored. If
+the filesystem cannot write the report, a metadata-only `report_unwritable` error
+is emitted instead. An interrupted or timed-out Docker client can leave containers
+running; the report does not claim automatic rollback.
+
+Five previously absent readiness checks are added only to the generated Compose
+configuration. Cart uses the pinned image's `/bin/grpc_health_probe` against its
+gRPC health service. Flagd uses HTTP `8014/readyz`, which proves its initial flag
+sync; it does not prove later sync freshness. The OTel collector enables its local
+`health_check` extension on `127.0.0.1:13133`. Accounting and fraud detection use
+read-only Kafka DescribeGroups requests: their group must be Stable, with an
+`orders` assignment belonging to a member whose host matches that container's
+local IP. Those checks neither consume messages nor join/modify consumer groups.
+The helper is mounted read-only at `/lineage-healthcheck`.
+
+The bridge starts against precreated empty mode-0600 capture files inside the
+mode-0700 capture directory. Empty-input readiness proves startup only; the smoke
+run must separately demonstrate fresh telemetry and graph/archive progress.
+The demo load generator is explicitly configured for autostart, five HTTP users,
+and its non-headless web/API mode regardless of inherited host settings. The pilot
+must still observe its running state, user count and advancing request counters.
+`prepare` continues to render the base 26-service configuration without requiring
+the helper or worker image; `platform` starts and strictly checks only the three
+lineage infrastructure services. Full `up` assembles its additional services in
+ignored generated configuration without modifying the standalone Compose files.
 
 This command includes the IPv4 and no-ulimit sandbox adaptations. It uses the
 unique Compose project `lineage-twin`, removes upstream global container names,
@@ -120,7 +167,43 @@ runtime plumbing, not full reference-workload collection or latency acceptance.
 WP-03 is **incomplete**. The full-demo cold start gate (3/3 within 15 minutes),
 ten-minute live service-edge precision score and traced visible timing scenarios
 are not proven by these infrastructure and synthetic plumbing checks. The
-default upstream collector, flagd and consumer services do not all declare
-Docker healthchecks; Compose `--wait` accepting a running service is not proof
-that every container is healthy. The starter reports both states separately.
+new readiness probes and strict starter still require a fresh full-workload run;
+source and mocked failure tests do not establish the cold-start or load gates.
 No holdout results were accessed or inferred.
+
+## Hosted feasibility pilot
+
+`full-reference-pilot.yml` runs one fresh standard GitHub-hosted Ubuntu job.
+It checks out the pinned demo, builds the static probe with Go 1.27.4 and the
+candidate worker image, then invokes `twin/pilot.py`. Image/probe preparation
+is reported separately from the measured container start; reference image
+pulls stay inside the 900-second startup window.
+
+For the same measurement on a fresh disposable Linux AMD64 Docker host:
+
+```sh
+sh twin/build-probe.sh
+docker build -f twin/worker.Dockerfile -t lineage-platform:pilot .
+python twin/pilot.py --demo /path/to/pinned-demo --state twin/.state \
+  --output pilot-results --worker-image lineage-platform:pilot
+```
+
+The pilot refuses an existing `lineage-twin` project, its retained volumes,
+or prior capture/startup state. It does not clean a shared local environment
+to make that check pass. The static binary and its build cache can already
+exist in the ignored state directory. Only a project acquired by this
+invocation is stopped; the workflow's final Compose cleanup also requires
+the current invocation token. Neither cleanup deletes named volumes.
+
+During at least 600 measured seconds, the pilot checks the exact 28 healthy
+services, active Locust users and increasing aggregate request counts,
+resource headroom, accepted metadata receipts, and persisted graph/outbox
+counts. It stops its containers before the offline scorer, whose parser is
+capped at 8 GiB and 180 seconds. These checks establish only their stated
+scope; they do not measure the full IN-10 or IA-1 p95 requirements.
+
+Only `pilot.json`, `startup.json`, and `smoke.json` under `pilot-results` are
+uploaded. Raw OTLP and unrestricted process diagnostics remain in ignored
+state. The pilot retains failures and does not automatically retry. A
+successful pilot still requires three separately recorded fresh cold-start
+trials and the remaining work-package and human acceptance gates.

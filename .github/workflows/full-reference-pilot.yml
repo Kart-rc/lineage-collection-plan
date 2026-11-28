@@ -1,0 +1,102 @@
+name: Full reference feasibility pilot
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/full-reference-pilot.yml'
+      - 'twin/**'
+      - 'src/**'
+      - 'requirements.lock'
+      - 'tests/test_twin_*.py'
+permissions:
+  contents: read
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: open-telemetry/opentelemetry-demo
+          ref: dedc0178918e260823323b8d95005a8cb924b007
+          path: reference-demo
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.4'
+          cache: false
+      - name: Bind cleanup to this invocation
+        run: |
+          python - <<'PY'
+          import os, uuid
+          with open(os.environ['GITHUB_ENV'], 'a') as stream:
+              stream.write('LINEAGE_PILOT_INVOCATION=' + uuid.uuid4().hex + '\n')
+          PY
+      - name: Prepare pinned candidate tools
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install --no-deps -e .
+          python scripts/check_oracle.py
+          cd twin/probe
+          GOTOOLCHAIN=local GOWORK=off go test -mod=readonly ./...
+          cd ../..
+          sh twin/build-probe.sh
+      - name: Build worker image before the measured container startup
+        run: docker build -f twin/worker.Dockerfile -t lineage-platform:pilot .
+      - name: Measure one cold container start and ten minutes of load
+        id: measurement
+        run: python twin/pilot.py --demo reference-demo --state twin/.state --output pilot-results --worker-image lineage-platform:pilot --invocation-id "$LINEAGE_PILOT_INVOCATION"
+      - name: Retain metadata summaries only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-reference-pilot-metadata
+          if-no-files-found: warn
+          path: |
+            pilot-results/pilot.json
+            pilot-results/startup.json
+            pilot-results/smoke.json
+      - name: Print the same metadata summaries for review
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for name in ('pilot.json', 'startup.json', 'smoke.json'):
+              path = Path('pilot-results') / name
+              if path.is_file():
+                  print('LINEAGE_METADATA ' + name + ' ' + json.dumps(json.loads(path.read_text()), separators=(',', ':')))
+          PY
+      - name: Remove only infrastructure acquired by this pilot
+        if: always() && steps.measurement.outcome != 'skipped'
+        run: |
+          python - <<'PY'
+          import json, os, re, subprocess
+          from pathlib import Path
+          state = Path('twin/.state')
+          try:
+              marker = json.loads((state / 'pilot-attempt.json').read_text())
+              report = json.loads(Path('pilot-results/pilot.json').read_text())
+              acquired = (marker.get('schema_version') == 1
+                  and marker.get('project') == 'lineage-twin'
+                  and marker.get('fresh_project_acquired') is True
+                  and report.get('ownership', {}).get('acquired') is True
+                  and re.fullmatch('[0-9a-f]{32}', marker.get('run_id', ''))
+                  and marker.get('run_id') == os.environ.get('LINEAGE_PILOT_INVOCATION')
+                  and marker.get('run_id') == report.get('run_id'))
+              if acquired and (state / 'compose.yaml').is_file():
+                  result = subprocess.run(['docker', 'compose', '-p', 'lineage-twin',
+                      '-f', str(state / 'compose.yaml'), 'down'],
+                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=90)
+                  print('Owned pilot cleanup exit code:', result.returncode)
+              else:
+                  print('No current pilot ownership; cleanup skipped.')
+          except (OSError, ValueError, TypeError, subprocess.TimeoutExpired):
+              print('Pilot cleanup unavailable; no broad cleanup attempted.')
+          PY
