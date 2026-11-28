@@ -97,6 +97,25 @@ header { display: grid; gap: 12px; }
 .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; padding: 3px; gap: 3px; background: var(--surface); }
 .seg button { font: 600 13px var(--f-body); border: 0; background: transparent; color: var(--muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; }
 .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+.seg { flex-wrap: wrap; }
+#sl-seg button { padding: 6px 9px; }
+.w { font: 500 11px/1.4 var(--f-mono); color: var(--muted); background: var(--sunk); padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+.avail { font-size: 13.5px; margin-top: 6px; }
+.avail b { font-weight: 600; }
+.wp { display: block; font: 12px var(--f-mono); color: var(--muted); margin-top: 3px; }
+#sl-body tr.pending td:not(:last-child) { color: var(--muted); }
+@media (max-width: 640px) {
+  #levels table, #levels tbody, #levels tr, #levels td { display: block; }
+  #levels thead { display: none; }
+  #levels tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  #levels tr:last-child { border-bottom: 0; }
+  #levels td { border: 0; padding: 0; }
+  #levels td:nth-child(1) { font-weight: 600; grid-column: 1; grid-row: 1; }
+  #levels td:nth-child(3) { grid-column: 2; grid-row: 1; text-align: right; }
+  #levels td:nth-child(2) { grid-column: 1 / -1; }
+  #levels td:nth-child(4) { grid-column: 1 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-top: 2px; }
+  #levels td:nth-child(4) .wp { margin-top: 0; }
+}
 .steps { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 @media (max-width: 900px) { .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 480px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -155,7 +174,7 @@ footer { margin-top: 52px; padding-top: 14px; border-top: 1px solid var(--line);
     <div class="three">
       <div><b>You do three things</b><span>Onboard each repository with one change, name owners and tiers, and write checks and tier 1 contracts.</span></div>
       <div><b>The platform does the rest</b><span>Reads your code on every pull request and merge, collects runtime evidence centrally, and keeps a versioned field-level graph.</span></div>
-      <div><b>You get back</b><span>Impact reports on pull requests, an API for "what breaks if I change this", and alerts that arrive with the cause ranked.</span></div>
+      <div><b>You get back</b><span>Impact reports on pull requests, an API for "what breaks if I change this", and alerts that arrive with the cause ranked. Reports land in wave 3 and alerts in wave 4; today the quick map runs.</span></div>
     </div>
   </header>
 
@@ -191,45 +210,40 @@ footer { margin-top: 52px; padding-top: 14px; border-top: 1px solid var(--line);
     <div class="sec-head"><div class="eyebrow">The entry points</div><h2 id="h-entry">How a flow gets in, what is collected, and where you use it</h2></div>
     <div class="cols">
       <div class="col"><h3>Getting in</h3><ul>
-        <li><b>One change per repository:</b> a <code>.lineage.yaml</code> file and the <code>lineage-ci</code> step in CI.</li>
-        <li><b>Owners and tiers</b> in the catalog, one line per service and dataset.</li>
-        <li><b>Contracts</b> for tier 1 data: fields, types, compatibility, forbidden fields.</li>
-        <li><b>Checks</b> on what matters: rates, errors, lag, latency, data quality.</li>
+        <li><b>One change per repository:</b> a <code>.lineage.yaml</code> file and the <code>lineage-ci</code> step in CI. <span class="w">wave 1</span></li>
+        <li><b>Owners and tiers</b> in the catalog, one line per service and dataset. <span class="w">wave 1</span></li>
+        <li><b>Contracts</b> for tier 1 data: fields, types, compatibility, forbidden fields. Enforced by the gate. <span class="w">wave 3</span></li>
+        <li><b>Checks</b> on what matters: rates, errors, lag, latency, data quality. Run by the check runner. <span class="w">wave 4</span></li>
       </ul></div>
       <div class="col"><h3>What the platform collects</h3><ul>
-        <li><b>OpenTelemetry traces</b> with a <code>service.name</code> matching <code>.lineage.yaml</code>.</li>
-        <li><b>Message spans</b> that name their topic, joined on the topic name.</li>
-        <li><b>Database spans or warehouse query history</b> (Snowflake, Databricks) for column reads and writes.</li>
-        <li><b>OpenLineage</b> from Spark, dbt, Flink and Feast, switched on centrally.</li>
-        <li><b>Change events:</b> deploys, flag changes, merges.</li>
+        <li><b>OpenTelemetry traces</b> with a <code>service.name</code> matching <code>.lineage.yaml</code>. <span class="w">wave 1</span></li>
+        <li><b>Message spans</b> that name their topic, joined on the topic name. <span class="w">wave 1</span></li>
+        <li><b>Database spans or warehouse query history</b> (Snowflake, Databricks) for column reads and writes. <span class="w">wave 2</span></li>
+        <li><b>OpenLineage</b> from Spark, dbt, Flink and Feast, switched on centrally. <span class="w">wave 2</span></li>
+        <li><b>Change events:</b> deploys, flag changes, merges. <span class="w">wave 4</span></li>
       </ul></div>
       <div class="col"><h3>Where you use it</h3><ul>
-        <li><b>Pull requests:</b> an impact report with readers, owners and a gate result.</li>
-        <li><b><code>/impact</code> API and agent tool:</b> ask before a pull request exists.</li>
-        <li><b>Alerts:</b> the path upstream, ranked causes and blast radius.</li>
-        <li><b><code>/upstream</code>, <code>/diff</code>, <code>/explain</code>:</b> history, changes and evidence.</li>
-        <li><b>Owner queue:</b> edges to confirm or dispute.</li>
+        <li><b>Pull requests:</b> an impact report with readers, owners and a gate result. <span class="w">wave 3</span></li>
+        <li><b><code>/impact</code> API and agent tool:</b> ask before a pull request exists. <span class="w">wave 3</span></li>
+        <li><b>Alerts:</b> the path upstream, ranked causes and blast radius. <span class="w">wave 4</span></li>
+        <li><b><code>/upstream</code>, <code>/diff</code>, <code>/explain</code>:</b> history, changes and evidence. <span class="w">wave 1</span></li>
+        <li><b>Owner queue:</b> edges to confirm or dispute. <span class="w">wave 1</span></li>
       </ul></div>
     </div>
   </section>
 
   <!-- SERVICE LEVELS -->
   <section id="levels" aria-labelledby="h-levels">
-    <div class="sec-head"><div class="eyebrow">What you can count on</div><h2 id="h-levels">Service levels, each tied to a requirement</h2></div>
+    <div class="journey-head">
+      <div class="sec-head"><div class="eyebrow">What you can count on, and when</div><h2 id="h-levels">Service levels by wave</h2></div>
+      <div class="seg" role="group" aria-label="Show what holds after" id="sl-seg"></div>
+    </div>
+    <p class="small" id="sl-note" aria-live="polite"></p>
     <div class="tbl"><table>
-      <thead><tr><th>What</th><th>Bar</th><th>Requirement</th></tr></thead>
-      <tbody>
-        <tr><td>First full scan after onboarding a repository</td><td>Within 1 hour</td><td class="num">XC-7</td></tr>
-        <tr><td>Impact report on a pull request</td><td>Within 5 minutes at p95</td><td class="num">IA-1</td></tr>
-        <tr><td>A merged change visible in the graph</td><td>Within 15 minutes at p95</td><td class="num">IN-10</td></tr>
-        <tr><td>Alert enriched with path, ranked causes and blast radius</td><td>Within 2 minutes</td><td class="num">IR-1</td></tr>
-        <tr><td>Accuracy on a certified flow</td><td>Field-edge precision and recall at least 90%</td><td class="num">BL-6</td></tr>
-        <tr><td>Consumers that actually broke, listed in the report</td><td>At least 80% on the change replays</td><td class="num">IA-8</td></tr>
-        <tr><td>True cause of an incident</td><td>First at least 70% of the time, in the top three at least 90%</td><td class="num">IR-5</td></tr>
-        <tr><td>Your build and your services</td><td>Never blocked or slowed by the platform; the CI step fails open</td><td class="num">XC-3, IA-6</td></tr>
-        <tr><td>What is stored</td><td>Metadata only: names, schemas, expressions, counts and times</td><td class="num">XC-1</td></tr>
-      </tbody>
+      <thead><tr><th>What</th><th>Bar</th><th>Requirement</th><th>Status</th></tr></thead>
+      <tbody id="sl-body"></tbody>
     </table></div>
+    <p class="small muted">Waves run in order and are not dated. A bar holds once the work package that carries it meets its done-when in the twin and the wave passes the release gate (G4) on a stage replay. Wave 0 is the platform's own groundwork (the twin, the golden graph, the corpora and the scoring harness) and gives teams nothing directly.</p>
   </section>
 
   <!-- TEMPLATES -->
@@ -354,9 +368,9 @@ lineage-ci scan --stage merged --commit $SHA</pre>
     }
     const level = A.crit === "yes" ? "Certified" : A.crit === "no" ? "Covered" : "Covered, or certified if critical";
     const rows = [];
-    rows.push(["Calls between services", A.trace === "all" ? chip("c-ok", "Confirmed at runtime") + "from traces, plus code" : A.trace === "some" ? chip("c-part", "Partly") + "runtime where traced; code only for the rest" : A.trace === "none" ? chip("c-gap", "Code only") + "probable until traces exist; gateway logs cover the front door" : chip("c-na", "Not answered")]);
-    rows.push(["Message hops", A.msg === "yes" ? chip("c-ok", "Confirmed at runtime") + "joined on the topic name" : A.msg === "no" ? chip("c-part", "Code only") + "add the destination name to producer and consumer spans" : A.msg === "na" ? chip("c-na", "None in this flow") : chip("c-na", "Not answered")]);
-    rows.push(["Data stores", A.db === "spans" || A.db === "history" ? chip("c-ok", "Columns at runtime") + (A.db === "spans" ? "parsed from statements in spans" : "from warehouse query history") : A.db === "neither" ? chip("c-part", "Code and DDL only") + "grant query-history access or add statements to spans" : chip("c-na", "Not answered")]);
+    rows.push(["Calls between services", A.trace === "all" ? chip("c-ok", "Confirmed at runtime") + "from traces, plus code (wave 1)" : A.trace === "some" ? chip("c-part", "Partly") + "runtime where traced; code only for the rest" : A.trace === "none" ? chip("c-gap", "Code only") + "probable until traces exist; gateway logs cover the front door" : chip("c-na", "Not answered")]);
+    rows.push(["Message hops", A.msg === "yes" ? chip("c-ok", "Confirmed at runtime") + "joined on the topic name (wave 1)" : A.msg === "no" ? chip("c-part", "Code only") + "add the destination name to producer and consumer spans" : A.msg === "na" ? chip("c-na", "None in this flow") : chip("c-na", "Not answered")]);
+    rows.push(["Data stores", A.db === "spans" || A.db === "history" ? chip("c-ok", "Columns at runtime") + (A.db === "spans" ? "parsed from statements in spans (wave 2)" : "from warehouse query history (wave 2)") : A.db === "neither" ? chip("c-part", "Code and DDL only") + "grant query-history access or add statements to spans" : chip("c-na", "Not answered")]);
     rows.push(["Field identity", A.schema === "typed" ? chip("c-ok", "Strong") + "field numbers and types from schemas" : A.schema === "orm" ? chip("c-part", "Medium") + "columns from ORM and DDL; payload fields from code" : A.schema === "untyped" ? chip("c-gap", "Weak") + "field names only from code; renames are hard to tell from removals" : chip("c-na", "Not answered")]);
     const L = A.langs || [];
     const by = k => LANGS.filter(l => L.includes(l[0]) && l[2] === k).map(l => l[1]);
@@ -365,8 +379,8 @@ lineage-ci scan --stage merged --commit $SHA</pre>
     if (by("after").length) lang.push(chip("c-part", "After Go") + by("after").join(", ") + ": in the service scanner's scope (WP-23), no accuracy bar yet; until then opaque edges plus runtime");
     if (by("gap").length) lang.push(chip("c-gap", "Stated gap") + by("gap").join(", ") + ": table level plus runtime; model-proposed candidates");
     rows.push(["Field lineage from code", lang.length ? lang.join("<br>") : chip("c-na", "Not answered")]);
-    rows.push(["Pull request reports", A.ci === "github" || A.ci === "other" ? chip("c-ok", "Yes") + (A.ci === "github" ? "through the GitHub Action" : "the same CLI in your CI") : A.ci === "none" ? chip("c-gap", "No") + "without CI there is no static evidence and no pre-merge impact" : chip("c-na", "Not answered")]);
-    rows.push(["Routing to owners", A.owners === "yes" ? chip("c-ok", "Ready") : A.owners === "partly" || A.owners === "no" ? chip("c-part", "Step 3 first") + "the owner queue and review requests need owners" : chip("c-na", "Not answered")]);
+    rows.push(["Pull request reports", A.ci === "github" || A.ci === "other" ? chip("c-ok", "Yes") + (A.ci === "github" ? "through the GitHub Action, from wave 3" : "the same CLI in your CI, from wave 3") : A.ci === "none" ? chip("c-gap", "No") + "without CI there is no static evidence and no pre-merge impact" : chip("c-na", "Not answered")]);
+    rows.push(["Routing to owners", A.owners === "yes" ? chip("c-ok", "Ready") + "owner queue from wave 1" : A.owners === "partly" || A.owners === "no" ? chip("c-part", "Step 3 first") + "the owner queue and review requests need owners" : chip("c-na", "Not answered")]);
     const next = [];
     next.push("Ask the platform team for a quick map from a stage capture. It works today.");
     if (A.trace === "some" || A.trace === "none") next.push("Add OpenTelemetry tracing, with service.name equal to the names in .lineage.yaml.");
@@ -382,19 +396,20 @@ lineage-ci scan --stage merged --commit $SHA</pre>
       <div class="eyebrow">${isExample ? "Example result: reference order flow" : "Your result"}</div>
       <div class="level"><span class="muted small">Aim for</span><b>${level}</b></div>
       <div class="cov">${rows.map(([k, v]) => `<div class="cov-row"><span class="k">${k}</span><span>${v}</span></div>`).join("")}</div>
-      <div><h4 style="margin-bottom:6px">First steps</h4><ol class="next">${next.map(n => `<li>${n}</li>`).join("")}</ol></div>`;
+      <div><h4 style="margin-bottom:6px">First steps</h4><ol class="next">${next.map(n => `<li>${n}</li>`).join("")}</ol></div>
+      <p class="small muted">Coverage as each wave lands. Today only the quick map runs; see <a href="#levels">service levels by wave</a>.</p>`;
   }
   render();
 
   /* ---------------- journey ---------------- */
   const STEPS = [
-    { n: 0, t: "Intake", who: "Team and platform", you: "Name the flow, its repositories, services and data stores, owners and tier.", platform: "Checks what the flow already emits and which technologies have extractors.", get: "A coverage list: field level from code, runtime only, or a stated gap, hop by hop.", done: "The coverage list is agreed with the flow's lead.", effort: "An hour, mostly the self-check above." },
-    { n: 1, t: "Quick map", who: "Platform", you: "Point the platform at the flow's stage environment.", platform: "Adds the capture add-on to your OpenTelemetry collector and scores what it sees. Works today with the prototypes.", get: "A map of services, topics and tables, with columns written. On the reference flow it found every expected service and topic edge.", done: "Every service and data store is on the map, or on the gap list with a reason.", effort: "About a day, by the platform team." },
-    { n: 2, t: "Onboard repositories", who: "Team", you: "One pull request per repository: .lineage.yaml and the lineage-ci step.", platform: "Scans the default branch, then every pull request and merge; re-reads only what changed.", get: "First full scan within 1 hour; a report on every pull request within 5 minutes.", done: "The first scan's manifest lists a unit for every configured service, schema and project.", effort: "One small pull request per repository. A wrong file never fails the build." },
-    { n: 3, t: "Owners, contracts, checks", who: "Team", you: "Owners and tiers in the catalog; contracts for tier 1 data; checks on what matters.", platform: "Routes questions and reviews to owners; runs the checks; enforces the contracts.", get: "Routing, gate rules and alerts that start incident analysis.", done: "Every node has an owner and a tier; every tier 1 element has a contract and a check.", effort: "One line per service and dataset; a contract and a check per tier 1 element." },
-    { n: 4, t: "Reconcile", who: "Owners", you: "Confirm or dispute the edges in the first owner queue.", platform: "Lists edges seen only in code, only at runtime, or in disagreement.", get: "Edges move from probable to confirmed or verified.", done: "The first queue is empty and every tier 1 path is confirmed or verified.", effort: "A few minutes per item; the queue shrinks as runtime evidence arrives." },
-    { n: 5, t: "Certify", who: "Owners and platform", certOnly: true, you: "Write the golden graph with the platform, each edge cited; sign it at gate G3.", platform: "Builds change and incident corpora, a third held out and written by people who do not build; reports accuracy weekly.", get: "Measured accuracy (at least 90% precision and recall) and a pull request gate allowed to block tier 1 contract breaks.", done: "G3 is signed and the first weekly report meets 90%.", effort: "About two hours per owner in the first week (the plan's estimate)." },
-    { n: 6, t: "Steady state", who: "Platform", you: "Keep .lineage.yaml, owners and checks current as the flow changes.", platform: "Re-scans changed units on merge; keeps every version of every edge; marks edges dormant after 30 days without runtime evidence.", get: "New edges within 15 minutes; lineage as of any past time; incidents recorded from landing to fix.", done: "Ongoing.", effort: "Part of normal change work." }
+    { n: 0, t: "Intake", who: "Team and platform", you: "Name the flow, its repositories, services and data stores, owners and tier.", platform: "Checks what the flow already emits and which technologies have extractors.", get: "A coverage list: field level from code, runtime only, or a stated gap, hop by hop.", done: "The coverage list is agreed with the flow's lead.", effort: "An hour, mostly the self-check above.", avail: "Today." },
+    { n: 1, t: "Quick map", who: "Platform", you: "Point the platform at the flow's stage environment.", platform: "Adds the capture add-on to your OpenTelemetry collector and scores what it sees. Works today with the prototypes.", get: "A map of services, topics and tables, with columns written. On the reference flow it found every expected service and topic edge.", done: "Every service and data store is on the map, or on the gap list with a reason.", effort: "About a day, by the platform team.", avail: "Today, with the prototypes." },
+    { n: 2, t: "Onboard repositories", who: "Team", you: "One pull request per repository: .lineage.yaml and the lineage-ci step.", platform: "Scans the default branch, then every pull request and merge; re-reads only what changed.", get: "From wave 1, a first full scan within 1 hour and every pull request and merge scanned into the graph. From wave 3, a report on every pull request within 5 minutes.", done: "The first scan's manifest lists a unit for every configured service, schema and project.", effort: "One small pull request per repository. A wrong file never fails the build.", avail: "Wave 1 for scans; pull request reports from wave 3." },
+    { n: 3, t: "Owners, contracts, checks", who: "Team", you: "Owners and tiers in the catalog; contracts for tier 1 data; checks on what matters.", platform: "Routes questions and reviews to owners; runs the checks; enforces the contracts.", get: "Routing, gate rules and alerts that start incident analysis.", done: "Every node has an owner and a tier; every tier 1 element has a contract and a check.", effort: "One line per service and dataset; a contract and a check per tier 1 element.", avail: "Owners and tiers from wave 1; the contract gate from wave 3; checks start incident analysis from wave 4." },
+    { n: 4, t: "Reconcile", who: "Owners", you: "Confirm or dispute the edges in the first owner queue.", platform: "Lists edges seen only in code, only at runtime, or in disagreement.", get: "Edges move from probable to confirmed or verified.", done: "The first queue is empty and every tier 1 path is confirmed or verified.", effort: "A few minutes per item; the queue shrinks as runtime evidence arrives.", avail: "Wave 1, with the owner queue." },
+    { n: 5, t: "Certify", who: "Owners and platform", certOnly: true, you: "Write the golden graph with the platform, each edge cited; sign it at gate G3.", platform: "Builds change and incident corpora, a third held out and written by people who do not build; reports accuracy weekly.", get: "Measured accuracy (at least 90% precision and recall) and a pull request gate allowed to block tier 1 contract breaks.", done: "G3 is signed and the first weekly report meets 90%.", effort: "About two hours per owner in the first week (the plan's estimate).", avail: "Service and topic edges from wave 1; field edges once the flow's extractors land in wave 2; blocking from wave 3." },
+    { n: 6, t: "Steady state", who: "Platform", you: "Keep .lineage.yaml, owners and checks current as the flow changes.", platform: "Re-scans changed units on merge; keeps every version of every edge; marks edges dormant after 30 days without runtime evidence.", get: "New edges within 15 minutes; lineage as of any past time; incidents recorded from landing to fix.", done: "Ongoing.", effort: "Part of normal change work.", avail: "Wave 1; re-scans of dependent units from wave 3; incident records from wave 4." }
   ];
   let lv = "covered", cur = 0;
   const stepsEl = document.getElementById("steps"), panel = document.getElementById("step-panel");
@@ -403,7 +418,7 @@ lineage-ci scan --stage merged --commit $SHA</pre>
     stepsEl.querySelectorAll(".step").forEach((b, i) => b.addEventListener("click", () => { cur = i; drawSteps(); }));
     const s = STEPS[cur];
     panel.innerHTML = `
-      <div class="full"><h3>Step ${s.n}: ${s.t}</h3>${s.certOnly && lv === "covered" ? '<p class="small muted">Only for certified flows. Switch the level above to include it.</p>' : ""}</div>
+      <div class="full"><h3>Step ${s.n}: ${s.t}</h3><p class="avail"><b>Available:</b> ${s.avail}</p>${s.certOnly && lv === "covered" ? '<p class="small muted">Only for certified flows. Switch the level above to include it.</p>' : ""}</div>
       <div><h4>Your team</h4><p>${s.you}</p></div>
       <div><h4>The platform</h4><p>${s.platform}</p></div>
       <div><h4>You get</h4><p>${s.get}</p></div>
@@ -418,6 +433,46 @@ lineage-ci scan --stage merged --commit $SHA</pre>
     if (lv === "covered" && STEPS[cur].certOnly) cur = 4; drawSteps();
   }));
   drawSteps();
+
+  /* ---------------- service levels by wave ---------------- */
+  const SL = [
+    ["What is stored", "Metadata only: names, schemas, expressions, counts and times; never data values", "XC-1", 1, "WP-11"],
+    ["Your build and your services", "Never blocked or slowed; the CI step passes when the platform is down", "XC-3, IA-6", 1, "WP-11, WP-18"],
+    ["First full scan after onboarding a repository", "Within 1 hour", "XC-7", 1, "WP-18"],
+    ["A merge or run visible in the graph", "Within 15 minutes at p95", "IN-10", 1, "WP-13"],
+    ["Service and topic edges", "Precision at least 95%, recall at least 90%", "BL-6", 1, "WP-19"],
+    ["Field edges from code", "Precision and recall at least 90%, extractor by extractor", "BL-6", 2, "WP-20, 22, 23, 24, 25"],
+    ["Impact report on a pull request", "Within 5 minutes at p95", "IA-1", 3, "WP-33"],
+    ["Consumers that actually broke, listed in the report", "At least 80% on visible and holdout change replays", "IA-8", 3, "WP-33"],
+    ["Blocking tier 1 contract breaks", "Only after the warn period shows at least 95% precision on what it would have blocked", "IA-5", 3, "WP-34"],
+    ["Alert enriched with path, ranked causes and blast radius", "Within 2 minutes at p95", "IR-1", 4, "WP-42"],
+    ["True cause of an incident", "First at least 70% of the time, in the top three at least 90%", "IR-5", 4, "WP-42"]
+  ];
+  const SL_NOTE = [
+    "A team can get the quick map, run by the platform team with the prototypes.",
+    "Service-level lineage, repository onboarding, history and the owner queue. No field edges from code, pull request reports or alerts yet.",
+    "Adds field edges from code, extractor by extractor. Still no pull request reports or alerts.",
+    "Adds pull request reports, the /impact API and the contract gate. Alerts are still plain.",
+    "Adds alerts with the path upstream and ranked causes. Every service level holds."
+  ];
+  let after = 0; // always opens on Today, so nobody reads a future wave as live
+  const slSeg = document.getElementById("sl-seg");
+  slSeg.innerHTML = ["Today", "Wave 1", "Wave 2", "Wave 3", "Wave 4"].map((l, i) => `<button type="button" data-after="${i}" aria-pressed="false">${l}</button>`).join("");
+  function drawSL() {
+    slSeg.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.after === after)));
+    const held = SL.filter(r => r[3] <= after).length;
+    document.getElementById("sl-note").innerHTML = `<b>${after === 0 ? "Today" : "After wave " + after}: ${held} of ${SL.length} hold.</b> ${SL_NOTE[after]}`;
+    document.getElementById("sl-body").innerHTML = SL.map(([what, bar, req, w, wp]) => {
+      const ok = w <= after;
+      return `<tr class="${ok ? "" : "pending"}"><td>${what}</td><td>${bar}</td><td class="num">${req}</td><td>${ok ? chip("c-ok", "Holds") : chip("c-na", "Not yet")}<span class="wp">Wave ${w} · ${wp}</span></td></tr>`;
+    }).join("");
+  }
+  slSeg.addEventListener("click", e => {
+    const b = e.target.closest("button[data-after]"); if (!b) return;
+    after = +b.dataset.after;
+    drawSL();
+  });
+  drawSL();
 
   /* ---------------- copy ---------------- */
   document.querySelectorAll("[data-copy]").forEach(btn => btn.addEventListener("click", () => {
