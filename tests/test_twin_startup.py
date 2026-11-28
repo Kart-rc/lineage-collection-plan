@@ -331,3 +331,112 @@ def test_compatible_actions_suppress_and_report_failures(tmp_path, monkeypatch, 
     assert report(tmp_path / ".state")["phase"] == action
     output = capsys.readouterr()
     assert SECRET not in output.out + output.err
+
+
+def collector_service():
+    return yaml.safe_load((ROOT / 'twin/collector.compose.yaml').read_text())['services']['lineage-collector']
+
+
+def collector_arguments(service):
+    args = service['command']
+    return {args[index][2:].replace('-', '_'): args[index+1]
+            for index in range(0, len(args), 2)}
+
+
+def test_standalone_collector_retains_every_small_run_default():
+    from dataclasses import asdict
+    from lineage.collector import Limits
+    bridge = collector_service()
+    arguments = collector_arguments(bridge)
+    defaults = asdict(Limits())
+    for name, value in defaults.items():
+        template = arguments[name]
+        assert template.startswith('${LINEAGE_COLLECTOR_' + name.upper() + ':-')
+        rendered_default = template.split(':-', 1)[1][:-1]
+        assert type(value)(rendered_default) == value
+    assert defaults['max_input_bytes'] == 16 * 1024**2
+    assert defaults['max_memory_bytes'] == 512 * 1024**2
+    assert defaults['parse_timeout'] == 10.0
+    assert bridge['mem_limit'] == '512m'
+    assert arguments['poll_interval'] == '5'
+
+
+def test_reference_collector_profile_renders_all_measured_bounds(monkeypatch):
+    for name in start.REFERENCE_COLLECTOR_LIMITS:
+        monkeypatch.delenv('LINEAGE_COLLECTOR_' + name.upper(), raising=False)
+    bridge = collector_service()
+    profile = start.reference_collector_capacity(bridge)
+    expected = {'max_input_bytes': 67108864, 'max_line_bytes': 1048576, 'max_events': 4096,
+                'max_metadata_bytes': 8388608, 'max_memory_bytes': 1610612736,
+                'parse_timeout': 30.0, 'send_timeout': 5.0,
+                'max_sends_per_cycle': 128, 'max_acknowledged': 100000}
+    assert profile['name'] == 'reference-ten-minute-v1'
+    assert profile['scope'] == 'ten-minute-reference-twin'
+    assert profile['limits'] == expected
+    assert profile['container_memory_bytes'] == bridge['mem_limit'] == 2147483648
+    assert profile['parent_headroom_bytes'] == 536870912
+    assert bridge['labels']['lineage.collector.capacity-profile'] == profile['name']
+    arguments = collector_arguments(bridge)
+    for key, value in expected.items():
+        assert arguments[key] == str(value)
+    assert all('${' not in value for value in arguments.values())
+    assert (float(arguments['poll_interval']) + profile['limits']['parse_timeout']
+            + profile['limits']['send_timeout']) < 45
+    assert profile['limits']['max_memory_bytes'] + profile['parent_headroom_bytes'] <= bridge['mem_limit']
+    assert bridge['read_only'] and bridge['cap_drop'] == ['ALL']
+    assert bridge['pids_limit'] == 64
+
+
+@pytest.mark.parametrize('name', list(start.REFERENCE_COLLECTOR_LIMITS))
+def test_reference_collector_environment_cannot_expand_any_calibrated_cap(monkeypatch, name):
+    monkeypatch.setenv('LINEAGE_COLLECTOR_' + name.upper(), str(start.REFERENCE_COLLECTOR_LIMITS[name] + 1))
+    with pytest.raises(start.StartupFailure, match='invalid_collector_limits'):
+        start.reference_collector_capacity(collector_service())
+
+
+@pytest.mark.parametrize('name,value', [
+    ('max_input_bytes', '0'), ('max_events', '-1'), ('max_memory_bytes', '1e9'),
+    ('max_input_bytes', '9' * 400), ('max_line_bytes', 'nan'), ('max_events', 'True'),
+    ('parse_timeout', 'nan'), ('parse_timeout', 'inf'), ('parse_timeout', '-inf'),
+    ('parse_timeout', '0'), ('send_timeout', '-1'), ('send_timeout', '1e1000'),
+])
+def test_reference_collector_rejects_invalid_unbounded_environment_safely(monkeypatch, name, value):
+    monkeypatch.setenv('LINEAGE_COLLECTOR_' + name.upper(), value)
+    with pytest.raises(start.StartupFailure) as error:
+        start.reference_collector_capacity(collector_service())
+    assert str(error.value) == 'invalid_collector_limits'
+
+
+def test_reference_collector_allows_tighter_consistent_limits(monkeypatch):
+    monkeypatch.setenv('LINEAGE_COLLECTOR_MAX_INPUT_BYTES', str(32 * 1024**2))
+    monkeypatch.setenv('LINEAGE_COLLECTOR_MAX_EVENTS', '2048')
+    monkeypatch.setenv('LINEAGE_COLLECTOR_MAX_MEMORY_BYTES', str(1024**3))
+    monkeypatch.setenv('LINEAGE_COLLECTOR_PARSE_TIMEOUT', '20')
+    profile = start.reference_collector_capacity(collector_service())
+    assert profile['limits']['max_input_bytes'] == 33554432
+    assert profile['limits']['max_events'] == 2048
+    assert profile['limits']['max_memory_bytes'] == 1073741824
+    assert profile['limits']['parse_timeout'] == 20.0
+
+
+@pytest.mark.parametrize('name,value', [('MAX_INPUT_BYTES', '524288'), ('MAX_MEMORY_BYTES', '67108864')])
+def test_reference_collector_rejects_inconsistent_memory_and_input_bounds(monkeypatch, name, value):
+    monkeypatch.setenv('LINEAGE_COLLECTOR_' + name, value)
+    with pytest.raises(start.StartupFailure, match='invalid_collector_limits'):
+        start.reference_collector_capacity(collector_service())
+
+
+def test_full_pipeline_records_capacity_and_isolation(tmp_path, monkeypatch):
+    for name in start.REFERENCE_COLLECTOR_LIMITS:
+        monkeypatch.delenv('LINEAGE_COLLECTOR_' + name.upper(), raising=False)
+    state = tmp_path / 'state'
+    (state / 'capture').mkdir(parents=True)
+    config = {'services': {}, 'volumes': {}}
+    start.add_pipeline(config, state, 'lineage-platform:capacity-candidate')
+    bridge = config['services']['lineage-collector']
+    assert config['x-lineage-collector-capacity']['limits']['max_input_bytes'] == 67108864
+    assert collector_arguments(bridge)['broker'] == 'lineage-kafka:9092'
+    assert bridge['networks'] == ['lineage']
+    assert bridge['image'] == 'lineage-platform:capacity-candidate'
+    assert bridge['pull_policy'] == 'never'
+    assert all(volume['read_only'] for volume in bridge['volumes'][:2])

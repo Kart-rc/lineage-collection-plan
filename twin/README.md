@@ -128,6 +128,62 @@ mounts and separate durable metadata progress. The runtime guide documents
 input bounds, health checks and source rotation handling. Default bounds fit
 small local runs; they do not establish full reference-capture capacity.
 
+### Full-reference collector capacity
+
+Full startup (`twin/start.py up`) selects the measured
+`reference-ten-minute-v1` capacity profile. Standalone collector startup keeps
+its existing small-run defaults. The profile applies only to the ten-minute
+reference-twin acceptance window, including retained startup capture; it is not
+an hour-long or arbitrary-size streaming claim. The bridge still rereads each
+append-only source in full.
+
+| Bound | Standalone default | Full-reference profile |
+| --- | ---: | ---: |
+| Combined traces, logs and changes | 16 MiB | 64 MiB |
+| One JSONL line | 1 MiB | 1 MiB |
+| Events per parse | 4,096 | 4,096 |
+| Encoded metadata result | 8 MiB | 8 MiB |
+| Parser address space | 512 MiB | 1,536 MiB |
+| Parse deadline | 10 seconds | 30 seconds |
+| Collector container memory | 512 MiB | 2,048 MiB |
+
+The 64 MiB input ceiling is 3.78 times candidate 7's observed 17,731,133-byte
+combined trace/log capture. Independent synthetic OTLP with client/server
+correlation, Kafka producer/consumer spans, SQL metadata spans and gateway logs
+was measured using the unchanged parser. At 18,823,050 bytes it took 2.72 seconds;
+at 56,542,940 bytes, 7.82 seconds; and at 67,069,090 bytes, 8.85 seconds. The largest
+case peaked at approximately 597 MB resident memory and 625 MB virtual memory;
+its 360 projected events occupied 169,422 encoded metadata bytes. These samples
+exercise input volume and metadata processing, not the complete hosted workload.
+
+The parser address-space ceiling allows roughly 2.58 times the largest measured
+virtual footprint. The container ceiling reserves another 512 MiB beyond that
+parser limit for the parent, metadata delivery and process overhead. The
+30-second parse ceiling, five-second polling interval and five-second send
+ceiling total 40 seconds before a subsequent successful health update, below
+the stricter 45-second pilot freshness allowance. Send count (128 per cycle),
+acknowledged digest count (100,000), source-prefix guards, acknowledgement-before-
+checkpoint behavior and Kafka isolation are unchanged. No acceptance floor or
+health deadline is relaxed.
+
+`LINEAGE_COLLECTOR_*` overrides for each named bound may tighten the full profile
+but cannot increase a calibrated ceiling. Invalid, nonfinite, zero, oversized
+or inconsistent values fail preparation as `invalid_collector_limits`; parser
+address space must remain below the cgroup ceiling with the reserved headroom.
+Tighter overrides can deliberately reject workloads accepted by the standard
+profile. The rendered Compose extension `x-lineage-collector-capacity`, service
+label and startup report's `collectorCapacityProfile` record the effective
+bounds. The cgroup setting was rendered and validated locally; enforcing it on
+the complete stack remains part of the fresh hosted run.
+
+Calibration commands, source hashes, aggregate measurements and bound failures
+are in `factory/runs/wave-0-1-collector-capacity/checks/`. Inputs were generated
+independently of reference captures and holdouts, and their temporary files were
+removed after measurement. The over-input, oversized-line, event-count and
+metadata-result checks still fail at their configured bounds. At the observed
+rate, an hour could exceed 100 MB and this profile would stop at its explicit
+64 MiB boundary; no hour acceptance is asserted.
+
 Fault commands are:
 
 ```sh

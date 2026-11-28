@@ -19,6 +19,22 @@ ROOT = Path(__file__).resolve().parents[1]
 TWIN = ROOT / "twin"
 DEMO_COMMIT = "dedc0178918e260823323b8d95005a8cb924b007"
 PROJECT = "lineage-twin"
+# Measured on independent synthetic OTLP; scoped to the ten-minute reference
+# twin. These are capacity ceilings, not relaxed acceptance or global defaults.
+REFERENCE_COLLECTOR_PROFILE = "reference-ten-minute-v1"
+REFERENCE_COLLECTOR_LIMITS = {
+    "max_input_bytes": 64 * 1024**2,
+    "max_line_bytes": 1024**2,
+    "max_events": 4096,
+    "max_metadata_bytes": 8 * 1024**2,
+    "max_memory_bytes": 1536 * 1024**2,
+    "parse_timeout": 30.0,
+    "send_timeout": 5.0,
+    "max_sends_per_cycle": 128,
+    "max_acknowledged": 100000,
+}
+REFERENCE_COLLECTOR_MEMORY_BYTES = 2048 * 1024**2
+REFERENCE_COLLECTOR_PARENT_HEADROOM_BYTES = 512 * 1024**2
 PLATFORM_SERVICES = ["lineage-kafka", "lineage-neo4j", "lineage-postgres"]
 FULL_SERVICES = (
     "accounting", "ad", "astronomy-db", "cart", "checkout", "currency", "email", "flagd", "flagd-ui",
@@ -106,6 +122,43 @@ def private_file(path):
     path.chmod(0o600)
 
 
+def reference_collector_capacity(bridge):
+    """Render finite limits; environment overrides may tighten, never expand."""
+    limits = {}
+    for name, ceiling in REFERENCE_COLLECTOR_LIMITS.items():
+        variable = "LINEAGE_COLLECTOR_" + name.upper()
+        value = os.environ.get(variable, str(ceiling))
+        try:
+            if type(ceiling) is int:
+                if not re.fullmatch(r"[0-9]{1,20}", value):
+                    raise ValueError()
+                parsed = int(value)
+            else:
+                parsed = float(value)
+                if not math.isfinite(parsed):
+                    raise ValueError()
+            if not 0 < parsed <= ceiling:
+                raise ValueError()
+        except (ValueError, TypeError, OverflowError):
+            raise StartupFailure("invalid_collector_limits") from None
+        limits[name] = parsed
+        flag = "--" + name.replace("_", "-")
+        try:
+            index = bridge["command"].index(flag)
+            bridge["command"][index + 1] = str(parsed)
+        except (ValueError, IndexError, KeyError):
+            raise StartupFailure("invalid_collector_limits") from None
+    if (limits["max_line_bytes"] > limits["max_input_bytes"]
+            or limits["max_memory_bytes"] <= limits["max_input_bytes"] + limits["max_metadata_bytes"]
+            or limits["max_memory_bytes"] + REFERENCE_COLLECTOR_PARENT_HEADROOM_BYTES > REFERENCE_COLLECTOR_MEMORY_BYTES):
+        raise StartupFailure("invalid_collector_limits")
+    bridge["mem_limit"] = REFERENCE_COLLECTOR_MEMORY_BYTES
+    bridge.setdefault("labels", {})["lineage.collector.capacity-profile"] = REFERENCE_COLLECTOR_PROFILE
+    return {"name": REFERENCE_COLLECTOR_PROFILE, "scope": "ten-minute-reference-twin",
+            "limits": limits, "container_memory_bytes": REFERENCE_COLLECTOR_MEMORY_BYTES,
+            "parent_headroom_bytes": REFERENCE_COLLECTOR_PARENT_HEADROOM_BYTES}
+
+
 def add_pipeline(config, state, worker_image):
     worker = yaml.safe_load((TWIN / "worker.compose.yaml").read_text())
     collector = yaml.safe_load((TWIN / "collector.compose.yaml").read_text())
@@ -124,13 +177,7 @@ def add_pipeline(config, state, worker_image):
     bridge["user"] = f"{os.getuid()}:{os.getgid()}"
     for volume, source in zip(bridge["volumes"], (state / "capture", state / "changes.jsonl", state / "collector")):
         volume["source"] = str(source)
-    for index, argument in enumerate(bridge["command"]):
-        match = re.fullmatch(r"\$\{(LINEAGE_COLLECTOR_MAX_(?:INPUT_BYTES|EVENTS)):-([0-9]+)\}", argument)
-        if match:
-            value = os.environ.get(match[1], match[2])
-            if not value.isdecimal() or int(value) < 1:
-                raise StartupFailure("invalid_collector_limits")
-            bridge["command"][index] = value
+    config["x-lineage-collector-capacity"] = reference_collector_capacity(bridge)
     (state / "collector").mkdir(exist_ok=True, mode=0o700)
     for name in ("traces.jsonl", "logs.jsonl", "metrics.jsonl"):
         private_file(state / "capture" / name)
@@ -267,6 +314,7 @@ def startup(demo, state, *, platform=False, timeout=900, worker_image="lineage-p
         config = prepare(Path(demo).resolve(), state, deadline=deadline, full=not platform, worker_image=worker_image)
         if not platform:
             validate_full_services(config)
+            result["collectorCapacityProfile"] = config.get("x-lineage-collector-capacity")
         result["phase"] = "preflight"
         driver = command(["docker", "info", "--format", "{{.Driver}}"], deadline=deadline).stdout.strip()
         result["storageDriver"] = driver if driver in {"vfs", "overlay2", "overlayfs", "btrfs", "zfs", "fuse-overlayfs"} else "other"

@@ -20,6 +20,22 @@ services:
       - "${LINEAGE_COLLECTOR_MAX_INPUT_BYTES:-16777216}"
       - --max-events
       - "${LINEAGE_COLLECTOR_MAX_EVENTS:-4096}"
+      # Small-run defaults stay unchanged. Full-reference startup renders a
+      # separately measured, capped profile for every parser resource bound.
+      - --max-line-bytes
+      - "${LINEAGE_COLLECTOR_MAX_LINE_BYTES:-1048576}"
+      - --max-metadata-bytes
+      - "${LINEAGE_COLLECTOR_MAX_METADATA_BYTES:-8388608}"
+      - --max-memory-bytes
+      - "${LINEAGE_COLLECTOR_MAX_MEMORY_BYTES:-536870912}"
+      - --parse-timeout
+      - "${LINEAGE_COLLECTOR_PARSE_TIMEOUT:-10}"
+      - --send-timeout
+      - "${LINEAGE_COLLECTOR_SEND_TIMEOUT:-5}"
+      - --max-sends-per-cycle
+      - "${LINEAGE_COLLECTOR_MAX_SENDS_PER_CYCLE:-128}"
+      - --max-acknowledged
+      - "${LINEAGE_COLLECTOR_MAX_ACKNOWLEDGED:-100000}"
     # Match the local capture owner without making raw files world-readable.
     user: "${LINEAGE_COLLECTOR_UID:?}:${LINEAGE_COLLECTOR_GID:?}"
     networks: [lineage]
