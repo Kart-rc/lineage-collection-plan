@@ -304,6 +304,8 @@ def check(write=False):
     print(f"work packages {len(W)}: done-when lines {sum(len(w['done_when']) for w in W)}, all measurable: {not any('not measurable' in e for e in errors)}")
     print(f"visible scenarios {len(sids)} in {len({s['file'] for s in scen})} files")
     print("envelope v2 accepts " + ", ".join(f"{n} {k}s" for k, n in sorted(kinds.items())) + f"; rejects {len(invalid_examples())} of {len(invalid_examples())} invalid examples")
+    gates = sorted(os.path.basename(g)[:-3] for g in glob.glob(F("factory", "gates", "G*.md")))
+    print("gates signed: " + (", ".join(gates) if gates else "none") + "; open: " + ", ".join(g for g in ["G1", "G3"] if not any(x.startswith(g) for x in gates)))
     for n in notes:
         print(n)
     print(f"{len(errors)} errors")

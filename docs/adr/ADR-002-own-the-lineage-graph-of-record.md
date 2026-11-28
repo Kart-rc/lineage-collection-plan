@@ -2,15 +2,16 @@
 
 Nov 22, 2026 · @kart
 
-We own a thin lineage core (identity scheme, evidence log, versioned and confidence-scored edges) and adopt everything else, with vendor catalogs fed as projections, because no catalog or product we checked covers services, streams and ML, takes static CI evidence and keeps history for RCA. This is the build-vs-buy ADR in your Distinguished Engineer plan, drafted from your lineage implementation plan; edit it into your own words before it counts.
+We own a thin lineage core (identity scheme, evidence log, versioned and confidence-scored edges) and adopt everything else, with vendor catalogs fed as projections, because no catalog or product we checked covers services, streams and ML, takes static CI evidence and keeps history for RCA. This is the build-vs-buy ADR in your Distinguished Engineer plan, drafted from your lineage implementation plan. Accepted at gate G1 on 28 November 2026.
 
 ## Header
 
 - **Title:** ADR-002: Own the lineage graph of record; adopt commodity parts; vendor catalogs are projections
-- **Status:** Proposed
-- **Date:** (the day you finish)
+- **Status:** Accepted at gate G1, 28 November 2026 ([gate record](../../factory/gates/G1-2026-11-28.md))
+- **Date:** 28 November 2026
+- **Approved by:** the platform lead, approver for all four gates (D20)
 - **Deciders:** platform architecture group, data governance lead, the lineage platform lead, and the owning teams of the first slice
-- **Scope:** where lineage truth lives and which parts the platform builds versus adopts. Out of scope: which graph store (a reversible week-1 sub-decision, see section 4), contract formats, and catalog UI choice.
+- **Scope:** where lineage truth lives and which parts the platform builds versus adopts. Out of scope: which graph store (a reversible week-1 sub-decision, see section 4; decided 27 November: Neptune, D12), contract formats, and catalog UI choice.
 - **Related:** ADR-001 (open table format). The raw evidence lake in this ADR is an Iceberg table, so it inherits that decision.
 
 ## 1. Context and forces

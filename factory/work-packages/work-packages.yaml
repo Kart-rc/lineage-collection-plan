@@ -2,7 +2,7 @@
 # model and the complement repo). One source; code/spec_pack.py renders one markdown file per package and checks that
 # every requirement is served, every dependency exists, every done-when line is measurable, and every fixture exists.
 # Thresholds come from factory/parameters.yaml. Paths starting "planned:" are created by the package named after them.
-# Status: DRAFT for gate G1, 27 November 2026.
+# Status: approved at gate G1, 28 November 2026 (factory/gates/G1-2026-11-28.md). WP-00 is done.
 
 defaults:
   limits: {build_attempts: 6, wall_clock: 1 working day, cost: recorded}

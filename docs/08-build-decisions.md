@@ -9,7 +9,7 @@ The readiness review on 26 November found the build blocked on thirteen open dec
 | Status | Count | Meaning |
 | --- | --- | --- |
 | Decided on evidence | 26 |
-| Drafted for G1, approved in principle | 5 | D33 to D37: the spec pack, interfaces, parameters, corpora and the dbt fixture, approved by you on 27 November as drafts | Settled from the reference slice, a capture run or the research. Each is reversible, and the "revisit if" column says when |
+| Approved at gate G1 | 5 | D33 to D37: the spec pack, interfaces, parameters, corpora and the dbt fixture, approved by you at G1 on 28 November ([record](../factory/gates/G1-2026-11-28.md)) | Settled from the reference slice, a capture run or the research. Each is reversible, and the "revisit if" column says when |
 | Decided by you | 7 | D12, D13 and D18 to D22, answered on 27 November |
 | Still open, not blocking | 1 | Which of your data products becomes slice 2 (part of D22). Pick it during wave 1 |
 
@@ -102,7 +102,7 @@ D23 to D28 came out of the component review on 27 November ([doc 09](09-componen
 
 ## Acceptance criteria for the build
 
-You approved D33 to D37 on 27 November as drafts for gate G1; D38 records what the incident run the same day taught. They answer the review that found the components scoped but not testable by a builder: no done-when per work package, interfaces only as examples, verification still naming the old slice, three parameters undefined, and replay corpora too small for their own thresholds.
+You approved D33 to D37 as drafts on 27 November and at gate G1 on 28 November, with ADR-002; D38 records what the incident run the same day taught. They answer the review that found the components scoped but not testable by a builder: no done-when per work package, interfaces only as examples, verification still naming the old slice, three parameters undefined, and replay corpora too small for their own thresholds.
 
 | Id | Decision | Evidence | Revisit if |
 | --- | --- | --- | --- |
@@ -118,5 +118,5 @@ You approved D33 to D37 on 27 November as drafts for gate G1; D38 records what t
 - **Plan (doc 01), Phase 1:** service edges come from traces where there is no mesh (D7). The illustrative slice stays as the explanation; the reference slice in doc 07 is what gets built and tested.
 - **Architecture (doc 02):** Neptune stays as the graph (D12); OpenSearch moves to wave 5; the twin adds a local platform (D23).
 - **Build guide (doc 03):** its envelope is v1; new collectors use v2 (D6).
-- **ADR-002:** its store sub-decision is answered by D12: Neptune.
+- **ADR-002:** its store sub-decision is answered by D12: Neptune. Accepted at gate G1 on 28 November 2026.
 - **Spec (doc 06):** its slice-specific parts now describe the reference slice and its spec pack lives in `factory/` (D33). WP-12 stores an edge's condition and latent state (D30); WP-15 loads the alias table and its rules (D31); WP-41 joins flag changes through flag edges (D29); WP-42 narrows before it ranks (D32). Its open questions are answered here; its work package list gains WP-16, WP-17, WP-19 and WP-39 and re-scopes WP-13, WP-22, WP-24 and WP-26 (D28); principle 9 tracks cost instead of capping it (D21).
