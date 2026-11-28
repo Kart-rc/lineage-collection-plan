@@ -200,3 +200,16 @@ requirements:
   text: Where a model is used to read code, the system shall send only source code and schemas through the approved endpoint, and shall record
     the model, prompt version and output hash with the evidence.
   verified_by: Egress allow-list test; evidence field check
+- id: XC-7
+  capability: build-collection
+  text: When a repository's default branch holds a valid `.lineage.yaml` and its CI runs the `lineage-ci` step, the system shall treat the repository
+    as onboarded, complete a first scan of its default branch within 1 hour, and scan every later pull request and merge. If the file is invalid,
+    then the step shall name the failing field and still pass the build.
+  verified_by: Onboarding scenarios on the demo monorepo and the dbt project; invalid onboarding fixtures
+  added: G1 amendment 1 (D39)
+- id: XC-8
+  capability: build-collection
+  text: Every extractor shall implement the extractor plugin contract and pass its conformance suite before the runner loads it, so that adding
+    a technology requires no change to the runner.
+  verified_by: Plugin conformance suite; the stub and dbt extractors loaded by an unchanged runner
+  added: G1 amendment 1 (D39)

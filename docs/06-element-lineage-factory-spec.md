@@ -200,6 +200,7 @@ The full assessment, with sources and evidence grades, is in [doc 05](05-vendor-
 | Oracle | The golden graph, the scenario corpus and the harness that scores against them |
 | Twin | The reference system itself, the demo running under Docker with the capture add-on, plus a separate lineage platform beside it, where agents build and test (D13, D23) |
 | Work package | One unit of factory work with its own requirements, interfaces, scenarios and oracle |
+| Onboarded repository | A repository whose default branch holds a valid `.lineage.yaml` and whose CI runs the `lineage-ci` step (XC-7, D39). IA-1 and the PR bot apply only to onboarded repositories |
 
 ## Requirements
 
@@ -270,6 +271,8 @@ Requirements use EARS phrasing so that agents and the harness can read them the 
 | XC-4 | The system shall accept and emit OpenLineage events, including the column lineage facet, without loss of dependency class and subtype. | Round-trip test |
 | XC-5 | The system shall show elements tagged as personal data only to roles allowed to see them. | Access-control scenario |
 | XC-6 | Where a model is used to read code, the system shall send only source code and schemas through the approved endpoint, and shall record the model, prompt version and output hash with the evidence. | Egress allow-list test; evidence field check |
+| XC-7 | When a repository's default branch holds a valid `.lineage.yaml` and its CI runs the `lineage-ci` step, the system shall treat the repository as onboarded, complete a first scan of its default branch within 1 hour, and scan every later pull request and merge. If the file is invalid, then the step shall name the failing field and still pass the build. | Onboarding scenarios on the demo monorepo and the dbt project; invalid onboarding fixtures |
+| XC-8 | Every extractor shall implement the extractor plugin contract and pass its conformance suite before the runner loads it, so that adding a technology requires no change to the runner. | Plugin conformance suite; the stub and dbt extractors loaded by an unchanged runner |
 
 ## Design
 
@@ -442,6 +445,8 @@ The incident flow answers two questions when a check fails: what is the most lik
 | `lineage.changes` topic | Catalog projections, notifications, RCA | One event per material edge change |
 | `GET /impact`, `GET /upstream`, `GET /diff`, `GET /explain` | PR bot, RCA service, UI, coding agents | All take `as_of` and `min_confidence`; `/explain` returns evidence for an edge |
 | OpenLineage in and out | Runtime integrations; catalogs | Column lineage facet preserved both ways (XC-4) |
+| `lineage-ci` CLI and `.lineage.yaml` | Every onboarded repository's CI | One step per repository, any CI system; fails open (XC-7, IA-6). Contract in `factory/specs/build-collection/interfaces/` |
+| Extractor plugin contract | Every build-time extractor | `detect`, `inputs`, `extract`; deterministic, no network, never raises; loaded only after its conformance suite passes (XC-8) |
 | Agent tool server | Coding agents inside and outside the factory | The same four queries as tools, so an agent can ask what a rename breaks before it opens a PR (IA-9) |
 
 ### Non-functional requirements
@@ -575,6 +580,7 @@ Each work package is sized so that one agent can finish it in one sandbox agains
 | WP-15 | Identity resolver at element level, loading `aliases.json` and its rules, never aliasing an IP (D31) | O1 | Alias fixtures; every name in a capture resolves | 2 |
 | WP-16 | Daily reconciler and owner queues (D28) | O1, O2 | Static-only, runtime-only and disagreeing edges from the capture run | 2 |
 | WP-17 | Owner and tier overlay from the catalog file and service criticality (D24) | O1 | Every golden node owned and tiered | 2 |
+| WP-18 | `lineage-ci` runner, extractor plugin contract and repository onboarding (D39) | O1, O2, O3 | Onboarding fixtures; unit manifests; fail-open scenarios; plugin conformance with a stub extractor | 2 |
 | WP-19 | Service edge builder: trace walk, topic joins, ingress logs (D7, D8) | O1, O2 | 13 upstream-asserted edges; golden service edges | 2 |
 | **Wave 2: element extractors, built in parallel** | | | | |
 | WP-20 | dbt and SQL extractor | O1 | Golden hop; metamorphic tests | 3 |
@@ -702,7 +708,7 @@ No calendar compression is promised. The exit gates depend on owner sessions and
 | O2. Incremental | IN-1 to IN-10 | WP-12 to WP-14, WP-21, WP-26, WP-27, WP-30 | Invalidation, removal, as-of and diff scenarios; freshness probe | Phase 4 |
 | O3. Change impact | IA-1 to IA-9 | WP-31 to WP-34, WP-51 | Change replay; classification fixtures; gate scenarios | Phases 3 and 5 |
 | O4. Detect and resolve | IR-1 to IR-9 | WP-40 to WP-44 | Incident replay; plan snapshots; MTTD and MTTR series | Phase 5 |
-| Cross-cutting | XC-1 to XC-6 | WP-11, WP-27, WP-50 to WP-53 | Trace, round-trip, access and fault scenarios | All |
+| Cross-cutting | XC-1 to XC-8 | WP-11, WP-18, WP-27, WP-50 to WP-53 | Trace, round-trip, access and fault scenarios | All |
 
 ## Reference run
 
@@ -730,7 +736,7 @@ Two artefacts carry most of the human effort in the factory. One of each is writ
 
 ### A work package
 
-All 39 are written out in [`factory/work-packages/`](../factory/work-packages/README.md), rendered from one YAML source that `code/spec_pack.py` checks: every requirement served, every dependency real, every "done when" line measurable, every fixture present. This is WP-20 as an agent receives it:
+All 40 are written out in [`factory/work-packages/`](../factory/work-packages/README.md), rendered from one YAML source that `code/spec_pack.py` checks: every requirement served, every dependency real, every "done when" line measurable, every fixture present. This is WP-20 as an agent receives it:
 
 ```markdown
 # WP-20: dbt and SQL extractor
@@ -761,7 +767,7 @@ Read a dbt project at a commit and emit envelope v2 evidence for every model, wi
 
 ### A scenario
 
-The visible scenarios are in `factory/specs/*/scenarios/visible/`, 58 of them, each tagged with the requirements it traces. This one is the reference slice's version of the plan's PR #482:
+The visible scenarios are in `factory/specs/*/scenarios/visible/`, 64 of them, each tagged with the requirements it traces. This one is the reference slice's version of the plan's PR #482:
 
 ```gherkin
 @S-IA-01 @IA-2 @IA-3 @IA-4 @IA-5 @IA-8

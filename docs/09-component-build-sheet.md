@@ -64,7 +64,7 @@ What changed to get there:
 | --- | --- | --- | --- | --- |
 | Service edge builder (was: gateway log edge builder) | Trace walk for `CALLS`; producer and consumer spans joined on topic name for `PRODUCES` and `CONSUMES` (D7, D8); Envoy logs for ingress, by upstream cluster. Calls to flagd are scored as configuration reads (D29). Prototype: `code/observed_edges.py` | WP-19 | 13 upstream-asserted edges at 100% recall; golden service edges. First run: precision 1.00, recall 0.90 | Ready |
 | Registry crawlers | Protobuf descriptors to topic and call fields; DDL to columns; `catalog.yaml` to `OWNS` at weight 0.50 and tiers; also writes resolver aliases | WP-17, WP-21 | Node completeness; alias coverage of every name in the capture | Ready |
-| CI scanners | Go assembly in checkout (18 edges), C# ORM writes in accounting (17), PyFlink code and the declared feature registry in the complement, Feast and MLflow configs, dbt on jaffle-shop plus the thin model (D10) | WP-20, WP-22, WP-23, WP-24, WP-25 | Golden field edges per unit; metamorphic tests | Ready |
+| CI scanners | Run by one `lineage-ci` step per onboarded repository, through the extractor plugin contract (D39). Extractors: Go assembly in checkout (18 edges), C# ORM writes in accounting (17), PyFlink code and the declared feature registry in the complement, Feast and MLflow configs, dbt on jaffle-shop plus the thin model (D10) | WP-18, WP-20, WP-22, WP-23, WP-24, WP-25 | Golden field edges per unit; metamorphic tests | Ready |
 | Runtime normalizer | Rolls spans up to one evidence event per edge per minute; maps Feast OpenLineage events, keeping the column facet | WP-19, WP-27 | Round trip of OpenLineage; evidence counts per edge | Ready |
 | Access history puller | Database client spans first: they carry the service and the full statement. Then `pg_stat_statements` for clients without spans. SQLGlot's Postgres dialect splits batched statements and emits `READS` and `WRITES` with columns. Never attributes by login, because accounting and product-catalog share one (D27). Adapters for Snowflake and Databricks follow for slice 2 | WP-26 | Accounting writes three tables and the 17 golden columns; product-catalog reads one table. First run: all confirmed | Ready |
 | Evidence library | Envelope v2 JSON Schema and emit function, shared by every collector | WP-11 | Schema tests; v1 compatibility | Ready |
@@ -175,7 +175,7 @@ Unchanged from doc 06, with the new work packages slotted in:
 | Wave | Work packages |
 | --- | --- |
 | 0 Oracle and twin | WP-00 to WP-04, with the twin now runnable here and the fixtures in place |
-| 1 Core | WP-10 to WP-17, WP-19 |
+| 1 Core | WP-10 to WP-19 (WP-18: the `lineage-ci` runner and repository onboarding) |
 | 2 Extractors | WP-20 to WP-29 |
 | 3 Incremental and impact | WP-30 to WP-34 |
 | 4 Detect and resolve | WP-39 to WP-44 |

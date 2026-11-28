@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lineage.internal/schemas/unit-manifest.schema.json",
+  "title": "Unit manifest: what one lineage-ci scan did",
+  "description": "Written by the runner after every scan (WP-18). It lists every extraction unit, its hashes and whether it was re-extracted. It is how IN-1 (only changed units) and the IA-1 time budget are checked, and it goes into the run record.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["repository", "commit", "stage", "started", "finished", "runner", "units", "outcome"],
+  "properties": {
+    "repository": {"type": "string"},
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{7,40}$"},
+    "base": {"type": ["string", "null"], "pattern": "^[0-9a-f]{7,40}$"},
+    "stage": {"enum": ["proposed", "merged"]},
+    "pr": {"type": ["integer", "null"], "minimum": 1},
+    "started": {"type": "string", "format": "date-time"},
+    "finished": {"type": "string", "format": "date-time"},
+    "runner": {"type": "string", "pattern": "^lineage-ci@[0-9]+\\.[0-9]+\\.[0-9]+"},
+    "outcome": {"enum": ["emitted", "emitted_partial", "unavailable"], "description": "unavailable: the evidence topic could not be reached; the build still passes (fail open)"},
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["urn", "extractor", "extractor_version", "content_hash", "input_schema_hash", "status"],
+        "properties": {
+          "urn": {"type": "string", "pattern": "^unit://\\S+$"},
+          "extractor": {"type": "string"},
+          "extractor_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+"},
+          "content_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{8,64}$"},
+          "input_schema_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{8,64}$"},
+          "status": {"enum": ["extracted", "unchanged", "opaque", "failed", "over_budget"]},
+          "events": {"type": "integer", "minimum": 0},
+          "duration_ms": {"type": "integer", "minimum": 0},
+          "reason": {"type": "string"}
+        }
+      }
+    }
+  }
+}

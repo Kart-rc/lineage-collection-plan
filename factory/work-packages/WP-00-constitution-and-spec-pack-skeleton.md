@@ -27,7 +27,7 @@ The factory folder itself - constitution, parameters, requirements, interfaces, 
 ## Done when
 
 - `python3 code/spec_pack.py --check` reports 0 errors
-- 41 of 41 requirements served by a work package and traced by a visible scenario
+- 43 of 43 requirements served by a work package and traced by a visible scenario
 - Gate G1 signed by the approver (D20)
 - Every visible scenario traced to the requirements above passes
 - Holdout pass rate at or above the family rate in `factory/parameters.yaml`, where the family has holdout scenarios

@@ -36,4 +36,4 @@ Operating the platform - health, freshness, accuracy published weekly, fail-open
 ## Requirements
 
 - **XC-3**: The system shall never block or slow a producer. All emission shall be asynchronous and droppable. Scenarios: S-BL-08, S-XC-03.
-- **IA-6**: If the lineage platform is unavailable, then the check shall pass with a "lineage check unavailable" comment and raise an alert. Scenarios: S-IA-08.
+- **IA-6**: If the lineage platform is unavailable, then the check shall pass with a "lineage check unavailable" comment and raise an alert. Scenarios: S-BC-04, S-IA-08.

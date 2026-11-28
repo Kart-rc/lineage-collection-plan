@@ -1,0 +1,8 @@
+# .lineage.yaml for the thin dbt model (D37), which lives in this repository.
+version: 1
+repository: lineage-collection-plan
+environment: otel-demo
+owner: team-finance-data
+projects:
+  - {kind: dbt, path: fixtures/otel-demo-3.1.0/dbt, target: twin, artifact: fixtures/otel-demo-3.1.0/dbt/target/manifest.json}
+build: {reuse_artifacts: true, max_minutes: 5}

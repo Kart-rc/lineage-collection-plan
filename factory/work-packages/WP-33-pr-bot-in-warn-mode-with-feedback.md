@@ -36,7 +36,7 @@ Post the impact report on pull requests against the demo fork; "this is wrong" p
 
 ## Requirements
 
-- **IA-1**: When a pull request opens or updates in an onboarded repository, the system shall post an impact report within 5 minutes at the 95th percentile. Scenarios: S-IA-07.
-- **IA-6**: If the lineage platform is unavailable, then the check shall pass with a "lineage check unavailable" comment and raise an alert. Scenarios: S-IA-08.
+- **IA-1**: When a pull request opens or updates in an onboarded repository, the system shall post an impact report within 5 minutes at the 95th percentile. Scenarios: S-BC-03, S-IA-07.
+- **IA-6**: If the lineage platform is unavailable, then the check shall pass with a "lineage check unavailable" comment and raise an alert. Scenarios: S-BC-04, S-IA-08.
 - **IA-7**: The report shall offer a "this is wrong" action per row, and a disputed edge shall drop to candidate until reviewed. Scenarios: S-IA-09.
 - **IA-8**: On the change replay corpus the report shall list at least 8 of every 10 consumers that actually broke. Scenarios: S-IA-01, S-IA-06.

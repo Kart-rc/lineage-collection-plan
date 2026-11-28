@@ -39,4 +39,4 @@ Enforce the contracts and the must-not-flow rules, over active and latent edges.
 ## Requirements
 
 - **IA-5**: While the gate is in block mode, the system shall fail the check only when a tier 1 contract element with confirmed downstream readers is removed, renamed or retyped without a version bump or sign-off from those readers' owners. Scenarios: S-XC-07, S-XC-08, S-IA-01, S-IA-06.
-- **IA-6**: If the lineage platform is unavailable, then the check shall pass with a "lineage check unavailable" comment and raise an alert. Scenarios: S-IA-08.
+- **IA-6**: If the lineage platform is unavailable, then the check shall pass with a "lineage check unavailable" comment and raise an alert. Scenarios: S-BC-04, S-IA-08.

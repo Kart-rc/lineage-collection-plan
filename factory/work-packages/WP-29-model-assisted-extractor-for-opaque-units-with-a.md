@@ -3,7 +3,7 @@
 Wave 2 · family extractors · start level 2 · limits: 6 build attempts, 1 working day, cost recorded
 
 **Serves:** BL-4, XC-6  
-**Depends on:** WP-11, WP-23
+**Depends on:** WP-11, WP-23, WP-18
 
 ## Scope
 
@@ -37,5 +37,5 @@ Candidate evidence for units no rule can read (the Ruby email service, templates
 
 ## Requirements
 
-- **BL-4**: If an extractor cannot resolve an element mapping, then it shall emit a dataset-level edge marked opaque with a reason code, and shall not drop the unit. Scenarios: S-BL-04.
+- **BL-4**: If an extractor cannot resolve an element mapping, then it shall emit a dataset-level edge marked opaque with a reason code, and shall not drop the unit. Scenarios: S-BL-04, S-BC-06.
 - **XC-6**: Where a model is used to read code, the system shall send only source code and schemas through the approved endpoint, and shall record the model, prompt version and output hash with the evidence. Scenarios: S-XC-06.

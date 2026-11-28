@@ -298,6 +298,23 @@ def check(write=False):
     ce = changes_example()
     for err in VC.iter_errors(ce):
         errors.append(f"lineage.changes rejects its example: {err.message[:160]}")
+    # build collection: onboarding file and unit manifest (XC-7, XC-8, D39)
+    BC = F("factory", "specs", "build-collection", "interfaces")
+    if os.path.exists(os.path.join(BC, "lineage-repo.schema.json")):
+        repo_schema = json.load(open(os.path.join(BC, "lineage-repo.schema.json"))); jsonschema.Draft202012Validator.check_schema(repo_schema)
+        jsonschema.Draft202012Validator.check_schema(json.load(open(os.path.join(BC, "unit-manifest.schema.json"))))
+        VR = jsonschema.Draft202012Validator(repo_schema)
+        good_on = sorted(glob.glob(os.path.join(FIX, "onboarding", "*.lineage.yaml")))
+        bad_on = sorted(glob.glob(os.path.join(FIX, "onboarding", "invalid", "*.lineage.yaml")))
+        for f in good_on:
+            for err in VR.iter_errors(yaml.safe_load(open(f))):
+                errors.append(f"onboarding example rejected: {os.path.basename(f)}: {err.message[:120]}")
+        for f in bad_on:
+            if VR.is_valid(yaml.safe_load(open(f))):
+                errors.append(f"invalid onboarding file accepted: {os.path.basename(f)}")
+        if not os.path.exists(os.path.join(BC, "extractor-plugin.md")):
+            errors.append("extractor plugin contract missing")
+        notes.append(f"onboarding: {len(good_on)} examples valid, {len(bad_on)} invalid files checked")
     api = yaml.safe_load(open(OPENAPI))
     for p in ["/impact", "/upstream", "/diff", "/explain"]:
         if p not in api.get("paths", {}):
@@ -327,6 +344,9 @@ def check(write=False):
     print(f"golden nodes {len(nodes)}: {len(nodes) - len(unowned)} with an owner and a tier")
     print("envelope v2 accepts " + ", ".join(f"{n} {k}s" for k, n in sorted(kinds.items())) + f"; rejects {len(invalid_examples())} of {len(invalid_examples())} invalid examples")
     gates = sorted(os.path.basename(g)[:-3] for g in glob.glob(F("factory", "gates", "G*.md")))
+    proposed = sorted(os.path.basename(g)[:-3] for g in glob.glob(F("factory", "gates", "proposed", "*.md")))
+    if proposed:
+        print("proposed, awaiting approval: " + ", ".join(proposed))
     print("gates signed: " + (", ".join(gates) if gates else "none") + "; open: " + (", ".join(g for g in ["G1", "G3"] if not any(x.startswith(g) for x in gates)) or "none"))
     for n in notes:
         print(n)

@@ -1,0 +1,7 @@
+# invalid: a PR scan may not take more than the 5-minute report budget (IA-1)
+version: 1
+repository: opentelemetry-demo
+environment: otel-demo
+owner: team-platform
+services: [{name: checkout, path: src/checkout}]
+build: {max_minutes: 12}

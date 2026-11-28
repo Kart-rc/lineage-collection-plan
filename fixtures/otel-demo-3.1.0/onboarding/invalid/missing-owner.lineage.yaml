@@ -1,0 +1,5 @@
+# invalid: no owner, so nobody would receive the reconciliation queue
+version: 1
+repository: opentelemetry-demo
+environment: otel-demo
+services: [{name: checkout, path: src/checkout}]

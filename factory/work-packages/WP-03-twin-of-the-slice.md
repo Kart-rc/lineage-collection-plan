@@ -42,4 +42,4 @@ One command starts the demo with the capture add-on and the separate lineage pla
 ## Requirements
 
 - **IN-10**: The system shall make an edge visible within 15 minutes of the merge or run that produced it, at the 95th percentile. Scenarios: S-IN-11.
-- **IA-1**: When a pull request opens or updates in an onboarded repository, the system shall post an impact report within 5 minutes at the 95th percentile. Scenarios: S-IA-07.
+- **IA-1**: When a pull request opens or updates in an onboarded repository, the system shall post an impact report within 5 minutes at the 95th percentile. Scenarios: S-BC-03, S-IA-07.
