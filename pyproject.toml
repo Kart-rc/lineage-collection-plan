@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools==80.9.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lineage-collection"
+version = "0.1.0"
+description = "Reference lineage collection platform and evaluation tools"
+requires-python = ">=3.12"
+dependencies = [
+  "PyYAML==6.0.3",
+  "jsonschema==4.26.0",
+  "sqlglot==30.35.0",
+  "neo4j==5.28.2",
+  "confluent-kafka==2.12.2",
+  "pyarrow==22.0.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest==9.0.2", "hypothesis==6.148.7", "openapi-spec-validator==0.9.0", "setuptools==80.9.0", "wheel==0.45.1"]
+
+[project.scripts]
+lineage-ci = "lineage.ci:main"
+lineage-eval = "lineage.evaluation:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: requires running infrastructure", "neptune: requires an explicitly configured stage Neptune"]

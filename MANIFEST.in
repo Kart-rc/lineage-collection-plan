@@ -1,0 +1,7 @@
+include factory/parameters.yaml
+recursive-include factory/specs *.json *.yaml *.md *.feature
+recursive-include factory/work-packages *.yaml *.md
+recursive-include factory/gates *.md
+recursive-include fixtures/otel-demo-3.1.0 *.json *.jsonl *.yaml *.yml *.sql *.md *.example *.sh
+include code/observed_edges.py code/run_checks.py code/reference_slice.py code/spec_pack.py
+global-exclude __pycache__ *.pyc
