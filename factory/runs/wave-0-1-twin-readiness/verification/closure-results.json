@@ -1,0 +1,47 @@
+{
+  "candidate": 6,
+  "startup": {
+    "over_900": {
+      "status": "failed",
+      "exit_code": 1,
+      "expectedServices": 28,
+      "allContainersHealthy": false
+    },
+    "missing_accounting": {
+      "status": "failed",
+      "exit_code": 1,
+      "expectedServices": 28,
+      "allContainersHealthy": false
+    }
+  },
+  "load_activity": {
+    "idle": {
+      "status": "blocked",
+      "duration_seconds": 600.0,
+      "queries": 22,
+      "all_containers_healthy": true,
+      "traffic_holds": false
+    },
+    "flat_counter": {
+      "status": "blocked",
+      "duration_seconds": 600.0,
+      "queries": 22,
+      "all_containers_healthy": true,
+      "traffic_holds": false
+    },
+    "active": {
+      "status": "passed",
+      "duration_seconds": 600.0,
+      "queries": 22,
+      "all_containers_healthy": true,
+      "traffic_holds": true
+    }
+  },
+  "workflow_cleanup_mocked_calls": {
+    "old_pair": 0,
+    "missing_token": 0,
+    "unowned_report": 0,
+    "current_pair": 1
+  },
+  "actual_infrastructure_commands_executed_in_negative_probes": 0
+}

@@ -1,0 +1,117 @@
+{
+  "verdict": "PASS_WITH_RISK",
+  "scope": "Candidate6 twin readiness and one-shot feasibility pilot tooling only",
+  "candidate": 6,
+  "maximum_candidates": 6,
+  "budget_reset": false,
+  "open_findings": 0,
+  "findings": [
+    {
+      "id": "TR-1",
+      "severity": "P1",
+      "title": "Startup success can exceed the approved 900-second limit",
+      "probe": "startup-boundary-probe.py",
+      "observed": {
+        "exit_code": 0,
+        "status": "passed",
+        "elapsedSeconds": 901.0,
+        "timeoutSeconds": 1800
+      },
+      "status": "closed",
+      "closed_in_candidate": 6
+    },
+    {
+      "id": "TR-2",
+      "severity": "P1",
+      "title": "The rendered configuration defines the expected set and permits 27-service success",
+      "probe": "startup-boundary-probe.py",
+      "observed": {
+        "exit_code": 0,
+        "status": "passed",
+        "expectedServices": 27,
+        "allContainersHealthy": true
+      },
+      "status": "closed",
+      "closed_in_candidate": 6
+    },
+    {
+      "id": "TR-3",
+      "severity": "P1",
+      "title": "Waiting 600 seconds does not establish actual load activity",
+      "probe": "idle-load-probe.py",
+      "observed": {
+        "pilot_status": "passed",
+        "measured_wait_seconds": 600.0,
+        "load_activity_queries": 0,
+        "load_stats_measured": false
+      },
+      "status": "closed",
+      "closed_in_candidate": 6
+    },
+    {
+      "id": "TR-4",
+      "severity": "P1",
+      "title": "Cleanup accepts a stale ownership/report pair from a previous invocation",
+      "probe": "stale-cleanup-probe.py",
+      "observed": {
+        "new_attempt_owned": false,
+        "new_attempt_status": "blocked",
+        "commands_before_failure": 0,
+        "new_attempt_run_id_differs": true,
+        "workflow_cleanup_would_accept_stale_pair": true
+      },
+      "status": "closed",
+      "closed_in_candidate": 6
+    }
+  ],
+  "checks": [
+    {
+      "artifact": "candidate5-startup-smoke-tests.xml",
+      "tests": 45,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "artifact": "candidate5-pilot-tests.xml",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "artifact": "candidate6-startup-smoke-tests.xml",
+      "tests": 64,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "artifact": "candidate6-pilot-tests.xml",
+      "tests": 34,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "go_pass_records": 44,
+  "go_failures": 0,
+  "oracle_pins_matching": 8,
+  "full_wp03_acceptance": "BLOCKED",
+  "full_wave_completion": "BLOCKED",
+  "real_full_start_or_load_performed_by_verifier": false,
+  "shared_infrastructure_changed_by_verifier": false,
+  "images_pulled_by_verifier": false,
+  "source_repaired_by_verifier": false,
+  "private_holdout_accessed_or_authored": false,
+  "external_messages_or_approvals_by_verifier": false,
+  "remaining_evidence": [
+    "Real hosted/reference feasibility execution",
+    "Three successful cold-start trials within900seconds",
+    "At least600seconds measured live load with actual activity",
+    "Full smoke/capture and remaining work-package evidence",
+    "Human protected merge and G2/G4"
+  ],
+  "source_manifest_sha256": "bcdaa2737ac6aa6301b20b2da707848eaa80171da5fe58248b00b3fae28e4fe4",
+  "review_sha256": "869e02a64e5143d04f24347f7e9408eef9bb21dc28d1666f1299e5f8b7b046d0"
+}

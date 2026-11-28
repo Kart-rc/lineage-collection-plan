@@ -1,0 +1,14 @@
+{
+  "scope": "read-only aggregate query validation on existing local worker; no new reference load",
+  "exit_code": 0,
+  "shared_infrastructure_mutated": false,
+  "query_validated": true,
+  "counts": {
+    "accepted_receipts": 1,
+    "outbox_total": 1,
+    "outbox_sent": 1,
+    "graph_revisions": 1,
+    "graph_nodes": 2,
+    "graph_versions": 1
+  }
+}

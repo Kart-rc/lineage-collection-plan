@@ -1,0 +1,28 @@
+{
+  "candidate": 6,
+  "scope": "local readiness checks; no full reference workload execution",
+  "tests": 109,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 3.029,
+  "live_integrations_deselected": 3,
+  "spec_pack_errors": 0,
+  "g3_pins_matched": 8,
+  "go_tests_and_fuzz": "checks/probe-verification.json",
+  "actual_readonly_render": "checks/actual-config.json",
+  "read_only_flow_query": "checks/flow-query.json",
+  "workflow_yaml_and_shell_parse": true,
+  "token_usage": null,
+  "token_usage_note": "Not exposed by execution interface",
+  "source_sha256": {
+    "twin/start.py": "096da1f674b101b376588b5f686628d4b3ed56c2094d6a5c2e6bd74b333f34bc",
+    "twin/pilot.py": "8d6cc91244b4cd0c358003abfea246f8a90f72f078bbe13cfdbe5631d96a0e13",
+    "twin/smoke.py": "116f71fa21bee1291468de5ed882f92c40bd6f5b7c1b1fb4015d15503411c299",
+    ".github/workflows/full-reference-pilot.yml": "fd98922a44843ca8b3578179366773f79aee91a5c82df944726c8ebbd2cefdf2"
+  },
+  "setup_corrections": [
+    "Parent spec checker first invoked from probe directory and then correctly run from repository root.",
+    "Read-only render inspection used an incorrect helper name after rendering; corrected inspection used the already-rendered configuration without rerunning or starting services."
+  ]
+}
