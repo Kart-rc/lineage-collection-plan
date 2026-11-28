@@ -48,3 +48,18 @@ Waves 0 and 1 run at level 2: a person reads every change. Extractors start at l
 ## Gates and who approves
 
 You approve all four gates until domain teams join for slice 2 (D20): G1 spec, G2 change, G3 oracle, G4 release.
+
+## Release gate (G4)
+
+**Proposed in G1 amendment 2 (D40), not yet approved.** The numbers are in `parameters.yaml` under `release_gate`; each record follows [`gates/templates/G4-release.md`](gates/templates/G4-release.md).
+
+1. **Every release is gated.** A wave is available to teams once the release that holds its last work package passes.
+2. **Floor.** Every metric the release carries meets its bar in `parameters.yaml` and in its work package's done-when.
+3. **No lost case.** On the recorded replays, which are deterministic, the release fails no case that the last approved release passed. Both are scored against the oracle pinned by the latest G3 record. A case is a golden edge, a change or an incident. The approver may waive a lost case only by naming it and the reason in the record, and never below the floor.
+4. **Hard zeros, with no waiver:** must-not-flow violations, payload values stored, and fault scenarios in which a producer or a merge was blocked.
+5. **Timings are measured, not compared.** On a fresh twin run, each p95 the release carries (IA-1, IN-10, IR-1, XC-7) meets its bar.
+6. **Holdout or say so.** IA-8 and IR-5 are declared held only with holdout evidence. Until the holdout exists (WP-02), the record says "visible only" and those two bars are not declared held.
+7. **Replay source.** Until slice 2: the recorded twin captures and corpora, plus one fresh twin run of the release. The record states that this cannot catch a difference between the twin and production. From slice 2, one day of production evidence is added.
+8. **First release.** With no approved release to compare against, rule 3 is skipped and the release becomes the baseline.
+9. **A held release changes nothing for teams.** The platform stays on the last approved release. Failing categories go back to the builder (station 4), and a difference between the twin and production adds a twin fixture.
+10. **The record pins what was approved:** the release commit, the SHA-256 of the accuracy report and of every G3-pinned oracle file, and the approver (D20).

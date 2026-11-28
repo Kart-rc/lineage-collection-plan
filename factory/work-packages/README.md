@@ -8,7 +8,7 @@ Rendered from `work-packages.yaml` by `python3 code/spec_pack.py --write`. Edit 
 | [WP-01](WP-01-golden-graph-at-element-level-as-fixtures.md) | Golden graph at element level, as fixtures | 0 | people | BL-1, BL-6 | WP-00 | 3 |
 | [WP-02](WP-02-change-and-incident-replay-corpora-visible-and-h.md) | Change and incident replay corpora, visible and holdout split | 0 | people | IA-8, IR-5 | WP-01 | 3 |
 | [WP-03](WP-03-twin-of-the-slice.md) | Twin of the slice | 0 | 2 | IN-10, IA-1 | WP-00 | 3 |
-| [WP-04](WP-04-scoring-harness-lineage-eval.md) | Scoring harness lineage-eval | 0 | 2 | BL-6, BL-7, IA-8, IR-5 | WP-01, WP-02 | 4 |
+| [WP-04](WP-04-scoring-harness-lineage-eval.md) | Scoring harness lineage-eval | 0 | 2 | BL-6, BL-7, IA-8, IR-5 | WP-01, WP-02 | 7 |
 | [WP-10](WP-10-urn-library-with-nested-field-paths.md) | URN library with nested field paths | 1 | 2 | BL-1 | WP-00 | 2 |
 | [WP-11](WP-11-envelope-v2-schema-and-emit-library.md) | Envelope v2 schema and emit library | 1 | 2 | BL-2, BL-4, XC-1, XC-2, XC-3 | WP-10 | 3 |
 | [WP-12](WP-12-merge-and-scorer-with-unit-owned-static-evidence.md) | Merge and scorer with unit-owned static evidence; conditional edges with a latent state | 1 | 2 | BL-5, IN-2, IN-8, IN-9, IA-7, XC-2 | WP-11 | 4 |

@@ -4,13 +4,16 @@
     python3 code/spec_pack.py --write     # render work package and requirement pages, write schema examples, then check
 
 What it checks:
-  requirements   41 unique IDs; each served by at least one work package and traced by at least one visible scenario
-  work packages  39 unique IDs; dependencies exist, are acyclic and not in a later wave; every requirement served exists;
+  requirements   43 unique IDs; each served by at least one work package and traced by at least one visible scenario
+  work packages  40 unique IDs; dependencies exist, are acyclic and not in a later wave; every requirement served exists;
                  every done-when line is measurable (has a number, a percentage or a named sign-off); fixtures exist
   scenarios      unique scenario IDs; every requirement tag exists; every fixture path named in a step exists
   interfaces     envelope v2 and lineage.changes are valid JSON Schema; the OpenAPI document parses and has the four
                  queries; every golden edge, check result and change event from the run converts to a valid envelope;
                  the deliberately invalid examples are rejected
+  build          the onboarding examples validate against lineage-repo.schema.json; the invalid ones are rejected
+  release gate   parameters.yaml release_gate has every key, its hard zeros are 0 and its requirement IDs exist; the
+                 G4 template and every G4 record have the 11 required sections (D40)
 """
 import glob, hashlib, json, os, re, sys
 from collections import defaultdict
@@ -28,6 +31,8 @@ OPENAPI = F("factory", "specs", "query-api", "interfaces", "openapi.yaml")
 EXAMPLES = F("factory", "specs", "evidence", "examples")
 WEIGHTS = yaml.safe_load(open(F("factory", "parameters.yaml")))["evidence"]["weights"]
 MEASURABLE = re.compile(r"\d|signed|sign the|sign it", re.I)
+G4_SECTIONS = ["Decision", "Release", "Oracle", "Replay", "Floor", "Lost cases", "Hard zeros", "Timings", "Holdout",
+               "Accuracy report", "Service levels declared held"]
 
 
 # ---------------------------------------------------------------- loading
@@ -315,6 +320,31 @@ def check(write=False):
         if not os.path.exists(os.path.join(BC, "extractor-plugin.md")):
             errors.append("extractor plugin contract missing")
         notes.append(f"onboarding: {len(good_on)} examples valid, {len(bad_on)} invalid files checked")
+    # release gate G4 (D40): the numbers, the record template, and every G4 record complete
+    rg = yaml.safe_load(open(F("factory", "parameters.yaml"))).get("release_gate")
+    if rg is not None:
+        for k in ["unit", "baseline", "first_release", "replay", "accuracy", "timings", "hard_zero", "holdout_required_for", "applies_from"]:
+            if k not in rg:
+                errors.append(f"release_gate is missing {k}")
+        if (rg.get("accuracy") or {}).get("cases_lost_allowed") is None:
+            errors.append("release_gate.accuracy has no cases_lost_allowed")
+        for k, v in (rg.get("hard_zero") or {}).items():
+            if v != 0:
+                errors.append(f"release_gate hard zero {k} is {v}; a hard zero must be 0")
+        for r in list(rg.get("holdout_required_for") or []) + list((rg.get("timings") or {}).get("requirements") or []):
+            if r not in rid:
+                errors.append(f"release_gate names unknown requirement {r}")
+        tpl = F("factory", "gates", "templates", "G4-release.md")
+        records = sorted(glob.glob(F("factory", "gates", "G4-*.md")))
+        if not os.path.exists(tpl):
+            errors.append("G4 record template factory/gates/templates/G4-release.md is missing")
+        for path in ([tpl] if os.path.exists(tpl) else []) + records:
+            heads = {m.strip() for m in re.findall(r"^## (.+)$", open(path, encoding="utf-8").read(), re.M)}
+            for h in G4_SECTIONS:
+                if h not in heads:
+                    errors.append(f"{os.path.relpath(path, ROOT)} lacks the section '{h}'")
+        notes.append(f"release gate: {len(rg['hard_zero'])} hard zeros, {len(rg['timings']['requirements'])} timed requirements, "
+                     f"template with {len(G4_SECTIONS)} required sections; G4 records: {len(records) or 'none yet'}")
     api = yaml.safe_load(open(OPENAPI))
     for p in ["/impact", "/upstream", "/diff", "/explain"]:
         if p not in api.get("paths", {}):
