@@ -1,0 +1,5 @@
+# invalid: no services, schemas or projects
+version: 1
+repository: empty-repo
+environment: otel-demo
+owner: team-platform

@@ -17,19 +17,20 @@ Rendered from `work-packages.yaml` by `python3 code/spec_pack.py --write`. Edit 
 | [WP-15](WP-15-identity-resolver-at-element-level-never-aliasin.md) | Identity resolver at element level, never aliasing an IP | 1 | 2 | BL-1 | WP-10 | 2 |
 | [WP-16](WP-16-daily-reconciler-and-owner-queues.md) | Daily reconciler and owner queues | 1 | 2 | IA-7 | WP-12, WP-17 | 2 |
 | [WP-17](WP-17-owner-and-tier-overlay-from-the-catalog-file-and.md) | Owner and tier overlay from the catalog file and service criticality | 1 | 2 | IA-4, XC-5 | WP-10 | 2 |
+| [WP-18](WP-18-lineage-ci-runner-extractor-plugin-contract-and.md) | lineage-ci runner, extractor plugin contract and repository onboarding | 1 | 2 | XC-7, XC-8, IN-1, IN-7, IA-1, IA-6 | WP-10, WP-11 | 7 |
 | [WP-19](WP-19-service-edge-builder-trace-walk-topic-joins-ingr.md) | Service edge builder: trace walk, topic joins, ingress logs | 1 | 2 | BL-6, XC-3 | WP-11, WP-15 | 3 |
-| [WP-20](WP-20-dbt-and-sql-extractor.md) | dbt and SQL extractor | 2 | 3 | BL-2, BL-3, BL-4, BL-5, IN-3 | WP-10, WP-11 | 3 |
-| [WP-21](WP-21-protobuf-schema-differ-and-registry-watcher.md) | Protobuf schema differ and registry watcher | 2 | 3 | BL-1, IN-3, IA-2 | WP-10, WP-11 | 3 |
-| [WP-22](WP-22-stream-job-extractor-pyflink-code-and-the-declar.md) | Stream job extractor: PyFlink code and the declared feature registry first | 2 | 3 | BL-3, BL-4 | WP-11 | 1 |
-| [WP-23](WP-23-service-producer-and-consumer-field-scanner.md) | Service producer and consumer field scanner | 2 | 3 | BL-2, BL-3, BL-4 | WP-10, WP-11, WP-21 | 3 |
-| [WP-24](WP-24-sink-and-orm-writer-extractor-c-entity-framework.md) | Sink and ORM writer extractor, C# Entity Framework first | 2 | 3 | BL-2, BL-3 | WP-10, WP-11 | 2 |
-| [WP-25](WP-25-feature-repository-and-training-config-extractor.md) | Feature repository and training config extractor | 2 | 3 | BL-3 | WP-11, WP-22 | 1 |
+| [WP-20](WP-20-dbt-and-sql-extractor.md) | dbt and SQL extractor | 2 | 3 | BL-2, BL-3, BL-4, BL-5, IN-3 | WP-10, WP-11, WP-18 | 3 |
+| [WP-21](WP-21-protobuf-schema-differ-and-registry-watcher.md) | Protobuf schema differ and registry watcher | 2 | 3 | BL-1, IN-3, IA-2 | WP-10, WP-11, WP-18 | 3 |
+| [WP-22](WP-22-stream-job-extractor-pyflink-code-and-the-declar.md) | Stream job extractor: PyFlink code and the declared feature registry first | 2 | 3 | BL-3, BL-4 | WP-11, WP-18 | 1 |
+| [WP-23](WP-23-service-producer-and-consumer-field-scanner.md) | Service producer and consumer field scanner | 2 | 3 | BL-2, BL-3, BL-4 | WP-10, WP-11, WP-21, WP-18 | 3 |
+| [WP-24](WP-24-sink-and-orm-writer-extractor-c-entity-framework.md) | Sink and ORM writer extractor, C# Entity Framework first | 2 | 3 | BL-2, BL-3 | WP-10, WP-11, WP-18 | 2 |
+| [WP-25](WP-25-feature-repository-and-training-config-extractor.md) | Feature repository and training config extractor | 2 | 3 | BL-3 | WP-11, WP-22, WP-18 | 1 |
 | [WP-26](WP-26-access-history-collector-at-column-level-postgre.md) | Access-history collector at column level: Postgres first, then Snowflake and Databricks | 2 | 3 | BL-3, XC-1 | WP-11, WP-15 | 3 |
 | [WP-27](WP-27-openlineage-ingestion-with-column-facets.md) | OpenLineage ingestion with column facets | 2 | 3 | XC-4 | WP-11 | 1 |
-| [WP-28](WP-28-bi-metadata-extractor.md) | BI metadata extractor | 2 | 3 | BL-3 | WP-11 | 2 |
-| [WP-29](WP-29-model-assisted-extractor-for-opaque-units-with-a.md) | Model-assisted extractor for opaque units, with a verifier | 2 | 2 | BL-4, XC-6 | WP-11, WP-23 | 3 |
-| [WP-30](WP-30-change-detectors-and-unit-invalidation.md) | Change detectors and unit invalidation | 3 | 3 | IN-1, IN-3, IN-10 | WP-12, WP-20, WP-21 | 3 |
-| [WP-31](WP-31-pr-overlay-and-impact-query-api.md) | PR overlay and impact query API | 3 | 3 | IN-7, IA-4, IA-9 | WP-13, WP-14 | 3 |
+| [WP-28](WP-28-bi-metadata-extractor.md) | BI metadata extractor | 2 | 3 | BL-3 | WP-11, WP-18 | 2 |
+| [WP-29](WP-29-model-assisted-extractor-for-opaque-units-with-a.md) | Model-assisted extractor for opaque units, with a verifier | 2 | 2 | BL-4, XC-6 | WP-11, WP-23, WP-18 | 3 |
+| [WP-30](WP-30-change-detectors-and-unit-invalidation.md) | Change detectors and unit invalidation | 3 | 3 | IN-1, IN-3, IN-10 | WP-12, WP-20, WP-21, WP-18 | 3 |
+| [WP-31](WP-31-pr-overlay-and-impact-query-api.md) | PR overlay and impact query API | 3 | 3 | IN-7, IA-4, IA-9 | WP-13, WP-14, WP-18 | 3 |
 | [WP-32](WP-32-change-classifier.md) | Change classifier | 3 | 3 | IA-2, IA-3 | WP-21, WP-20 | 2 |
 | [WP-33](WP-33-pr-bot-in-warn-mode-with-feedback.md) | PR bot in warn mode with feedback | 3 | 3 | IA-1, IA-6, IA-7, IA-8 | WP-31, WP-32 | 3 |
 | [WP-34](WP-34-contract-gate-in-block-mode.md) | Contract gate in block mode | 3 | 2 | IA-5, IA-6 | WP-31, WP-32, WP-17 | 3 |

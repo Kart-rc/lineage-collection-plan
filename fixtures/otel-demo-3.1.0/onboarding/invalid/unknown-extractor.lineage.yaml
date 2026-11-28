@@ -1,0 +1,6 @@
+# invalid: there is no extractor by this name
+version: 1
+repository: opentelemetry-demo
+environment: otel-demo
+owner: team-platform
+services: [{name: checkout, path: src/checkout, extractors: [go-magic]}]

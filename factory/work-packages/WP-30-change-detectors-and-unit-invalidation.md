@@ -3,7 +3,7 @@
 Wave 3 · family impact · start level 3 (level 2 until wave 1 meets its holdout pass rate, D18) · limits: 6 build attempts, 1 working day, cost recorded
 
 **Serves:** IN-1, IN-3, IN-10  
-**Depends on:** WP-12, WP-20, WP-21
+**Depends on:** WP-12, WP-20, WP-21, WP-18
 
 ## Scope
 
@@ -37,6 +37,6 @@ Re-extract only the units whose content, input schema or extractor version chang
 
 ## Requirements
 
-- **IN-1**: When a commit lands on a default branch, the system shall re-extract only the units whose content hash, input schema hash or extractor version changed. Scenarios: S-IN-01.
+- **IN-1**: When a commit lands on a default branch, the system shall re-extract only the units whose content hash, input schema hash or extractor version changed. Scenarios: S-BC-03, S-IN-01.
 - **IN-3**: When a schema version is registered or a tier 1 table's DDL changes, the system shall publish a schema-change event and re-extract every unit that reads the changed dataset. Scenarios: S-IN-04.
 - **IN-10**: The system shall make an edge visible within 15 minutes of the merge or run that produced it, at the 95th percentile. Scenarios: S-IN-11.

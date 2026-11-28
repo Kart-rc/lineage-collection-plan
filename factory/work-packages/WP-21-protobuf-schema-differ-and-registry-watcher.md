@@ -3,7 +3,7 @@
 Wave 2 · family extractors · start level 3 (level 2 until wave 1 meets its holdout pass rate, D18) · limits: 6 build attempts, 1 working day, cost recorded
 
 **Serves:** BL-1, IN-3, IA-2  
-**Depends on:** WP-10, WP-11
+**Depends on:** WP-10, WP-11, WP-18
 
 ## Scope
 

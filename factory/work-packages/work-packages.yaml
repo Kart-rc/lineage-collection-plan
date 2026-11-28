@@ -1,4 +1,4 @@
-# Acceptance criteria for the 39 work packages, on the reference slice (OpenTelemetry Demo 3.1.0 plus the thin dbt
+# Acceptance criteria for the 40 work packages, on the reference slice (OpenTelemetry Demo 3.1.0 plus the thin dbt
 # model and the complement repo). One source; code/spec_pack.py renders one markdown file per package and checks that
 # every requirement is served, every dependency exists, every done-when line is measurable, and every fixture exists.
 # Thresholds come from factory/parameters.yaml. Paths starting "planned:" are created by the package named after them.
@@ -30,7 +30,7 @@ work_packages:
     - Every requirement ID in requirements.yaml is served by at least one package and traced by at least one visible scenario
   done_when:
     - "`python3 code/spec_pack.py --check` reports 0 errors"
-    - "41 of 41 requirements served by a work package and traced by a visible scenario"
+    - "43 of 43 requirements served by a work package and traced by a visible scenario"
     - "Gate G1 signed by the approver (D20)"
   fixtures: [factory/specs/requirements.yaml, factory/parameters.yaml]
 
@@ -259,6 +259,31 @@ work_packages:
     - "100% of columns classified personal in the contracts are tagged personal on their nodes"
   fixtures: [fixtures/otel-demo-3.1.0/catalog.yaml, fixtures/otel-demo-3.1.0/contracts/accounting.contract.yaml]
 
+- id: WP-18
+  name: lineage-ci runner, extractor plugin contract and repository onboarding
+  wave: 1
+  family: platform
+  level: 2
+  serves: [XC-7, XC-8, IN-1, IN-7, IA-1, IA-6]
+  depends: [WP-10, WP-11]
+  scope: The one step every onboarded repository runs. It validates .lineage.yaml, detects units through registered extractors, hashes them, skips unchanged units, runs the rest under a deadline, emits envelope v2 to production or to the PR overlay, writes a unit manifest, and fails open. It ships a stub extractor and the conformance suite (D39).
+  inputs: [factory/specs/build-collection/interfaces/extractor-plugin.md, factory/specs/build-collection/interfaces/lineage-repo.schema.json, factory/specs/build-collection/interfaces/unit-manifest.schema.json]
+  outputs: [planned:lineage-ci/ (CLI, GitHub Action wrapper, stub extractor, conformance suite)]
+  must_hold:
+    - The CLI is the product; the GitHub Action only calls it, so any CI system can run the same command
+    - Never fails a build because of its own errors or an unreachable platform; only the contract gate may fail a build (IA-5)
+    - Extractors get schemas only through ctx.schema_at as of the commit; the runner enforces no other network access
+    - Weights are set by the runner from parameters.yaml, never by an extractor
+  done_when:
+    - "`lineage-ci validate` accepts 2 of 2 onboarding examples and rejects 5 of 5 invalid ones, each with a message that names the field to fix"
+    - "With the stub extractor, a merged scan of the demo at 3.1.0 lists one unit per configured service and schema (16) in a manifest that validates; a re-scan of the same commit re-extracts 0 units"
+    - "A PR scan that changes only src/checkout/main.go re-extracts 1 unit and marks 15 unchanged, and 100% of its events go to the overlay keyed by repository and PR"
+    - "Runner overhead, excluding extractor time, is 60 seconds or less at p95 over 20 scans"
+    - "With the evidence topic unreachable, 100% of fault scenarios exit 0, write outcome unavailable and raise an alert"
+    - "The same scan gives byte-identical manifests as a GitHub Action and as a plain container command (1 of 1 non-GitHub runner)"
+    - "The stub extractor passes 100% of the conformance suite"
+  fixtures: [fixtures/otel-demo-3.1.0/onboarding/, fixtures/otel-demo-3.1.0/onboarding/invalid/]
+
 - id: WP-19
   name: "Service edge builder: trace walk, topic joins, ingress logs"
   wave: 1
@@ -284,7 +309,7 @@ work_packages:
   family: extractors
   level: 3
   serves: [BL-2, BL-3, BL-4, BL-5, IN-3]
-  depends: [WP-10, WP-11]
+  depends: [WP-10, WP-11, WP-18]
   scope: Read a dbt project at a commit and emit envelope v2 evidence for every model, with SQLGlot.
   inputs: [fixtures/otel-demo-3.1.0/dbt/, jaffle-shop (read-only corpus)]
   outputs: [planned:extractors/dbt_sql/]
@@ -304,7 +329,7 @@ work_packages:
   family: extractors
   level: 3
   serves: [BL-1, IN-3, IA-2]
-  depends: [WP-10, WP-11]
+  depends: [WP-10, WP-11, WP-18]
   scope: Turn compiled descriptors into field nodes for every message on the slice; diff two versions into change kinds; publish schema-change events.
   inputs: [pb/demo.proto at 3.1.0 and at the commits of C1 and C2]
   outputs: [planned:extractors/protobuf/]
@@ -322,7 +347,7 @@ work_packages:
   family: extractors
   level: 3
   serves: [BL-3, BL-4]
-  depends: [WP-11]
+  depends: [WP-11, WP-18]
   scope: Field edges for the complement's PyFlink job from its declared feature registry and code; opaque edges for what neither declares.
   inputs: [satyazm/Fraud-Detection-using-MLOps at d1692f9]
   outputs: [planned:extractors/stream/]
@@ -338,7 +363,7 @@ work_packages:
   family: extractors
   level: 3
   serves: [BL-2, BL-3, BL-4]
-  depends: [WP-10, WP-11, WP-21]
+  depends: [WP-10, WP-11, WP-21, WP-18]
   scope: Field-to-field assembly inside services - the Go code in checkout first, then Kotlin and the other languages; rules per framework.
   inputs: [demo src/checkout at 3.1.0]
   outputs: [planned:extractors/service_fields/]
@@ -356,7 +381,7 @@ work_packages:
   family: extractors
   level: 3
   serves: [BL-2, BL-3]
-  depends: [WP-10, WP-11]
+  depends: [WP-10, WP-11, WP-18]
   scope: Map ORM entity properties to table columns and the consumed message fields that fill them (accounting).
   inputs: [demo src/accounting at 3.1.0]
   outputs: [planned:extractors/orm/]
@@ -373,7 +398,7 @@ work_packages:
   family: extractors
   level: 3
   serves: [BL-3]
-  depends: [WP-11, WP-22]
+  depends: [WP-11, WP-22, WP-18]
   scope: Feast feature views to source columns, entity keys and aggregations; MLflow model signature to features.
   inputs: [satyazm/Fraud-Detection-using-MLOps at d1692f9]
   outputs: [planned:extractors/features/]
@@ -423,7 +448,7 @@ work_packages:
   family: extractors
   level: 3
   serves: [BL-3]
-  depends: [WP-11]
+  depends: [WP-11, WP-18]
   scope: Fields a dashboard uses. The reference slice has no BI tool; the dbt exposure stands in until slice 2 names one.
   inputs: [fixtures/otel-demo-3.1.0/dbt/models/marts/exposures.yml]
   outputs: [planned:extractors/bi/]
@@ -440,7 +465,7 @@ work_packages:
   family: extractors
   level: 2
   serves: [BL-4, XC-6]
-  depends: [WP-11, WP-23]
+  depends: [WP-11, WP-23, WP-18]
   scope: Candidate evidence for units no rule can read (the Ruby email service, templates); a verifier checks every edge against real schemas.
   inputs: [opaque units listed by WP-23]
   outputs: [planned:extractors/model_assisted/]
@@ -460,7 +485,7 @@ work_packages:
   family: impact
   level: 3
   serves: [IN-1, IN-3, IN-10]
-  depends: [WP-12, WP-20, WP-21]
+  depends: [WP-12, WP-20, WP-21, WP-18]
   scope: Re-extract only the units whose content, input schema or extractor version changed; on a schema change, every reader.
   inputs: [git history of the demo and the dbt model]
   outputs: [planned:core/invalidate/]
@@ -478,7 +503,7 @@ work_packages:
   family: impact
   level: 3
   serves: [IN-7, IA-4, IA-9]
-  depends: [WP-13, WP-14]
+  depends: [WP-13, WP-14, WP-18]
   scope: Hold a PR's static evidence in an overlay; answer /impact for a PR or for a change described before any PR exists.
   inputs: [factory/specs/query-api/interfaces/openapi.yaml]
   outputs: [planned:services/impact/]

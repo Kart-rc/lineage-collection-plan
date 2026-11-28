@@ -1,0 +1,36 @@
+# Gate G1, amendment 1: build-time collection (proposed)
+
+**Status: proposed, awaiting approval.** Not in force until the approver (D20) approves it. On approval this file moves to `factory/gates/` with the approval date and the merge commit.
+
+## Why
+
+The approved spec pack (G1, `b86111d`) specifies the build-time extractors (WP-20 to WP-25, WP-28, WP-29) but not:
+
+- the step that runs them in each repository;
+- what "onboarded" means, which IA-1 relies on;
+- the interface every extractor implements.
+
+Without these, each extractor invents its own entry point, and a new application flow has no defined way in. Found on 28 November when asking how build collectors reach any application flow.
+
+## What changes
+
+| Part | Change |
+| --- | --- |
+| Requirements | **Adds XC-7:** onboarding a repository; first scan within 1 hour; an invalid config names the field and passes the build.<br>**Adds XC-8:** every extractor implements the plugin contract and passes its conformance suite.<br>41 requirements become 43. |
+| Interfaces | **Adds** in `factory/specs/build-collection/interfaces/`: `lineage-repo.schema.json` (the `.lineage.yaml` onboarding file), `unit-manifest.schema.json` (what a scan did) and `extractor-plugin.md` (the runner CLI, the plugin protocol, its rules and the conformance suite). |
+| Work packages | **Adds WP-18,** the `lineage-ci` runner, plugin contract and onboarding, in wave 1 at level 2, with 7 done-when lines.<br>WP-20 to WP-25, WP-28, WP-29, WP-30 and WP-31 now depend on WP-18.<br>39 packages become 40. |
+| Scenarios | **Adds 6 visible scenarios** in `factory/specs/build-collection/scenarios/visible/onboarding.feature`. |
+| Fixtures | **Adds** onboarding files for the demo monorepo and the dbt project, and 5 invalid ones. |
+| Doc 06 | **Defines** "onboarded repository"; adds XC-7, XC-8, WP-18 and two interfaces. |
+| Decisions | **Adds D39** in doc 08. |
+
+## What does not change
+
+- No value or threshold in `parameters.yaml`.
+- No existing requirement's text.
+- No interface field in envelope v2, `lineage.changes` or the OpenAPI.
+- No oracle file pinned at G3.
+
+## Check
+
+`python3 code/spec_pack.py --check` reports 0 errors with the amendment applied: 43 requirements served and traced, 40 work packages with measurable done-when, 2 of 2 onboarding examples valid, 5 of 5 invalid ones rejected.

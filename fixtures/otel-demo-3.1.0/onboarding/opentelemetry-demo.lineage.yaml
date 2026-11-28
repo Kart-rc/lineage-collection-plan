@@ -1,0 +1,27 @@
+# .lineage.yaml for the OpenTelemetry Demo monorepo at 3.1.0: one file onboards every service on the order flow.
+# Extractors are listed where wave 2 has one; services without one get opaque edges plus runtime evidence, and the
+# model-assisted extractor proposes candidates for the email service (Ruby). Owners come from catalog.yaml.
+version: 1
+repository: opentelemetry-demo
+environment: otel-demo
+owner: team-platform
+services:
+  - {name: checkout,        path: src/checkout,        language: go,         extractors: [go-assembly]}
+  - {name: product-catalog, path: src/product-catalog, language: go,         extractors: [go-assembly]}
+  - {name: accounting,      path: src/accounting,      language: csharp,     extractors: [ef-core-orm]}
+  - {name: cart,            path: src/cart,            language: csharp}
+  - {name: fraud-detection, path: src/fraud-detection, language: kotlin,     extractors: [kotlin-fields]}
+  - {name: payment,         path: src/payment,         language: javascript}
+  - {name: frontend,        path: src/frontend,        language: typescript}
+  - {name: shipping,        path: src/shipping,        language: rust}
+  - {name: currency,        path: src/currency,        language: cpp}
+  - {name: email,           path: src/email,           language: ruby,       extractors: [model-assisted]}
+  - {name: quote,           path: src/quote,           language: php}
+  - {name: recommendation,  path: src/recommendation,  language: python}
+  - {name: ad,              path: src/ad,              language: java}
+  - {name: load-generator,  path: src/load-generator,  language: python}
+schemas:
+  - {kind: protobuf, path: pb/demo.proto}
+  - {kind: sql-ddl,  path: src/postgresql/init.sql}
+exclude: ["test/**", "**/*_test.go", "src/*/tests/**"]
+build: {reuse_artifacts: true, max_minutes: 5}

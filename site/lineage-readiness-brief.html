@@ -338,14 +338,14 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
         <p class="muted small">What we don't have yet belongs to later stages: our own data products, access to them, and the cloud stage environment. Each is scheduled, and none blocks the start. The spec pack was approved at gate G1 on 28 November; the golden graph was signed at gate G3 the same day. Builds can now be graded against it.</p>
       </div>
       <div class="lanes">
-        <div class="lane s-have"><b>Ready now</b><p>The reference system and its golden graph (89 citations checked against source), the twin, 38 decisions, and the spec pack, approved at G1 on 28 November together with ADR-002 (Neptune): measurable done-when for all 39 work packages, interfaces as schemas, visible scenarios.</p></div>
+        <div class="lane s-have"><b>Ready now</b><p>The reference system and its golden graph (89 citations checked against source), the twin, 38 decisions, and the spec pack, approved at G1 on 28 November together with ADR-002 (Neptune): measurable done-when for all 40 work packages, interfaces as schemas, visible scenarios.</p></div>
         <div class="lane"><b style="color:var(--gate)">Needs you</b><p>Have someone who does not build write the holdout cases, outside this repository. G1 and G3 are signed.</p></div>
         <div class="lane"><b class="muted">Comes later</b><p>Pick our second slice in wave 1. Then access to its code and warehouse, a Neptune stage instance, and model access for private repositories.</p></div>
       </div>
     </div>
     <div class="facts" aria-label="Key facts">
       <div class="fact"><strong>38</strong><span>decisions: 26 from evidence, 7 by you, 5 approved by you at gate G1</span></div>
-      <div class="fact"><strong>39 / 39</strong><span>work packages with measurable done-when; 97 checks in all</span></div>
+      <div class="fact"><strong>40 / 40</strong><span>work packages with measurable done-when; 104 checks in all</span></div>
       <div class="fact"><strong>18 / 18</strong><span>connections seen in the running system are in the golden graph</span></div>
       <div class="fact"><strong>8 / 10</strong><span>injected incidents caught within 2 minutes, the true cause ranked first in all 8</span></div>
     </div>
@@ -490,7 +490,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
   <section id="inputs" aria-labelledby="h-inputs">
     <div class="sec-head">
       <div class="eyebrow">Do we have what we need?</div>
-      <h2 id="h-inputs">Twenty-four inputs a build like this needs, and where each one stands</h2>
+      <h2 id="h-inputs">Twenty-five inputs a build like this needs, and where each one stands</h2>
     </div>
     <div class="ready-head">
       <div class="counts" id="counts"></div>
@@ -501,7 +501,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
       </div>
     </div>
     <div class="inputs" id="inputs-list"></div>
-    <p class="conclusion"><b>What this means:</b> of the 16 inputs needed to start, 14 are in hand, including the spec pack and ADR-002 (approved at G1) and the golden graph (signed at G3), both on 28 November. The other two, the holdout scenarios and the twin's lineage platform, are the first work of wave 0 itself. Everything still missing is needed for slice 2, on our own data, and is scheduled for wave 1 onward.</p>
+    <p class="conclusion"><b>What this means:</b> of the 17 inputs needed to start, 15 are in hand, including the spec pack and ADR-002 (approved at G1) and the golden graph (signed at G3), both on 28 November. The other two, the holdout scenarios and the twin's lineage platform, are the first work of wave 0 itself. Everything still missing is needed for slice 2, on our own data, and is scheduled for wave 1 onward.</p>
   </section>
 
   <!-- ASSUMPTIONS -->
@@ -533,10 +533,10 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
         <div><code>docs/07-reference-slice-otel-demo.md</code><span class="muted small">The flow, the golden graph, changes, incidents, how to run the twin</span></div>
         <div><code>docs/08-build-decisions.md</code><span class="muted small">D1 to D32 with evidence and "revisit if"</span></div>
         <div><code>docs/09-component-build-sheet.md</code><span class="muted small">Each component: input, work package, test, status, and the run's evidence</span></div>
-        <div><code>docs/06-element-lineage-factory-spec.md</code><span class="muted small">The factory: principles, gates, 39 work packages</span></div>
+        <div><code>docs/06-element-lineage-factory-spec.md</code><span class="muted small">The factory: principles, gates, 40 work packages</span></div>
         <div><code>fixtures/otel-demo-3.1.0/</code><span class="muted small">Golden graph, replays, contracts, checks, aliases, run add-ons and run summaries</span></div>
         <div><code>code/reference_slice.py · observed_edges.py · run_checks.py</code><span class="muted small">Oracle with citation checker; edge builder and scorer; check runner, incident replay and ranking</span></div>
-        <div><code>factory/</code><span class="muted small">The spec pack: constitution, parameters, requirements, interfaces, 39 work packages with done-when, visible scenarios</span></div>
+        <div><code>factory/</code><span class="muted small">The spec pack: constitution, parameters, requirements, interfaces, 40 work packages with done-when, visible scenarios</span></div>
         <div><code>code/spec_pack.py</code><span class="muted small">Checks the spec pack and renders it; must report 0 errors before a work package starts</span></div>
       </div>
       <pre class="cmd">python3 code/spec_pack.py --check                                  # the spec pack is consistent
@@ -855,10 +855,11 @@ python3 code/run_checks.py &lt;capture&gt; fixtures/otel-demo-3.1.0 --events fix
   /* ---------------- inputs ---------------- */
   const INPUTS = [
     ["What to build", "Objectives and scope", "have", "Four objectives, the vendor gap, the phased plan.", "docs 01, 05, 06", "start"],
-    ["What to build", "Build method", "have", "AI factory with 39 work packages, four gates, autonomy level 2 then 3.", "doc 06", "start"],
+    ["What to build", "Build method", "have", "AI factory with 40 work packages, four gates, autonomy level 2 then 3.", "doc 06", "start"],
     ["What to build", "Architecture decisions", "have", "32 decisions: 25 from evidence, 7 by you, each with a \"revisit if\".", "doc 08", "start"],
     ["What to build", "Component breakdown", "have", "25 of 27 components with an input, a work package and a test. Search and catalog UI wait for wave 5.", "doc 09", "start"],
-    ["What to build", "Acceptance criteria per work package", "have", "Done-when for all 39 work packages, 97 lines, each with a number or a named sign-off; checked by code/spec_pack.py. A draft awaiting G1.", "factory/work-packages/", "start"],
+    ["What to build", "Acceptance criteria per work package", "have", "Done-when for all 40 work packages, 104 lines, each with a number or a named sign-off; checked by code/spec_pack.py. Approved at G1; WP-18 added by amendment 1.", "factory/work-packages/", "start"],
+    ["What to build", "Build-time collection entry point", "have", "One lineage-ci step per repository, any CI system: a one-file onboarding contract (.lineage.yaml) and the extractor plugin contract, built by WP-18 in wave 1 (D39).", "factory/specs/build-collection/", "start"],
     ["What to build", "Interface contracts", "have", "Envelope v2 and lineage.changes as JSON Schema, the four queries as OpenAPI 3.1. Every golden edge and run event validates.", "factory/specs/*/interfaces/", "start"],
     ["What to build", "Spec pack approval", "have", "Approved at gate G1 on 28 November 2026, as merged to main in b86111d.", "factory/gates/G1-2026-11-28.md", "start"],
     ["What to test against", "A real multi-service system", "have", "OpenTelemetry Demo 3.1.0, a dozen services in ten languages, pinned and cited.", "doc 07", "start"],

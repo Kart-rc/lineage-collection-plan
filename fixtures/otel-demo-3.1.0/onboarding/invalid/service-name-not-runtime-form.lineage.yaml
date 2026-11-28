@@ -1,0 +1,6 @@
+# invalid: service names must be the lowercase service.name the service emits at runtime
+version: 1
+repository: opentelemetry-demo
+environment: otel-demo
+owner: team-platform
+services: [{name: CheckoutService, path: src/checkout}]

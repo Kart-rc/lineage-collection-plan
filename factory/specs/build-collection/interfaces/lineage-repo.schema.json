@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lineage.internal/schemas/lineage-repo.schema.json",
+  "title": "Repository onboarding file (.lineage.yaml)",
+  "description": "A repository is onboarded when its default branch holds a valid .lineage.yaml and its CI runs the lineage-ci step (XC-7). The file says which services, schemas and projects the repository holds, what they are called in the graph, and which extractors read them. Extractors are found by detection when not listed. Decision D39.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "repository", "environment", "owner"],
+  "properties": {
+    "version": {"const": 1},
+    "repository": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$", "description": "Name used in unit URNs: unit://git/<repository>/<path>"},
+    "environment": {"type": "string", "pattern": "^[a-z0-9-]+$", "description": "The <env> part of svc://<env>/<service>, e.g. otel-demo"},
+    "owner": {"type": "string", "pattern": "^team-[a-z0-9-]+$", "description": "Default owner; catalog.yaml overrides it per service or dataset"},
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["name", "path"],
+        "properties": {
+          "name": {"type": "string", "pattern": "^[a-z0-9-]+$", "description": "Becomes svc://<environment>/<name>; must equal the service.name the service emits at runtime"},
+          "path": {"type": "string", "minLength": 1},
+          "language": {"enum": ["go", "csharp", "java", "kotlin", "python", "typescript", "javascript", "ruby", "rust", "php", "cpp", "elixir", "other"]},
+          "extractors": {"type": "array", "items": {"$ref": "#/$defs/extractorName"}, "uniqueItems": true},
+          "owner": {"type": "string", "pattern": "^team-[a-z0-9-]+$"}
+        }
+      }
+    },
+    "schemas": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["kind", "path"],
+        "properties": {
+          "kind": {"enum": ["protobuf", "avro", "json-schema", "openapi", "sql-ddl"]},
+          "path": {"type": "string", "minLength": 1},
+          "artifact": {"type": "string", "description": "A build output to reuse instead of building, e.g. a compiled descriptor set"}
+        }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "description": "SQL, stream, feature and model projects",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["kind", "path"],
+        "properties": {
+          "kind": {"enum": ["dbt", "pyflink", "flink-sql", "feast", "mlflow", "spark"]},
+          "path": {"type": "string", "minLength": 1},
+          "target": {"type": "string", "description": "dbt target with read-only credentials, for compiling in CI"},
+          "artifact": {"type": "string", "description": "A build output to reuse, e.g. target/manifest.json"}
+        }
+      }
+    },
+    "exclude": {"type": "array", "items": {"type": "string"}, "description": "Glob patterns never read"},
+    "build": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "reuse_artifacts": {"type": "boolean", "default": true, "description": "Prefer outputs the repository's own build already produced"},
+        "max_minutes": {"type": "number", "exclusiveMinimum": 0, "maximum": 5, "default": 5, "description": "IA-1 budget for a PR scan, at the 95th percentile"}
+      }
+    }
+  },
+  "anyOf": [{"required": ["services"]}, {"required": ["schemas"]}, {"required": ["projects"]}],
+  "$defs": {
+    "extractorName": {"enum": ["protobuf", "avro", "go-assembly", "kotlin-fields", "ef-core-orm", "dbt-sql", "pyflink", "feast", "mlflow", "bi-exposure", "model-assisted"]}
+  }
+}

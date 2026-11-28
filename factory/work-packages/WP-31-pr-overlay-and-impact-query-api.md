@@ -3,7 +3,7 @@
 Wave 3 · family impact · start level 3 (level 2 until wave 1 meets its holdout pass rate, D18) · limits: 6 build attempts, 1 working day, cost recorded
 
 **Serves:** IN-7, IA-4, IA-9  
-**Depends on:** WP-13, WP-14
+**Depends on:** WP-13, WP-14, WP-18
 
 ## Scope
 
@@ -37,6 +37,6 @@ Hold a PR's static evidence in an overlay; answer /impact for a PR or for a chan
 
 ## Requirements
 
-- **IN-7**: While a pull request is open, the system shall hold its static evidence in an overlay keyed by repository and PR number, invisible to production impact and RCA queries. Scenarios: S-IN-08.
+- **IN-7**: While a pull request is open, the system shall hold its static evidence in an overlay keyed by repository and PR number, invisible to production impact and RCA queries. Scenarios: S-BC-03, S-IN-08.
 - **IA-4**: The report shall list downstream elements and assets by hop with owner, tier, edge state and confidence, following direct dependencies for value impact and reporting indirect dependencies separately as row-set impact. Scenarios: S-IA-01, S-IA-03.
 - **IA-9**: The system shall expose the same impact query through an API that coding agents can call before a pull request exists. Scenarios: S-IA-10.
