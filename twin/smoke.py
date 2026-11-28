@@ -16,6 +16,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import resource
 import stat
 import subprocess
@@ -28,6 +29,26 @@ if str(ROOT / "src") not in sys.path:
 RAW_FILES = {"traces.jsonl": ("resourceSpans", "scopeSpans", "spans"),
              "logs.jsonl": ("resourceLogs", "scopeLogs", "logRecords"),
              "metrics.jsonl": ("resourceMetrics", "scopeMetrics", "metrics")}
+STRUCTURAL_CATEGORIES = frozenset({"expected_object", "expected_array", "expected_string", "invalid_span_id",
+                                   "malformed_json", "line_size_limit", "truncated_jsonl"})
+
+
+def _structural_paths():
+    # Paths come only from this fixed schema, never from keys in a capture.
+    paths = {"$"}
+    for filename, (top, scope, records) in RAW_FILES.items():
+        group, batch = f"{top}[]", f"{top}[].{scope}[]"
+        item = f"{batch}.{records}[]"
+        paths.update({top, group, f"{group}.{scope}", batch, f"{batch}.{records}", item})
+        for message in (f"{group}.resource", f"{batch}.scope", item):
+            paths.update({message, f"{message}.attributes", f"{message}.attributes[]",
+                          f"{message}.attributes[].key", f"{message}.attributes[].value"})
+        if filename == "traces.jsonl":
+            paths.update(f"{item}.{field}" for field in ("traceId", "spanId", "parentSpanId"))
+    return frozenset(paths)
+
+
+STRUCTURAL_PATHS = _structural_paths()
 DATA_TYPES = frozenset({"CALLS", "PRODUCES", "CONSUMES"})
 MAX_MEMORY_MB = 8192
 MAX_CAPTURE_BYTES = 4 * 1024 ** 3
@@ -194,7 +215,7 @@ def _base_report(window=None):
             "raw_capture_replayed": False, "replay_scope": [], "run_window": window,
             "precision": None, "edges": {"hit": [], "missed": [], "extra": [], "control": []},
             "counts": {"data_edges": None, "control_edges": None, "collector_events": None, "redacted_endpoints": 0},
-            "raw_files": {}, "diagnostics": {}, "failure_categories": [],
+            "raw_files": {}, "diagnostics": {}, "failure_categories": [], "structural_failure": None,
             "claims": {"full_wp03_accepted": False, "timings_measured": False, "holdout_measured": False}}
 
 
@@ -212,45 +233,137 @@ def _reference():
     return expected, safe_names, parameters["baseline_accuracy"]["service_edges"]["precision"], aliases
 
 
-def _shape(document, filename):
+def _shape_failure(document, filename):
+    """Validate the pinned file-exporter's message containers, not arbitrary keys.
+
+    Contrib v0.159.0 uses pdata v1.65.0. Its JSON marshaler emits repeated
+    fields only when nonempty, at EVERY level. Therefore absent repeated
+    fields mean empty arrays, including the valid empty export {}.
+    Sources:
+    https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector-contrib/v0.159.0/exporter/fileexporter/go.mod
+    https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector-contrib/v0.159.0/exporter/fileexporter/marshaller.go
+    https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/generated_proto_exporttraceservicerequest.go
+    https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/generated_proto_resourcespans.go
+    https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/generated_proto_scopespans.go
+    https://protobuf.dev/programming-guides/json/#presence-and-default-values
+
+    Present arrays/messages retain strict types. This canonical file-export
+    validator does not implement the generic ProtoJSON receiver's null-to-unset
+    coercion: the pinned serializer never emits null containers. Unknown fields
+    are ignored per OTLP's forward-compatibility rule; never echo their names.
+    https://opentelemetry.io/docs/specs/otlp/#json-protobuf-encoding
+    """
     top, scope, records = RAW_FILES[filename]
-    if not isinstance(document, dict) or not isinstance(document.get(top), list):
-        return False
-    for group in document[top]:
-        if not isinstance(group, dict) or not isinstance(group.get(scope), list):
-            return False
-        for batch in group[scope]:
-            if not isinstance(batch, dict) or not isinstance(batch.get(records), list) or not all(isinstance(row, dict) for row in batch[records]):
-                return False
+    def fail(path, category):
+        return {"field_path": path, "category": category}
+
+    def attributes(message, path):
+        if "attributes" not in message:
+            return None
+        values = message["attributes"]
+        if not isinstance(values, list):
+            return fail(f"{path}.attributes", "expected_array")
+        for entry in values:
+            entry_path = f"{path}.attributes[]"
+            if not isinstance(entry, dict):
+                return fail(entry_path, "expected_object")
+            if "key" in entry and not isinstance(entry["key"], str):
+                return fail(f"{entry_path}.key", "expected_string")
+            if "value" in entry and not isinstance(entry["value"], dict):
+                return fail(f"{entry_path}.value", "expected_object")
+        return None
+
+    if not isinstance(document, dict):
+        return fail("$", "expected_object")
+    if top in document and not isinstance(document[top], list):
+        return fail(top, "expected_array")
+    for group in document.get(top, []):
+        group_path = f"{top}[]"
+        if not isinstance(group, dict):
+            return fail(group_path, "expected_object")
+        if "resource" in group:
+            if not isinstance(group["resource"], dict):
+                return fail(f"{group_path}.resource", "expected_object")
+            failure = attributes(group["resource"], f"{group_path}.resource")
+            if failure:
+                return failure
+        if scope in group and not isinstance(group[scope], list):
+            return fail(f"{group_path}.{scope}", "expected_array")
+        for batch in group.get(scope, []):
+            batch_path = f"{group_path}.{scope}[]"
+            if not isinstance(batch, dict):
+                return fail(batch_path, "expected_object")
+            if "scope" in batch:
+                if not isinstance(batch["scope"], dict):
+                    return fail(f"{batch_path}.scope", "expected_object")
+                failure = attributes(batch["scope"], f"{batch_path}.scope")
+                if failure:
+                    return failure
+            if records in batch and not isinstance(batch[records], list):
+                return fail(f"{batch_path}.{records}", "expected_array")
+            for row in batch.get(records, []):
+                item_path = f"{batch_path}.{records}[]"
+                if not isinstance(row, dict):
+                    return fail(item_path, "expected_object")
+                failure = attributes(row, item_path)
+                if failure:
+                    return failure
             if filename == "traces.jsonl":
-                for span in batch[records]:
-                    if not all(isinstance(span.get(key), str) and span[key] for key in ("traceId", "spanId")):
-                        return False
-    return True
+                # Span identities are OTLP's case-insensitive hexadecimal bytes:
+                # a trace has 16 bytes, a span 8; all-zero IDs are invalid spans.
+                # A root span may omit its parent or have an empty parent ID.
+                # The pinned serializer OMITs an all-zero parent (IsEmpty), so
+                # this does not reject the canonical root-span representation.
+                # https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/generated_proto_span.go
+                # https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/spanid.go
+                # https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/traceid.go
+                for span in batch.get(records, []):
+                    for key, width in (("traceId", 32), ("spanId", 16), ("parentSpanId", 16)):
+                        if key == "parentSpanId" and span.get(key, "") == "":
+                            continue
+                        value = span.get(key)
+                        if not isinstance(value, str) or re.fullmatch(f"[0-9a-fA-F]{{{width}}}", value) is None or int(value, 16) == 0:
+                            return fail(f"{item_path}.{key}", "invalid_span_id")
+    return None
+
+
+def _shape(document, filename):
+    return _shape_failure(document, filename) is None
+
+
+def _safe_structural_failure(value):
+    return value is None or (isinstance(value, dict) and set(value) == {"filename", "line", "field_path", "category"}
+        and all(type(value[key]) is str for key in ("filename", "field_path", "category"))
+        and value["filename"] in RAW_FILES and type(value["line"]) is int and 1 <= value["line"] <= 2 ** 63 - 1
+        and value["field_path"] in STRUCTURAL_PATHS and value["category"] in STRUCTURAL_CATEGORIES)
 
 
 def _validate_raw(folder, names, max_line_bytes):
     documents = {name: 0 for name in names}
     for name in names:
         with (folder / name).open("rb") as stream:
+            line_number = 0
             while True:
                 line = stream.readline(max_line_bytes + 1)
                 if not line:
                     break
+                line_number += 1
+                detail = {"filename": name, "line": line_number, "field_path": "$"}
                 if len(line) > max_line_bytes:
-                    return documents, "line_size_limit"
+                    return documents, "line_size_limit", {**detail, "category": "line_size_limit"}
                 if not line.endswith(b"\n"):
-                    return documents, "truncated_jsonl"
+                    return documents, "truncated_jsonl", {**detail, "category": "truncated_jsonl"}
                 if not line.strip():
                     continue
                 try:
                     document = json.loads(line, parse_constant=_reject_constant)
                 except (ValueError, UnicodeError):
-                    return documents, "malformed_jsonl"
-                if not _shape(document, name):
-                    return documents, "invalid_otlp"
+                    return documents, "malformed_jsonl", {**detail, "category": "malformed_json"}
+                failure = _shape_failure(document, name)
+                if failure:
+                    return documents, "invalid_otlp", {**detail, **failure}
                 documents[name] += 1
-    return documents, None
+    return documents, None, None
 
 
 def _project_edges(events, expected, safe_names, bar):
@@ -287,16 +400,17 @@ def _worker(request):
     resource.setrlimit(resource.RLIMIT_CPU, (request["timeout_seconds"], request["timeout_seconds"]))
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
     resource.setrlimit(resource.RLIMIT_FSIZE, (0, 0))
-    result = {"failure_categories": [], "validated_files": [], "processed_files": []}
+    result = {"failure_categories": [], "validated_files": [], "processed_files": [], "structural_failure": None}
     try:
         folder = Path(request["capture"])
         names = sorted(request["fingerprints"])
         if not _same_sources(folder, request["fingerprints"]):
             result["failure_categories"] = ["capture_changed"]
             return result
-        documents, failure = _validate_raw(folder, names, request["max_line_bytes"])
+        documents, failure, detail = _validate_raw(folder, names, request["max_line_bytes"])
         if failure:
             result["failure_categories"] = [failure]
+            result["structural_failure"] = detail
             return result
         result["validated_files"] = names
         if not any(documents.get(name, 0) for name in ("traces.jsonl", "logs.jsonl")):
@@ -339,7 +453,9 @@ def _run_worker(request, timeout_seconds):
         return {"failure_categories": ["result_size_limit"]}
     try:
         result = json.loads(completed.stdout, parse_constant=_reject_constant)
-        if not isinstance(result, dict) or set(result) - {"failure_categories", "validated_files", "processed_files", "precision", "edges", "counts", "diagnostics"}:
+        if not isinstance(result, dict) or set(result) - {"failure_categories", "validated_files", "processed_files", "precision", "edges", "counts", "diagnostics", "structural_failure"}:
+            raise ValueError()
+        if not _safe_structural_failure(result.get("structural_failure")):
             raise ValueError()
         if not isinstance(result.get("failure_categories"), list) or any(item not in FAILURES for item in result["failure_categories"]):
             raise ValueError()
@@ -404,7 +520,7 @@ def score_capture(capture_dir: str | Path, run_window: dict | None = None, *, ti
                           "timeout_seconds": timeout_seconds, "memory_limit_mb": memory_limit_mb,
                           "max_line_bytes": max_line_bytes}, timeout_seconds)
     failures = worker["failure_categories"]
-    for key in ("precision", "edges", "counts", "diagnostics"):
+    for key in ("precision", "edges", "counts", "diagnostics", "structural_failure"):
         if key in worker:
             report[key] = worker[key]
     for name in worker.get("validated_files", []):

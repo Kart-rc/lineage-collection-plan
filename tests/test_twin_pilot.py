@@ -574,3 +574,103 @@ def test_collector_health_is_after_shutdown_before_parse_and_cannot_change_outco
     report = pilot.run_pilot(**{**kwargs, "score": score})
     assert reads == [kwargs["state"]] and report["collector_health"]["category"] == "input_limit"
     assert report["status"] == ("blocked" if startup_fails else "passed")
+
+
+def test_safe_structural_failure_survives_metadata_reports(trial):
+    kwargs, _, _, _, _, _ = trial
+    detail = {"filename": "traces.jsonl", "line": 9, "field_path": "$", "category": "expected_object"}
+
+    def score(*args, **options):
+        return {"status": "blocked", "failure_categories": ["invalid_otlp"], "structural_failure": detail,
+                "raw_exception": SECRET}
+
+    report = pilot.run_pilot(**{**kwargs, "score": score})
+    assert report["status"] == "blocked" and report["smoke"]["structural_failure"] == detail
+    for filename in ("pilot.json", "smoke.json"):
+        raw = (kwargs["output"] / filename).read_text()
+        saved = json.loads(raw)
+        assert (saved["smoke"] if filename == "pilot.json" else saved)["structural_failure"] == detail
+        assert SECRET not in raw
+
+
+@pytest.mark.parametrize("detail", [
+    None, SECRET, [], {},
+    {"filename": "traces.jsonl", "line": 1, "field_path": "$", "category": "expected_object", "raw": SECRET},
+    *[{"filename": "traces.jsonl", "line": 1, "field_path": "$", "category": "expected_object", key: bad}
+      for key, bad in [("filename", SECRET), ("filename", [SECRET]), ("field_path", SECRET),
+                       ("field_path", {"raw": SECRET}), ("category", SECRET), ("category", None),
+                       ("line", True), ("line", 0), ("line", -1), ("line", 1.0),
+                       ("line", 2 ** 63), ("line", SECRET)]],
+])
+def test_malicious_structural_detail_is_discarded_without_affecting_acceptance(detail):
+    value = {"status": "pass", "raw_capture_replayed": True, "failure_categories": [],
+             "precision": {"hit": 19, "observed": 20, "expected": 20, "bar": 0.95},
+             "structural_failure": detail}
+    result = pilot.smoke_summary(value)
+    assert result["status"] == "pass" and result["structural_failure"] is None
+    assert SECRET not in json.dumps(result)
+
+
+def reference_capacity_profile():
+    return {"name": "reference-ten-minute-v1", "scope": "ten-minute-reference-twin",
+            "limits": {"max_input_bytes": 67108864, "max_line_bytes": 1048576, "max_events": 4096,
+                       "max_metadata_bytes": 8388608, "max_memory_bytes": 1610612736, "parse_timeout": 30.0,
+                       "send_timeout": 5.0, "max_sends_per_cycle": 128, "max_acknowledged": 100000},
+            "container_memory_bytes": 2147483648, "parent_headroom_bytes": 536870912}
+
+
+@pytest.mark.parametrize("tightened", [False, True])
+def test_effective_capacity_profile_and_compose_hash_survive_hosted_reports(trial, tightened):
+    import hashlib
+    kwargs, commands, _, _, _, _ = trial
+    profile = reference_capacity_profile()
+    if tightened:
+        profile["limits"].update(max_input_bytes=33554432, max_memory_bytes=1073741824, parse_timeout=20.0)
+    commands.report_mutation = lambda value: value.update(collectorCapacityProfile=profile)
+    report = pilot.run_pilot(**kwargs)
+    assert report["status"] == "passed" and report["startup"]["collectorCapacityProfile"] == profile
+    saved = json.loads((kwargs["output"] / "startup.json").read_text())
+    assert saved["collectorCapacityProfile"] == profile
+    name = "twin/collector.compose.yaml"
+    assert report["identities"]["source_sha256"][name] == hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+
+
+@pytest.mark.parametrize("key", list(reference_capacity_profile()["limits"]))
+def test_capacity_summary_rejects_every_expanded_profile_limit(key):
+    profile = reference_capacity_profile()
+    profile["limits"][key] += 1
+    with pytest.raises(ValueError):
+        pilot.collector_capacity_summary(profile)
+
+
+@pytest.mark.parametrize("field,bad", [
+    ("name", SECRET), ("scope", SECRET), ("raw", SECRET), ("limits", []), ("limits", {}),
+    ("container_memory_bytes", 2147483649), ("container_memory_bytes", 2147483648.0),
+    ("parent_headroom_bytes", 0), ("parent_headroom_bytes", True),
+])
+def test_capacity_summary_rejects_unknown_or_malformed_profile_metadata(field, bad):
+    profile = reference_capacity_profile()
+    profile[field] = bad
+    with pytest.raises(ValueError):
+        pilot.collector_capacity_summary(profile)
+
+
+@pytest.mark.parametrize("key,bad", [
+    ("max_events", True), ("max_events", 1.0), ("max_events", 0), ("max_events", -1),
+    ("parse_timeout", float("nan")), ("send_timeout", float("inf")), ("parse_timeout", SECRET),
+    ("max_input_bytes", 524288), ("max_memory_bytes", 67108864), ("raw", SECRET),
+])
+def test_capacity_summary_rejects_unsafe_types_and_inconsistent_relationships(key, bad):
+    profile = reference_capacity_profile()
+    profile["limits"][key] = bad
+    with pytest.raises(ValueError):
+        pilot.collector_capacity_summary(profile)
+
+
+def test_malformed_capacity_profile_rejects_startup_summary_without_leaking_raw_metadata(trial):
+    kwargs, commands, _, _, score_calls, _ = trial
+    commands.report_mutation = lambda value: value.update(collectorCapacityProfile={"raw": SECRET})
+    report = pilot.run_pilot(**kwargs)
+    assert report["status"] == "blocked" and report["first_failure"] == "startup_report_invalid"
+    assert commands.stopped and not score_calls
+    assert SECRET not in (kwargs["output"] / "pilot.json").read_text()

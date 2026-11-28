@@ -265,6 +265,30 @@ def read_json(path, limit=1024 * 1024):
     return json.loads(data, parse_constant=lambda value: (_ for _ in ()).throw(ValueError()))
 
 
+def collector_capacity_summary(value):
+    keys = {"name", "scope", "limits", "container_memory_bytes", "parent_headroom_bytes"}
+    if (type(value) is not dict or set(value) != keys
+            or value["name"] != start.REFERENCE_COLLECTOR_PROFILE or value["scope"] != "ten-minute-reference-twin"
+            or type(value["limits"]) is not dict or set(value["limits"]) != set(start.REFERENCE_COLLECTOR_LIMITS)):
+        raise ValueError()
+    limits = {}
+    for key, ceiling in start.REFERENCE_COLLECTOR_LIMITS.items():
+        limit = value["limits"][key]
+        limit = integer(limit, maximum=ceiling) if type(ceiling) is int else finite(limit)
+        if not 0 < limit <= ceiling:
+            raise ValueError()
+        limits[key] = limit
+    memory = integer(value["container_memory_bytes"])
+    headroom = integer(value["parent_headroom_bytes"])
+    if (memory != start.REFERENCE_COLLECTOR_MEMORY_BYTES or headroom != start.REFERENCE_COLLECTOR_PARENT_HEADROOM_BYTES
+            or limits["max_line_bytes"] > limits["max_input_bytes"]
+            or limits["max_memory_bytes"] <= limits["max_input_bytes"] + limits["max_metadata_bytes"]
+            or limits["max_memory_bytes"] + headroom > memory):
+        raise ValueError()
+    return {"name": start.REFERENCE_COLLECTOR_PROFILE, "scope": "ten-minute-reference-twin", "limits": limits,
+            "container_memory_bytes": memory, "parent_headroom_bytes": headroom}
+
+
 def startup_report(path):
     raw = read_json(path)
     if not isinstance(raw, dict) or raw.get("demoCommit") != start.DEMO_COMMIT or raw.get("scope") != "full-demo":
@@ -306,6 +330,8 @@ def startup_report(path):
             raise ValueError()
         prerequisites.append({"service": "lineage-topics", "status": item["status"], "exitCode": code})
     report["oneShotPrerequisites"] = prerequisites
+    if "collectorCapacityProfile" in raw:
+        report["collectorCapacityProfile"] = collector_capacity_summary(raw["collectorCapacityProfile"])
     return report
 
 
@@ -390,8 +416,16 @@ def smoke_summary(value):
         raise ValueError()
     result = {"status": value["status"], "scope": "WP-03 service-edge smoke only", **raw_summary(value),
               "raw_capture_replayed": value.get("raw_capture_replayed") is True,
-              "counts": {}, "diagnostics": {}, "precision": None,
+              "counts": {}, "diagnostics": {}, "precision": None, "structural_failure": None,
               "claims": {"full_wp03_accepted": False, "timings_measured": False, "holdout_measured": False}}
+    detail = value.get("structural_failure")
+    if (type(detail) is dict and set(detail) == {"filename", "line", "field_path", "category"}
+            and all(type(detail[key]) is str for key in ("filename", "field_path", "category"))
+            and detail["filename"] in smoke.RAW_FILES
+            and detail["field_path"] in smoke.STRUCTURAL_PATHS
+            and detail["category"] in smoke.STRUCTURAL_CATEGORIES
+            and type(detail["line"]) is int and 0 < detail["line"] <= 2 ** 63 - 1):
+        result["structural_failure"] = {key: detail[key] for key in ("filename", "line", "field_path", "category")}
     for key in ("data_edges", "control_edges", "collector_events", "redacted_endpoints"):
         count = value.get("counts", {}).get(key)
         result["counts"][key] = None if count is None else integer(count)
@@ -498,7 +532,7 @@ def run_pilot(demo, state, output, *, worker_image="lineage-platform:pilot", run
         report["identities"] = {"source_commit": source_commit, "demo_commit": demo_commit, "worker_image_id": image,
                                 "probe_sha256": hashlib.sha256(probe.read_bytes()).hexdigest(),
                                 "source_sha256": {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-                                                  for name in ("twin/pilot.py", "twin/start.py", "twin/smoke.py", "twin/images.lock.json", "twin/probe-toolchain.json")}}
+                                                  for name in ("twin/pilot.py", "twin/start.py", "twin/smoke.py", "twin/images.lock.json", "twin/probe-toolchain.json", "twin/collector.compose.yaml")}}
         write_json(state / "pilot-attempt.json", {"schema_version": 1, "project": PROJECT, "run_id": report["run_id"],
                                                   "fresh_project_acquired": True})
         report["ownership"]["acquired"] = True

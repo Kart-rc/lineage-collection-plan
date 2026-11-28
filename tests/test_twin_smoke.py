@@ -20,7 +20,10 @@ def attrs(values):
 
 
 def span(identity, kind, parent="", attributes=None):
-    return {"traceId": "synthetic", "spanId": identity, "parentSpanId": parent,
+    # OTLP JSON encodes trace/span IDs as 16/8-byte hex, not arbitrary labels.
+    # https://opentelemetry.io/docs/specs/otlp/#json-protobuf-encoding
+    return {"traceId": "0123456789abcdef0123456789abcdef", "spanId": sha256(identity.encode()).hexdigest()[:16],
+            "parentSpanId": sha256(parent.encode()).hexdigest()[:16] if parent else "",
             "startTimeUnixNano": TIME, "kind": kind, "attributes": attrs(attributes or {})}
 
 
@@ -84,7 +87,7 @@ def test_false_edge_fails_but_actual_replay_is_acknowledged(tmp_path):
 
 @pytest.mark.parametrize("contents,category", [(None, "raw_capture_missing"), (b"", "empty_capture"),
     (b'{"resourceSpans":', "truncated_jsonl"), (b'{"resourceSpans":}\n', "malformed_jsonl"),
-    (b'{}\n', "invalid_otlp"), (b'{"resourceSpans":[{"scopeSpans":[{"spans":[{}]}]}]}\n', "invalid_otlp")])
+    (b'{"resourceSpans":{}}\n', "invalid_otlp"), (b'{"resourceSpans":[{"scopeSpans":[{"spans":[{}]}]}]}\n', "invalid_otlp")])
 def test_missing_empty_malformed_and_truncated_captures_cannot_pass(tmp_path, contents, category):
     if contents is not None:
         (tmp_path / "traces.jsonl").write_bytes(contents)
@@ -95,8 +98,10 @@ def test_missing_empty_malformed_and_truncated_captures_cannot_pass(tmp_path, co
     assert result["precision"] is None
 
 
-def test_valid_but_empty_export_has_no_precision_success(tmp_path):
-    (tmp_path / "traces.jsonl").write_text('{"resourceSpans": []}\n')
+@pytest.mark.parametrize("document", [{}, {"resourceSpans": []}, {"resourceSpans": [{}]},
+    {"resourceSpans": [{"resource": {}}]}, {"resourceSpans": [{"scopeSpans": [{"scope": {}}]}]}])
+def test_valid_but_empty_export_has_no_precision_success(tmp_path, document):
+    (tmp_path / "traces.jsonl").write_text(json.dumps(document) + "\n")
     result = smoke.score_capture(tmp_path)
     assert result["status"] == "blocked"
     assert result["failure_categories"] == ["no_service_edges"]
@@ -217,3 +222,114 @@ def test_new_source_created_after_inventory_blocks_replay(tmp_path, monkeypatch)
     result = smoke.score_capture(tmp_path)
     assert result["failure_categories"] == ["capture_changed"]
     assert not result["raw_capture_replayed"]
+
+
+@pytest.mark.parametrize("filename,top,scope,records", [(name, *shape) for name, shape in smoke.RAW_FILES.items()])
+def test_pinned_pdata_omits_empty_repeated_fields_at_every_level(filename, top, scope, records):
+    # Pinned serializer evidence: each generated MarshalJSON checks len(slice)>0.
+    # https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/generated_proto_exporttraceservicerequest.go
+    # https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/generated_proto_resourcespans.go
+    # https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/pdata/v1.65.0/pdata/internal/generated_proto_scopespans.go
+    for document in ({}, {top: []}, {top: [{}]}, {top: [{"resource": {}}]},
+                     {top: [{scope: []}]}, {top: [{scope: [{}]}]},
+                     {top: [{scope: [{"scope": {}}]}]}, {top: [{scope: [{records: []}]}]}):
+        assert smoke._shape(document, filename), (filename, document)
+
+
+def test_real_collector_accepts_empty_envelopes_among_nonempty_capture(tmp_path):
+    path = write_capture(tmp_path)
+    valid = json.loads(path.read_text())
+    valid["resourceSpans"].extend([{"resource": {}}, {"scopeSpans": [{"scope": {}}]}])
+    path.write_text("{}\n" + json.dumps(valid) + "\n" + '{"resourceSpans":[]}\n')
+    (tmp_path / "logs.jsonl").write_text('{}\n{"resourceLogs":[{"resource":{}},{"scopeLogs":[{"scope":{}}]}]}\n')
+    (tmp_path / "metrics.jsonl").write_text('{}\n{"resourceMetrics":[{"scopeMetrics":[{"scope":{}}]}]}\n')
+    result = smoke.score_capture(tmp_path)
+    assert result["status"] == "pass", result
+    assert result["precision"]["value"] == 1.0 and result["precision"]["observed"] == 1
+    assert result["raw_capture_replayed"] and result["structural_failure"] is None
+    assert all(row["jsonl_validated"] for row in result["raw_files"].values())
+
+
+@pytest.mark.parametrize("filename,top,scope,records", [(name, *shape) for name, shape in smoke.RAW_FILES.items()])
+def test_present_wrong_container_types_are_still_rejected(filename, top, scope, records):
+    invalid = [None, [], {top: None}, {top: {}}, {top: [None]}, {top: [SENTINEL]},
+               {top: [{"resource": SENTINEL}]}, {top: [{scope: None}]}, {top: [{scope: {}}]},
+               {top: [{scope: [None]}]}, {top: [{scope: [{"scope": []}]}]},
+               {top: [{scope: [{records: None}]}]}, {top: [{scope: [{records: {}}]}]},
+               {top: [{scope: [{records: [None]}]}]}]
+    for document in invalid:
+        detail = smoke._shape_failure(document, filename)
+        assert detail and detail["field_path"] in smoke.STRUCTURAL_PATHS
+        assert detail["category"] in smoke.STRUCTURAL_CATEGORIES
+        assert SENTINEL not in json.dumps(detail)
+
+
+def test_valid_hex_identifiers_and_omitted_root_parent():
+    root = span("root", 2)
+    root.pop("parentSpanId")
+    root["traceId"] = root["traceId"].upper()
+    root["spanId"] = root["spanId"].upper()
+    assert smoke._shape({"resourceSpans": [resource("checkout", root)]}, "traces.jsonl")
+
+
+@pytest.mark.parametrize("field,value", [("traceId", "short"), ("traceId", "0" * 32), ("traceId", "z" * 32),
+    ("spanId", 7), ("spanId", "0" * 16), ("spanId", None), ("parentSpanId", SENTINEL)])
+def test_invalid_span_identifiers_have_only_fixed_diagnostic_fields(field, value):
+    row = span("sample", 2)
+    row[field] = value
+    detail = smoke._shape_failure({"resourceSpans": [resource("checkout", row)]}, "traces.jsonl")
+    assert detail == {"field_path": f"resourceSpans[].scopeSpans[].spans[].{field}", "category": "invalid_span_id"}
+    assert SENTINEL not in json.dumps(detail)
+
+
+def test_structural_failure_survives_worker_and_main_without_payload(tmp_path, capsys, caplog):
+    path = write_capture(tmp_path)
+    valid = path.read_text()
+    malformed = {"resourceSpans": [{"scopeSpans": [{"spans": SENTINEL}]}], SENTINEL: SENTINEL}
+    path.write_text(valid + "\n" + json.dumps(malformed) + "\n")
+    report = smoke.score_capture(tmp_path)
+    expected = {"filename": "traces.jsonl", "line": 3,
+                "field_path": "resourceSpans[].scopeSpans[].spans", "category": "expected_array"}
+    assert report["failure_categories"] == ["invalid_otlp"]
+    assert report["structural_failure"] == expected
+    assert not report["raw_capture_replayed"] and report["precision"] is None
+    output = tmp_path / "report.json"
+    assert smoke.main(["--capture", str(tmp_path), "--output", str(output)]) == 2
+    assert json.loads(output.read_text())["structural_failure"] == expected
+    assert SENTINEL not in output.read_text()
+    assert capsys.readouterr().out == "" and not caplog.records
+
+
+def test_malformed_json_diagnostic_has_filename_and_physical_line_only(tmp_path):
+    write_capture(tmp_path)
+    with (tmp_path / "traces.jsonl").open("a") as stream:
+        stream.write('{"' + SENTINEL + '": }\n')
+    report = smoke.score_capture(tmp_path)
+    assert report["structural_failure"] == {"filename": "traces.jsonl", "line": 2,
+                                           "field_path": "$", "category": "malformed_json"}
+    assert SENTINEL not in json.dumps(report)
+
+
+@pytest.mark.parametrize("change", [{"filename": SENTINEL}, {"field_path": SENTINEL}, {"category": SENTINEL},
+    {"line": True}, {"line": -1}, {"line": 2 ** 63}, {"line": SENTINEL}, {"value": SENTINEL}, {"filename": []}])
+def test_worker_rejects_untrusted_structural_detail(tmp_path, monkeypatch, change):
+    write_capture(tmp_path)
+    detail = {"filename": "traces.jsonl", "line": 1, "field_path": "$", "category": "expected_object", **change}
+    reply = {"failure_categories": ["invalid_otlp"], "structural_failure": detail}
+    monkeypatch.setattr(smoke.subprocess, "run", lambda *args, **kwargs:
+                        subprocess.CompletedProcess([], 0, json.dumps(reply).encode()))
+    result = smoke.score_capture(tmp_path)
+    assert result["failure_categories"] == ["worker_result_invalid"]
+    assert result["structural_failure"] is None
+    assert SENTINEL not in json.dumps(result)
+
+
+def test_unknown_fields_are_ignored_without_exposing_their_names(tmp_path):
+    path = write_capture(tmp_path)
+    document = json.loads(path.read_text())
+    document[SENTINEL] = {SENTINEL: SENTINEL}
+    document["resourceSpans"][0][SENTINEL] = SENTINEL
+    path.write_text(json.dumps(document) + "\n")
+    result = smoke.score_capture(tmp_path)
+    assert result["status"] == "pass"
+    assert result["structural_failure"] is None and SENTINEL not in json.dumps(result)
